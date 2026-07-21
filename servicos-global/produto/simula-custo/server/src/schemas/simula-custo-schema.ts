@@ -32,13 +32,22 @@ export const MODALIDADES_RECOLHIMENTO_ICMS_SIMULA_CUSTO = [
   'DIFERIDO',
 ] as const
 
-const TaxaEntradaSchema = z.object({
+const TaxaOrigemEntradaSimulaCustoSchema = z.object({
   id_taxa_origem_destino: z.string().optional().nullable(),
-  nome: z.string().min(1).max(100),
-  moeda: z.string().length(3),
-  tipo_cobranca: z.enum(TIPOS_COBRANCA_SIMULA_CUSTO).default('PROCESSO'),
-  valor_minimo: z.number().nonnegative().default(0),
-  valor_total: z.number().nonnegative(),
+  nome_taxa_origem_simula_custo: z.string().min(1).max(100),
+  moeda_taxa_origem_simula_custo: z.string().length(3),
+  tipo_cobranca_taxa_origem_simula_custo: z.enum(TIPOS_COBRANCA_SIMULA_CUSTO).default('PROCESSO'),
+  valor_minimo_taxa_origem_simula_custo: z.number().nonnegative().default(0),
+  valor_total_taxa_origem_simula_custo: z.number().nonnegative(),
+})
+
+const TaxaDestinoEntradaSimulaCustoSchema = z.object({
+  id_taxa_origem_destino: z.string().optional().nullable(),
+  nome_taxa_destino_simula_custo: z.string().min(1).max(100),
+  moeda_taxa_destino_simula_custo: z.string().length(3),
+  tipo_cobranca_taxa_destino_simula_custo: z.enum(TIPOS_COBRANCA_SIMULA_CUSTO).default('PROCESSO'),
+  valor_minimo_taxa_destino_simula_custo: z.number().nonnegative().default(0),
+  valor_total_taxa_destino_simula_custo: z.number().nonnegative(),
 })
 
 const DocumentoEntradaSchema = z.object({
@@ -84,8 +93,8 @@ export const CriarSimulaCustoSchema = z.object({
   aliquota_cofins_simula_custo: z.number().min(0).max(1).default(0),
   reducao_ii_simula_custo: z.number().min(0).max(1).default(0),
 
-  taxas_origem: z.array(TaxaEntradaSchema).default([]),
-  taxas_destino: z.array(TaxaEntradaSchema).default([]),
+  taxas_origem: z.array(TaxaOrigemEntradaSimulaCustoSchema).default([]),
+  taxas_destino: z.array(TaxaDestinoEntradaSimulaCustoSchema).default([]),
   documentos: z.array(DocumentoEntradaSchema).default([]),
   prazos_pagamento: z.array(PrazoPagamentoEntradaSchema).default([]),
 })

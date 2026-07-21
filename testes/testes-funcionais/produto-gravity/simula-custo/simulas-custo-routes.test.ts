@@ -184,7 +184,11 @@ const PAYLOAD_VALIDO = {
   aliquota_pis_simula_custo: 0.021,
   aliquota_cofins_simula_custo: 0.0965,
   aliquota_icms_simula_custo: 0.18,
-  taxas_origem: [{ nome: 'THC', moeda: 'USD', valor_total: 120 }],
+  taxas_origem: [{
+    nome_taxa_origem_simula_custo: 'THC',
+    moeda_taxa_origem_simula_custo: 'USD',
+    valor_total_taxa_origem_simula_custo: 120,
+  }],
   documentos: [{ tipo_documento_simula_custo: 'INVOICE', numero_documento_simula_custo: 'INV-1' }],
 }
 

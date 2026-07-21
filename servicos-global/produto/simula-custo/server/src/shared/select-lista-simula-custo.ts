@@ -1,8 +1,9 @@
 /**
  * select-lista-simula-custo.ts — Select Prisma + serialização da SimulaCusto.
- * Mantém o payload da lista enxuto e converte Decimal → number no contrato público.
+ * Contrato lista = mesmos campos escalares do detalhe (sem relações aninhadas).
  */
 import type { Prisma } from '@prisma/client'
+import { serializarImpostosSimulaCusto } from './persistir-impostos-simula-custo.js'
 
 export const selectListaSimulaCusto = {
   id_simula_custo: true,
@@ -19,9 +20,12 @@ export const selectListaSimulaCusto = {
   valor_produto_simula_custo: true,
   moeda_frete_simula_custo: true,
   valor_frete_simula_custo: true,
+  enviar_solicitacao_cotacao_frete_simula_custo: true,
   moeda_seguro_simula_custo: true,
   valor_seguro_simula_custo: true,
   uf_desembaraco_simula_custo: true,
+  modalidade_recolhimento_icms_simula_custo: true,
+  usa_beneficio_simula_custo: true,
   ptax_utilizada_simula_custo: true,
   valor_aduaneiro_simula_custo: true,
   total_tributos_simula_custo: true,
@@ -73,14 +77,20 @@ export function serializarSimulaCusto(linha: Record<string, unknown>) {
     valor_produto_simula_custo: paraNumero(e['valor_produto_simula_custo']),
     moeda_frete_simula_custo: e['moeda_frete_simula_custo'] as string,
     valor_frete_simula_custo: paraNumero(e['valor_frete_simula_custo']),
+    enviar_solicitacao_cotacao_frete_simula_custo: Boolean(
+      e['enviar_solicitacao_cotacao_frete_simula_custo'],
+    ),
     moeda_seguro_simula_custo: e['moeda_seguro_simula_custo'] as string,
     valor_seguro_simula_custo: paraNumero(e['valor_seguro_simula_custo']),
     uf_desembaraco_simula_custo: e['uf_desembaraco_simula_custo'] as string,
+    modalidade_recolhimento_icms_simula_custo: e['modalidade_recolhimento_icms_simula_custo'] as string,
+    usa_beneficio_simula_custo: Boolean(e['usa_beneficio_simula_custo']),
     ptax_utilizada_simula_custo: paraNumero(e['ptax_utilizada_simula_custo']),
     valor_aduaneiro_simula_custo: paraNumero(e['valor_aduaneiro_simula_custo']),
     total_tributos_simula_custo: paraNumero(e['total_tributos_simula_custo']),
     custo_nacionalizado_brl_simula_custo: paraNumero(e['custo_nacionalizado_brl_simula_custo']),
     fonte_calculo_simula_custo: (e['fonte_calculo_simula_custo'] ?? null) as string | null,
+    ...serializarImpostosSimulaCusto(linha),
     id_usuario: (e['id_usuario'] ?? null) as string | null,
     data_criacao_simula_custo: (e['data_criacao_simula_custo'] as Date | undefined)?.toISOString() ?? null,
     data_atualizacao_simula_custo: (e['data_atualizacao_simula_custo'] as Date | undefined)?.toISOString() ?? null,

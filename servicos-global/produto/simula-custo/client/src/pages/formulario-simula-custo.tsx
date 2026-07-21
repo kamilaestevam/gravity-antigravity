@@ -79,6 +79,10 @@ import type {
   ModalidadeRecolhimentoIcmsSimulaCusto,
 } from '../shared/schemas-simula-custo'
 import {
+  criarTaxaOrigemEntradaVaziaSimulaCusto,
+  criarTaxaDestinoEntradaVaziaSimulaCusto,
+} from '../shared/schemas-simula-custo'
+import {
   OPERACAO_LABELS,
   DETALHE_OPERACAO_LABELS,
   DOCUMENTO_LABELS,
@@ -145,6 +149,33 @@ const OPCOES_LADO_TAXA_SIMULA_CUSTO: SelectOpcao[] = [
 interface LinhaTaxaUnificadaSimulaCusto {
   lado: LadoTaxaSimulaCusto
   indice: number
+}
+
+function nomeTaxaFormularioSimulaCusto(
+  lado: LadoTaxaSimulaCusto,
+  taxa: EntradaSimulaCusto['taxas_origem'][number] | EntradaSimulaCusto['taxas_destino'][number],
+): string {
+  return lado === 'taxas_origem'
+    ? taxa.nome_taxa_origem_simula_custo
+    : taxa.nome_taxa_destino_simula_custo
+}
+
+function moedaTaxaFormularioSimulaCusto(
+  lado: LadoTaxaSimulaCusto,
+  taxa: EntradaSimulaCusto['taxas_origem'][number] | EntradaSimulaCusto['taxas_destino'][number],
+): string {
+  return lado === 'taxas_origem'
+    ? taxa.moeda_taxa_origem_simula_custo
+    : taxa.moeda_taxa_destino_simula_custo
+}
+
+function valorTotalTaxaFormularioSimulaCusto(
+  lado: LadoTaxaSimulaCusto,
+  taxa: EntradaSimulaCusto['taxas_origem'][number] | EntradaSimulaCusto['taxas_destino'][number],
+): number {
+  return lado === 'taxas_origem'
+    ? taxa.valor_total_taxa_origem_simula_custo
+    : taxa.valor_total_taxa_destino_simula_custo
 }
 
 function montarLinhasTaxasUnificadas(
@@ -1022,19 +1053,19 @@ export default function FormularioSimulaCusto() {
         usa_beneficio_simula_custo: est.usa_beneficio_simula_custo,
         taxas_origem: est.taxas_origem.map(tx => ({
           id_taxa_origem_destino: tx.id_taxa_origem_destino,
-          nome: tx.nome_taxa_origem_simula_custo,
-          moeda: tx.moeda_taxa_origem_simula_custo,
-          tipo_cobranca: tx.tipo_cobranca_taxa_origem_simula_custo,
-          valor_minimo: tx.valor_minimo_taxa_origem_simula_custo,
-          valor_total: tx.valor_total_taxa_origem_simula_custo,
+          nome_taxa_origem_simula_custo: tx.nome_taxa_origem_simula_custo,
+          moeda_taxa_origem_simula_custo: tx.moeda_taxa_origem_simula_custo,
+          tipo_cobranca_taxa_origem_simula_custo: tx.tipo_cobranca_taxa_origem_simula_custo,
+          valor_minimo_taxa_origem_simula_custo: tx.valor_minimo_taxa_origem_simula_custo,
+          valor_total_taxa_origem_simula_custo: tx.valor_total_taxa_origem_simula_custo,
         })),
         taxas_destino: est.taxas_destino.map(tx => ({
           id_taxa_origem_destino: tx.id_taxa_origem_destino,
-          nome: tx.nome_taxa_destino_simula_custo,
-          moeda: tx.moeda_taxa_destino_simula_custo,
-          tipo_cobranca: tx.tipo_cobranca_taxa_destino_simula_custo,
-          valor_minimo: tx.valor_minimo_taxa_destino_simula_custo,
-          valor_total: tx.valor_total_taxa_destino_simula_custo,
+          nome_taxa_destino_simula_custo: tx.nome_taxa_destino_simula_custo,
+          moeda_taxa_destino_simula_custo: tx.moeda_taxa_destino_simula_custo,
+          tipo_cobranca_taxa_destino_simula_custo: tx.tipo_cobranca_taxa_destino_simula_custo,
+          valor_minimo_taxa_destino_simula_custo: tx.valor_minimo_taxa_destino_simula_custo,
+          valor_total_taxa_destino_simula_custo: tx.valor_total_taxa_destino_simula_custo,
         })),
         documentos: est.documentos.map(d => ({
           tipo_documento_simula_custo: d.tipo_documento_simula_custo,
@@ -1354,43 +1385,65 @@ export default function FormularioSimulaCusto() {
 
   // ─── Taxas (nome via SelectGlobal do catálogo Cadastros) ───────────────────
   const addTaxa = (lado: LadoTaxaSimulaCusto = 'taxas_destino') =>
-    update(lado, [...form[lado], {
-      id_taxa_origem_destino: null,
-      nome: '',
-      moeda: lado === 'taxas_destino' ? 'BRL' : 'USD',
-      tipo_cobranca: 'PROCESSO',
-      valor_minimo: 0,
-      valor_total: 0,
-    }])
+    update(lado, [
+      ...form[lado],
+      lado === 'taxas_origem'
+        ? criarTaxaOrigemEntradaVaziaSimulaCusto()
+        : criarTaxaDestinoEntradaVaziaSimulaCusto(),
+    ])
 
   const updateTaxa = (
-    lado: 'taxas_origem' | 'taxas_destino',
+    lado: LadoTaxaSimulaCusto,
     index: number,
     campo: 'moeda' | 'valor_total',
     valor: string | number,
   ) => {
     const taxas = [...form[lado]]
-    taxas[index] = { ...taxas[index], [campo]: valor }
+    const atual = taxas[index]
+    if (!atual) return
+    if (lado === 'taxas_origem') {
+      taxas[index] = campo === 'moeda'
+        ? { ...atual, moeda_taxa_origem_simula_custo: String(valor) }
+        : { ...atual, valor_total_taxa_origem_simula_custo: Number(valor) }
+    } else {
+      taxas[index] = campo === 'moeda'
+        ? { ...atual, moeda_taxa_destino_simula_custo: String(valor) }
+        : { ...atual, valor_total_taxa_destino_simula_custo: Number(valor) }
+    }
     update(lado, taxas)
   }
 
   const selecionarTaxaCatalogo = (
-    lado: 'taxas_origem' | 'taxas_destino',
+    lado: LadoTaxaSimulaCusto,
     index: number,
     idTaxa: string | null,
   ) => {
     const catalogo = lado === 'taxas_origem' ? catalogoTaxasOrigem.taxas : catalogoTaxasDestino.taxas
     const taxas = [...form[lado]]
     if (!idTaxa) {
-      taxas[index] = { ...taxas[index], id_taxa_origem_destino: null, nome: '' }
+      if (lado === 'taxas_origem') {
+        taxas[index] = { ...taxas[index], id_taxa_origem_destino: null, nome_taxa_origem_simula_custo: '' }
+      } else {
+        taxas[index] = { ...taxas[index], id_taxa_origem_destino: null, nome_taxa_destino_simula_custo: '' }
+      }
       update(lado, taxas)
       return
     }
     const encontrada = catalogo.find((t) => t.id_taxa_origem_destino === idTaxa)
-    taxas[index] = {
-      ...taxas[index],
-      id_taxa_origem_destino: idTaxa,
-      nome: encontrada?.nome_taxa_origem_destino ?? taxas[index].nome,
+    if (lado === 'taxas_origem') {
+      taxas[index] = {
+        ...taxas[index],
+        id_taxa_origem_destino: idTaxa,
+        nome_taxa_origem_simula_custo: encontrada?.nome_taxa_origem_destino
+          ?? taxas[index].nome_taxa_origem_simula_custo,
+      }
+    } else {
+      taxas[index] = {
+        ...taxas[index],
+        id_taxa_origem_destino: idTaxa,
+        nome_taxa_destino_simula_custo: encontrada?.nome_taxa_origem_destino
+          ?? taxas[index].nome_taxa_destino_simula_custo,
+      }
     }
     update(lado, taxas)
   }
@@ -1406,10 +1459,18 @@ export default function FormularioSimulaCusto() {
     const correspondencia = catalogoLista.find(
       (item) => item.nome_taxa_origem_destino.trim().toLowerCase() === nomeNormalizado,
     )
-    taxas[index] = {
-      ...taxas[index],
-      nome,
-      id_taxa_origem_destino: correspondencia?.id_taxa_origem_destino ?? null,
+    if (lado === 'taxas_origem') {
+      taxas[index] = {
+        ...taxas[index],
+        nome_taxa_origem_simula_custo: nome,
+        id_taxa_origem_destino: correspondencia?.id_taxa_origem_destino ?? null,
+      }
+    } else {
+      taxas[index] = {
+        ...taxas[index],
+        nome_taxa_destino_simula_custo: nome,
+        id_taxa_origem_destino: correspondencia?.id_taxa_origem_destino ?? null,
+      }
     }
     update(lado, taxas)
   }
@@ -1426,16 +1487,9 @@ export default function FormularioSimulaCusto() {
     const origem = [...form.taxas_origem]
     const destino = [...form.taxas_destino]
     const removidas = ladoAtual === 'taxas_origem' ? origem.splice(index, 1) : destino.splice(index, 1)
-    const taxa = removidas[0]
-    if (!taxa) return
-    const taxaMovida = {
-      ...taxa,
-      moeda: novoLado === 'taxas_destino' ? 'BRL' : 'USD',
-      id_taxa_origem_destino: null,
-      nome: '',
-    }
-    if (novoLado === 'taxas_origem') origem.push(taxaMovida)
-    else destino.push(taxaMovida)
+    if (!removidas[0]) return
+    if (novoLado === 'taxas_origem') origem.push(criarTaxaOrigemEntradaVaziaSimulaCusto())
+    else destino.push(criarTaxaDestinoEntradaVaziaSimulaCusto())
     setForm((prev) => ({ ...prev, taxas_origem: origem, taxas_destino: destino }))
   }
 
@@ -1504,8 +1558,16 @@ export default function FormularioSimulaCusto() {
         moeda_frete_simula_custo: formSincronizado.moeda_frete_simula_custo,
         valor_seguro_simula_custo: formSincronizado.valor_seguro_simula_custo,
         moeda_seguro_simula_custo: formSincronizado.moeda_seguro_simula_custo,
-        taxas_origem: formSincronizado.taxas_origem.map(tx => ({ nome: tx.nome, valor: tx.valor_total, moeda: tx.moeda })),
-        taxas_destino: formSincronizado.taxas_destino.map(tx => ({ nome: tx.nome, valor: tx.valor_total, moeda: tx.moeda })),
+        taxas_origem: formSincronizado.taxas_origem.map(tx => ({
+          nome: tx.nome_taxa_origem_simula_custo,
+          valor: tx.valor_total_taxa_origem_simula_custo,
+          moeda: tx.moeda_taxa_origem_simula_custo,
+        })),
+        taxas_destino: formSincronizado.taxas_destino.map(tx => ({
+          nome: tx.nome_taxa_destino_simula_custo,
+          valor: tx.valor_total_taxa_destino_simula_custo,
+          moeda: tx.moeda_taxa_destino_simula_custo,
+        })),
         uf_desembaraco_simula_custo: formSincronizado.uf_desembaraco_simula_custo,
         // Força alíquotas da fonte oficial (não o que estiver “chutado” no form).
         aliquota_ii_simula_custo: fonte.ii / 100,
@@ -2461,8 +2523,11 @@ export default function FormularioSimulaCusto() {
                           </td>
                           <td>
                             <CampoNomeTaxaSimulaCusto
-                              valor={taxa.nome}
-                              opcoes={opcoesSelectTaxaSimulaCusto(catalogo.opcoes, taxa)}
+                              valor={nomeTaxaFormularioSimulaCusto(lado, taxa)}
+                              opcoes={opcoesSelectTaxaSimulaCusto(catalogo.opcoes, {
+                                id_taxa_origem_destino: taxa.id_taxa_origem_destino ?? null,
+                                nome: nomeTaxaFormularioSimulaCusto(lado, taxa),
+                              })}
                               carregando={catalogo.carregando}
                               placeholder={t('simulacusto.formulario.taxa_selecione_ou_digite', 'Selecione ou digite a taxa...')}
                               ariaLabel={t('simulacusto.formulario.taxa_nome', 'Nome da taxa')}
@@ -2474,7 +2539,7 @@ export default function FormularioSimulaCusto() {
                             <div className="nc-input-moeda">
                               <SelectMoedaSimulaCusto
                                 compacto
-                                valor={taxa.moeda}
+                                valor={moedaTaxaFormularioSimulaCusto(lado, taxa)}
                                 onChange={(codigo) => updateTaxa(lado, indice, 'moeda', codigo)}
                                 opcoes={opcoesMoeda}
                                 carregando={carregandoMoedas}
@@ -2483,7 +2548,7 @@ export default function FormularioSimulaCusto() {
                               />
                               <CampoValorMonetarioSimulaCusto
                                 compacto
-                                valor={taxa.valor_total}
+                                valor={valorTotalTaxaFormularioSimulaCusto(lado, taxa)}
                                 onChange={(n) => updateTaxa(lado, indice, 'valor_total', n)}
                               />
                             </div>

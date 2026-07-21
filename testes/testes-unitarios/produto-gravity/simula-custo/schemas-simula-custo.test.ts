@@ -58,11 +58,15 @@ describe('CriarSimulaCustoSchema', () => {
   it('valida taxas e documentos aninhados', () => {
     const r = CriarSimulaCustoSchema.parse({
       ...PAYLOAD_MINIMO,
-      taxas_origem: [{ nome: 'THC', moeda: 'USD', valor_total: 120 }],
+      taxas_origem: [{
+        nome_taxa_origem_simula_custo: 'THC',
+        moeda_taxa_origem_simula_custo: 'USD',
+        valor_total_taxa_origem_simula_custo: 120,
+      }],
       documentos: [{ tipo_documento_simula_custo: 'INVOICE', numero_documento_simula_custo: 'INV-1' }],
     })
-    expect(r.taxas_origem[0].tipo_cobranca).toBe('PROCESSO')
-    expect(r.taxas_origem[0].valor_minimo).toBe(0)
+    expect(r.taxas_origem[0].tipo_cobranca_taxa_origem_simula_custo).toBe('PROCESSO')
+    expect(r.taxas_origem[0].valor_minimo_taxa_origem_simula_custo).toBe(0)
     expect(CriarSimulaCustoSchema.safeParse({
       ...PAYLOAD_MINIMO,
       documentos: [{ tipo_documento_simula_custo: 'NOTA_FISCAL', numero_documento_simula_custo: 'X' }],

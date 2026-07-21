@@ -19,12 +19,15 @@ export function camposImpostosDeResultado(resultado: ResultadoCalculoSimulaCusto
   }
 }
 
+type Decimalish = { toNumber(): number } | number | null | undefined
+
+function paraNumeroImposto(valor: Decimalish): number | null {
+  if (valor === null || valor === undefined) return null
+  return typeof valor === 'number' ? valor : valor.toNumber()
+}
+
 export function serializarImpostosSimulaCusto(linha: Record<string, unknown>) {
-  const n = (k: string) => {
-    const v = linha[k]
-    if (v === null || v === undefined) return null
-    return typeof v === 'number' ? v : Number(v)
-  }
+  const n = (k: string) => paraNumeroImposto(linha[k] as Decimalish)
   return {
     aliquota_ii_simula_custo: n('aliquota_ii_simula_custo') ?? 0,
     base_calculo_ii_simula_custo: n('base_calculo_ii_simula_custo'),

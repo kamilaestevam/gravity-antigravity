@@ -43,7 +43,7 @@ export type MomentoPrazoPagamentoSimulaCusto = z.infer<typeof MomentoPrazoPagame
 export type FatoGeradorPrazoPagamentoSimulaCusto = z.infer<typeof FatoGeradorPrazoPagamentoSimulaCustoSchema>
 export type ModalidadeRecolhimentoIcmsSimulaCusto = z.infer<typeof ModalidadeRecolhimentoIcmsSimulaCustoSchema>
 
-// ─── Entidade (payload da lista/detalhe) ─────────────────────────────────────
+// ─── Entidade (payload lista/detalhe — campos escalares) ─────────────────────
 export const SimulaCustoSchema = z.object({
   id_simula_custo: z.string(),
   numero_simula_custo: z.string(),
@@ -59,9 +59,28 @@ export const SimulaCustoSchema = z.object({
   valor_produto_simula_custo: z.number().nullable(),
   moeda_frete_simula_custo: z.string(),
   valor_frete_simula_custo: z.number().nullable(),
+  enviar_solicitacao_cotacao_frete_simula_custo: z.boolean(),
   moeda_seguro_simula_custo: z.string(),
   valor_seguro_simula_custo: z.number().nullable(),
   uf_desembaraco_simula_custo: z.string(),
+  modalidade_recolhimento_icms_simula_custo: ModalidadeRecolhimentoIcmsSimulaCustoSchema,
+  usa_beneficio_simula_custo: z.boolean(),
+  aliquota_ii_simula_custo: z.number(),
+  base_calculo_ii_simula_custo: z.number().nullable(),
+  valor_ii_simula_custo: z.number().nullable(),
+  reducao_ii_simula_custo: z.number(),
+  aliquota_ipi_simula_custo: z.number(),
+  base_calculo_ipi_simula_custo: z.number().nullable(),
+  valor_ipi_simula_custo: z.number().nullable(),
+  aliquota_pis_simula_custo: z.number(),
+  base_calculo_pis_simula_custo: z.number().nullable(),
+  valor_pis_simula_custo: z.number().nullable(),
+  aliquota_cofins_simula_custo: z.number(),
+  base_calculo_cofins_simula_custo: z.number().nullable(),
+  valor_cofins_simula_custo: z.number().nullable(),
+  aliquota_icms_simula_custo: z.number(),
+  base_calculo_icms_simula_custo: z.number().nullable(),
+  valor_icms_simula_custo: z.number().nullable(),
   ptax_utilizada_simula_custo: z.number().nullable(),
   valor_aduaneiro_simula_custo: z.number().nullable(),
   total_tributos_simula_custo: z.number().nullable(),
@@ -122,25 +141,6 @@ export const PrazoPagamentoSimulaCustoSchema = z.object({
 })
 
 export const SimulaCustoDetalheSchema = SimulaCustoSchema.extend({
-  aliquota_ii_simula_custo: z.number(),
-  base_calculo_ii_simula_custo: z.number().nullable(),
-  valor_ii_simula_custo: z.number().nullable(),
-  reducao_ii_simula_custo: z.number(),
-  aliquota_ipi_simula_custo: z.number(),
-  base_calculo_ipi_simula_custo: z.number().nullable(),
-  valor_ipi_simula_custo: z.number().nullable(),
-  aliquota_pis_simula_custo: z.number(),
-  base_calculo_pis_simula_custo: z.number().nullable(),
-  valor_pis_simula_custo: z.number().nullable(),
-  aliquota_cofins_simula_custo: z.number(),
-  base_calculo_cofins_simula_custo: z.number().nullable(),
-  valor_cofins_simula_custo: z.number().nullable(),
-  aliquota_icms_simula_custo: z.number(),
-  base_calculo_icms_simula_custo: z.number().nullable(),
-  valor_icms_simula_custo: z.number().nullable(),
-  modalidade_recolhimento_icms_simula_custo: ModalidadeRecolhimentoIcmsSimulaCustoSchema,
-  usa_beneficio_simula_custo: z.boolean(),
-  enviar_solicitacao_cotacao_frete_simula_custo: z.boolean(),
   taxas_origem: z.array(TaxaOrigemSimulaCustoSchema),
   taxas_destino: z.array(TaxaDestinoSimulaCustoSchema),
   documentos: z.array(DocumentoSimulaCustoSchema),
@@ -306,13 +306,44 @@ export const ListaTaxasOrigemDestinoCadastroSchema = z.object({
 })
 
 // ─── Entrada (criação/edição) ────────────────────────────────────────────────
-export interface TaxaEntradaSimulaCusto {
+export interface TaxaOrigemEntradaSimulaCusto {
   id_taxa_origem_destino?: string | null
-  nome: string
-  moeda: string
-  tipo_cobranca: TipoCobrancaSimulaCusto
-  valor_minimo: number
-  valor_total: number
+  nome_taxa_origem_simula_custo: string
+  moeda_taxa_origem_simula_custo: string
+  tipo_cobranca_taxa_origem_simula_custo: TipoCobrancaSimulaCusto
+  valor_minimo_taxa_origem_simula_custo: number
+  valor_total_taxa_origem_simula_custo: number
+}
+
+export interface TaxaDestinoEntradaSimulaCusto {
+  id_taxa_origem_destino?: string | null
+  nome_taxa_destino_simula_custo: string
+  moeda_taxa_destino_simula_custo: string
+  tipo_cobranca_taxa_destino_simula_custo: TipoCobrancaSimulaCusto
+  valor_minimo_taxa_destino_simula_custo: number
+  valor_total_taxa_destino_simula_custo: number
+}
+
+export function criarTaxaOrigemEntradaVaziaSimulaCusto(): TaxaOrigemEntradaSimulaCusto {
+  return {
+    id_taxa_origem_destino: null,
+    nome_taxa_origem_simula_custo: '',
+    moeda_taxa_origem_simula_custo: 'USD',
+    tipo_cobranca_taxa_origem_simula_custo: 'PROCESSO',
+    valor_minimo_taxa_origem_simula_custo: 0,
+    valor_total_taxa_origem_simula_custo: 0,
+  }
+}
+
+export function criarTaxaDestinoEntradaVaziaSimulaCusto(): TaxaDestinoEntradaSimulaCusto {
+  return {
+    id_taxa_origem_destino: null,
+    nome_taxa_destino_simula_custo: '',
+    moeda_taxa_destino_simula_custo: 'BRL',
+    tipo_cobranca_taxa_destino_simula_custo: 'PROCESSO',
+    valor_minimo_taxa_destino_simula_custo: 0,
+    valor_total_taxa_destino_simula_custo: 0,
+  }
 }
 
 export interface DocumentoEntradaSimulaCusto {
@@ -354,8 +385,8 @@ export interface EntradaSimulaCusto {
   aliquota_cofins_simula_custo: number
   reducao_ii_simula_custo?: number
   reducao_icms_base_simula_custo?: number
-  taxas_origem: TaxaEntradaSimulaCusto[]
-  taxas_destino: TaxaEntradaSimulaCusto[]
+  taxas_origem: TaxaOrigemEntradaSimulaCusto[]
+  taxas_destino: TaxaDestinoEntradaSimulaCusto[]
   documentos: DocumentoEntradaSimulaCusto[]
   prazos_pagamento: PrazoPagamentoEntradaSimulaCusto[]
   /** Multi-itens (UI) — agregado nos campos legados antes de simular/salvar. */

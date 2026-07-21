@@ -19,7 +19,7 @@ import { invalidarCacheDashboardSimulaCusto } from '../lib/cache-dashboard-simul
 import { executarCalculoSimulaCusto } from '../lib/motor-calculo-simula-custo.js'
 import { resolverAliquotaIcmsInternaUfSimulaCusto } from '../shared/aliquotas-icms-interna-uf.js'
 import { obterPtaxVendaSimulaCusto } from '../lib/taxas-moeda-client.js'
-import { camposImpostosDeResultado, serializarImpostosSimulaCusto } from '../shared/persistir-impostos-simula-custo.js'
+import { camposImpostosDeResultado } from '../shared/persistir-impostos-simula-custo.js'
 import { serializarAnexoDocumentoSimulaCusto } from '../shared/serializar-anexo-documento-simula-custo.js'
 
 export const simulasCustoRouter = Router()
@@ -62,22 +62,37 @@ async function gerarNumeroSimulaCusto(
 
 // Nota: a Prisma extension de tenant injeta id_organizacao apenas no create de
 // nível superior — nested creates precisam do campo explícito.
-function montarDadosTaxas(
+function montarDadosTaxasOrigem(
   dados: CriarSimulaCustoInput,
   contexto: { tenantId: string; idWorkspace: string; idUsuario: string },
-  lado: 'origem' | 'destino'
 ) {
-  const taxas = lado === 'origem' ? dados.taxas_origem : dados.taxas_destino
-  return taxas.map((t) => ({
+  return dados.taxas_origem.map((t) => ({
     id_organizacao: contexto.tenantId,
     id_workspace: contexto.idWorkspace,
     id_usuario: contexto.idUsuario,
     id_taxa_origem_destino: t.id_taxa_origem_destino ?? null,
-    [`nome_taxa_${lado}_simula_custo`]: t.nome,
-    [`moeda_taxa_${lado}_simula_custo`]: t.moeda,
-    [`tipo_cobranca_taxa_${lado}_simula_custo`]: t.tipo_cobranca,
-    [`valor_minimo_taxa_${lado}_simula_custo`]: t.valor_minimo,
-    [`valor_total_taxa_${lado}_simula_custo`]: t.valor_total,
+    nome_taxa_origem_simula_custo: t.nome_taxa_origem_simula_custo,
+    moeda_taxa_origem_simula_custo: t.moeda_taxa_origem_simula_custo,
+    tipo_cobranca_taxa_origem_simula_custo: t.tipo_cobranca_taxa_origem_simula_custo,
+    valor_minimo_taxa_origem_simula_custo: t.valor_minimo_taxa_origem_simula_custo,
+    valor_total_taxa_origem_simula_custo: t.valor_total_taxa_origem_simula_custo,
+  }))
+}
+
+function montarDadosTaxasDestino(
+  dados: CriarSimulaCustoInput,
+  contexto: { tenantId: string; idWorkspace: string; idUsuario: string },
+) {
+  return dados.taxas_destino.map((t) => ({
+    id_organizacao: contexto.tenantId,
+    id_workspace: contexto.idWorkspace,
+    id_usuario: contexto.idUsuario,
+    id_taxa_origem_destino: t.id_taxa_origem_destino ?? null,
+    nome_taxa_destino_simula_custo: t.nome_taxa_destino_simula_custo,
+    moeda_taxa_destino_simula_custo: t.moeda_taxa_destino_simula_custo,
+    tipo_cobranca_taxa_destino_simula_custo: t.tipo_cobranca_taxa_destino_simula_custo,
+    valor_minimo_taxa_destino_simula_custo: t.valor_minimo_taxa_destino_simula_custo,
+    valor_total_taxa_destino_simula_custo: t.valor_total_taxa_destino_simula_custo,
   }))
 }
 
@@ -189,8 +204,8 @@ simulasCustoRouter.post('/', async (req: TenantRequest, res: Response, next: Nex
         aliquota_pis_simula_custo: dados.aliquota_pis_simula_custo,
         aliquota_cofins_simula_custo: dados.aliquota_cofins_simula_custo,
         reducao_ii_simula_custo: dados.reducao_ii_simula_custo,
-        taxas_origem: { create: montarDadosTaxas(dados, { tenantId, idWorkspace, idUsuario }, 'origem') as never },
-        taxas_destino: { create: montarDadosTaxas(dados, { tenantId, idWorkspace, idUsuario }, 'destino') as never },
+        taxas_origem: { create: montarDadosTaxasOrigem(dados, { tenantId, idWorkspace, idUsuario }) as never },
+        taxas_destino: { create: montarDadosTaxasDestino(dados, { tenantId, idWorkspace, idUsuario }) as never },
         documentos: {
           create: dados.documentos.map((d) => ({
             id_organizacao: tenantId,
@@ -225,10 +240,7 @@ simulasCustoRouter.post('/', async (req: TenantRequest, res: Response, next: Nex
 
     invalidarCacheDashboardSimulaCusto(tenantId)
     res.status(201).json({
-      simula_custo: {
-        ...serializarSimulaCusto(calculada ?? simula),
-        ...serializarImpostosSimulaCusto((calculada ?? simula) as Record<string, unknown>),
-      },
+      simula_custo: serializarSimulaCusto(calculada ?? simula),
     })
   } catch (err) { next(err) }
 })
@@ -313,10 +325,6 @@ simulasCustoRouter.get('/:id_simula_custo', async (req: TenantRequest, res: Resp
     res.json({
       simula_custo: {
         ...serializarSimulaCusto(linha),
-        ...serializarImpostosSimulaCusto(linha as Record<string, unknown>),
-        modalidade_recolhimento_icms_simula_custo: simula.modalidade_recolhimento_icms_simula_custo,
-        usa_beneficio_simula_custo: simula.usa_beneficio_simula_custo,
-        enviar_solicitacao_cotacao_frete_simula_custo: simula.enviar_solicitacao_cotacao_frete_simula_custo,
         taxas_origem: taxas_origem.map(t => ({
           id_taxa_origem_simula_custo: t.id_taxa_origem_simula_custo,
           id_taxa_origem_destino: t.id_taxa_origem_destino,
@@ -397,13 +405,13 @@ simulasCustoRouter.put('/:id_simula_custo', async (req: TenantRequest, res: Resp
     if (dados.taxas_origem !== undefined) {
       dataUpdate.taxas_origem = {
         deleteMany: {},
-        create: montarDadosTaxas(dados as CriarSimulaCustoInput, { tenantId, idWorkspace, idUsuario }, 'origem') as never,
+        create: montarDadosTaxasOrigem(dados as CriarSimulaCustoInput, { tenantId, idWorkspace, idUsuario }) as never,
       }
     }
     if (dados.taxas_destino !== undefined) {
       dataUpdate.taxas_destino = {
         deleteMany: {},
-        create: montarDadosTaxas(dados as CriarSimulaCustoInput, { tenantId, idWorkspace, idUsuario }, 'destino') as never,
+        create: montarDadosTaxasDestino(dados as CriarSimulaCustoInput, { tenantId, idWorkspace, idUsuario }) as never,
       }
     }
     if (dados.documentos !== undefined) {

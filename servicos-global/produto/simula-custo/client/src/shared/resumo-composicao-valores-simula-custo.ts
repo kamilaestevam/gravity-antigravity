@@ -1,7 +1,11 @@
 /**
  * Composição por moeda do passo Conferência — paridade Bid Frete (brc-tabela-resumo).
  */
-import type { EntradaSimulaCusto, TaxaEntradaSimulaCusto } from './schemas-simula-custo'
+import type {
+  EntradaSimulaCusto,
+  TaxaDestinoEntradaSimulaCusto,
+  TaxaOrigemEntradaSimulaCusto,
+} from './schemas-simula-custo'
 
 const fmtMoedaValor = (n: number) =>
   new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)
@@ -35,14 +39,31 @@ export interface ComposicaoPorMoedaResumoSimulaCusto {
   total: number
 }
 
-function linhasTaxaComValor(taxas: TaxaEntradaSimulaCusto[]): LinhaTaxaResumoSimulaCusto[] {
+function linhasTaxaOrigemComValor(taxas: TaxaOrigemEntradaSimulaCusto[]): LinhaTaxaResumoSimulaCusto[] {
   return taxas
-    .filter((taxa) => taxa.valor_total > 0 && taxa.nome.trim().length > 0)
+    .filter((taxa) => (
+      taxa.valor_total_taxa_origem_simula_custo > 0
+      && taxa.nome_taxa_origem_simula_custo.trim().length > 0
+    ))
     .map((taxa, indice) => ({
       id: `${taxa.id_taxa_origem_destino ?? 'manual'}-${indice}`,
-      nome: taxa.nome.trim(),
-      moeda: taxa.moeda.trim() || 'USD',
-      valor: taxa.valor_total,
+      nome: taxa.nome_taxa_origem_simula_custo.trim(),
+      moeda: taxa.moeda_taxa_origem_simula_custo.trim() || 'USD',
+      valor: taxa.valor_total_taxa_origem_simula_custo,
+    }))
+}
+
+function linhasTaxaDestinoComValor(taxas: TaxaDestinoEntradaSimulaCusto[]): LinhaTaxaResumoSimulaCusto[] {
+  return taxas
+    .filter((taxa) => (
+      taxa.valor_total_taxa_destino_simula_custo > 0
+      && taxa.nome_taxa_destino_simula_custo.trim().length > 0
+    ))
+    .map((taxa, indice) => ({
+      id: `${taxa.id_taxa_origem_destino ?? 'manual'}-${indice}`,
+      nome: taxa.nome_taxa_destino_simula_custo.trim(),
+      moeda: taxa.moeda_taxa_destino_simula_custo.trim() || 'USD',
+      valor: taxa.valor_total_taxa_destino_simula_custo,
     }))
 }
 
@@ -123,8 +144,8 @@ export function montarResumoValoresSimulaCusto(
     })
   }
 
-  const linhasOrigem = linhasTaxaComValor(form.taxas_origem)
-  const linhasDestino = linhasTaxaComValor(form.taxas_destino)
+  const linhasOrigem = linhasTaxaOrigemComValor(form.taxas_origem)
+  const linhasDestino = linhasTaxaDestinoComValor(form.taxas_destino)
 
   const mapa = new Map<string, { valores_internacionais: number; taxas_origem: number; taxas_destino: number }>()
 

@@ -139,11 +139,11 @@ const OPCOES_FATO_GERADOR_PRAZO_SIMULA_CUSTO: SelectOpcao[] = FATOS_GERADOR_PRAZ
   rotulo: FATO_GERADOR_PRAZO_LABELS[k],
 }))
 
-type LadoTaxaSimulaCusto = 'taxas_origem' | 'taxas_destino'
+type LadoTaxaSimulaCusto = 'taxas_origem_simula_custo' | 'taxas_destino_simula_custo'
 
 const OPCOES_LADO_TAXA_SIMULA_CUSTO: SelectOpcao[] = [
-  { valor: 'taxas_destino', rotulo: 'Destino' },
-  { valor: 'taxas_origem', rotulo: 'Origem' },
+  { valor: 'taxas_destino_simula_custo', rotulo: 'Destino' },
+  { valor: 'taxas_origem_simula_custo', rotulo: 'Origem' },
 ]
 
 interface LinhaTaxaUnificadaSimulaCusto {
@@ -153,41 +153,41 @@ interface LinhaTaxaUnificadaSimulaCusto {
 
 function nomeTaxaFormularioSimulaCusto(
   lado: LadoTaxaSimulaCusto,
-  taxa: EntradaSimulaCusto['taxas_origem'][number] | EntradaSimulaCusto['taxas_destino'][number],
+  taxa: EntradaSimulaCusto['taxas_origem_simula_custo'][number] | EntradaSimulaCusto['taxas_destino_simula_custo'][number],
 ): string {
-  return lado === 'taxas_origem'
+  return lado === 'taxas_origem_simula_custo'
     ? taxa.nome_taxa_origem_simula_custo
     : taxa.nome_taxa_destino_simula_custo
 }
 
 function moedaTaxaFormularioSimulaCusto(
   lado: LadoTaxaSimulaCusto,
-  taxa: EntradaSimulaCusto['taxas_origem'][number] | EntradaSimulaCusto['taxas_destino'][number],
+  taxa: EntradaSimulaCusto['taxas_origem_simula_custo'][number] | EntradaSimulaCusto['taxas_destino_simula_custo'][number],
 ): string {
-  return lado === 'taxas_origem'
+  return lado === 'taxas_origem_simula_custo'
     ? taxa.moeda_taxa_origem_simula_custo
     : taxa.moeda_taxa_destino_simula_custo
 }
 
 function valorTotalTaxaFormularioSimulaCusto(
   lado: LadoTaxaSimulaCusto,
-  taxa: EntradaSimulaCusto['taxas_origem'][number] | EntradaSimulaCusto['taxas_destino'][number],
+  taxa: EntradaSimulaCusto['taxas_origem_simula_custo'][number] | EntradaSimulaCusto['taxas_destino_simula_custo'][number],
 ): number {
-  return lado === 'taxas_origem'
+  return lado === 'taxas_origem_simula_custo'
     ? taxa.valor_total_taxa_origem_simula_custo
     : taxa.valor_total_taxa_destino_simula_custo
 }
 
 function montarLinhasTaxasUnificadas(
-  taxasOrigem: EntradaSimulaCusto['taxas_origem'],
-  taxasDestino: EntradaSimulaCusto['taxas_destino'],
+  taxasOrigem: EntradaSimulaCusto['taxas_origem_simula_custo'],
+  taxasDestino: EntradaSimulaCusto['taxas_destino_simula_custo'],
 ): LinhaTaxaUnificadaSimulaCusto[] {
   const origem = taxasOrigem.map((_, indice) => ({
-    lado: 'taxas_origem' as const,
+    lado: 'taxas_origem_simula_custo' as const,
     indice,
   }))
   const destino = taxasDestino.map((_, indice) => ({
-    lado: 'taxas_destino' as const,
+    lado: 'taxas_destino_simula_custo' as const,
     indice,
   }))
   return [...origem, ...destino]
@@ -635,10 +635,10 @@ const FORM_DEFAULTS: FormularioComItensSimulaCusto = {
   aliquota_cofins_simula_custo: 0,
   reducao_ii_simula_custo: 0,
   reducao_icms_base_simula_custo: 0,
-  taxas_origem: [],
-  taxas_destino: [],
-  documentos: [],
-  prazos_pagamento: [],
+  taxas_origem_simula_custo: [],
+  taxas_destino_simula_custo: [],
+  documentos_simula_custo: [],
+  prazos_pagamento_simula_custo: [],
   itens_produto_simula_custo: [{ ...ITEM_PRODUTO_VAZIO_SIMULA_CUSTO }],
 }
 
@@ -1051,7 +1051,7 @@ export default function FormularioSimulaCusto() {
         aliquota_cofins_simula_custo: est.aliquota_cofins_simula_custo,
         reducao_ii_simula_custo: est.reducao_ii_simula_custo,
         usa_beneficio_simula_custo: est.usa_beneficio_simula_custo,
-        taxas_origem: est.taxas_origem.map(tx => ({
+        taxas_origem_simula_custo: est.taxas_origem_simula_custo.map(tx => ({
           id_taxa_origem_destino: tx.id_taxa_origem_destino,
           nome_taxa_origem_simula_custo: tx.nome_taxa_origem_simula_custo,
           moeda_taxa_origem_simula_custo: tx.moeda_taxa_origem_simula_custo,
@@ -1059,7 +1059,7 @@ export default function FormularioSimulaCusto() {
           valor_minimo_taxa_origem_simula_custo: tx.valor_minimo_taxa_origem_simula_custo,
           valor_total_taxa_origem_simula_custo: tx.valor_total_taxa_origem_simula_custo,
         })),
-        taxas_destino: est.taxas_destino.map(tx => ({
+        taxas_destino_simula_custo: est.taxas_destino_simula_custo.map(tx => ({
           id_taxa_origem_destino: tx.id_taxa_origem_destino,
           nome_taxa_destino_simula_custo: tx.nome_taxa_destino_simula_custo,
           moeda_taxa_destino_simula_custo: tx.moeda_taxa_destino_simula_custo,
@@ -1067,11 +1067,11 @@ export default function FormularioSimulaCusto() {
           valor_minimo_taxa_destino_simula_custo: tx.valor_minimo_taxa_destino_simula_custo,
           valor_total_taxa_destino_simula_custo: tx.valor_total_taxa_destino_simula_custo,
         })),
-        documentos: est.documentos.map(d => ({
+        documentos_simula_custo: est.documentos_simula_custo.map(d => ({
           tipo_documento_simula_custo: d.tipo_documento_simula_custo,
           numero_documento_simula_custo: d.numero_documento_simula_custo,
         })),
-        prazos_pagamento: (est.prazos_pagamento ?? []).map((p) => ({
+        prazos_pagamento_simula_custo: (est.prazos_pagamento_simula_custo ?? []).map((p) => ({
           valor_prazo_pagamento_simula_custo: p.valor_prazo_pagamento_simula_custo,
           tipo_valor_prazo_pagamento_simula_custo: p.tipo_valor_prazo_pagamento_simula_custo,
           momento_prazo_pagamento_simula_custo: p.momento_prazo_pagamento_simula_custo,
@@ -1287,33 +1287,33 @@ export default function FormularioSimulaCusto() {
 
   // ─── Prazos de pagamento ──────────────────────────────────────────────────
   const addPrazoPagamento = () =>
-    update('prazos_pagamento', [...form.prazos_pagamento, { ...PRAZO_PAGAMENTO_VAZIO }])
+    update('prazos_pagamento_simula_custo', [...form.prazos_pagamento_simula_custo, { ...PRAZO_PAGAMENTO_VAZIO }])
 
   const updatePrazoPagamento = <K extends keyof PrazoPagamentoEntradaSimulaCusto>(
     index: number,
     campo: K,
     valor: PrazoPagamentoEntradaSimulaCusto[K],
   ) => {
-    const linhas = [...form.prazos_pagamento]
+    const linhas = [...form.prazos_pagamento_simula_custo]
     linhas[index] = { ...linhas[index], [campo]: valor }
-    update('prazos_pagamento', linhas)
+    update('prazos_pagamento_simula_custo', linhas)
   }
 
   const removePrazoPagamento = (index: number) =>
-    update('prazos_pagamento', form.prazos_pagamento.filter((_, i) => i !== index))
+    update('prazos_pagamento_simula_custo', form.prazos_pagamento_simula_custo.filter((_, i) => i !== index))
 
   // ─── Documentos ───────────────────────────────────────────────────────────
   const addDocumento = () =>
-    update('documentos', [...form.documentos, { tipo_documento_simula_custo: 'INVOICE', numero_documento_simula_custo: '' }])
+    update('documentos_simula_custo', [...form.documentos_simula_custo, { tipo_documento_simula_custo: 'INVOICE', numero_documento_simula_custo: '' }])
 
   const updateDocumento = (index: number, campo: 'tipo_documento_simula_custo' | 'numero_documento_simula_custo', valor: string) => {
-    const docs = [...form.documentos]
+    const docs = [...form.documentos_simula_custo]
     docs[index] = { ...docs[index], [campo]: valor }
-    update('documentos', docs)
+    update('documentos_simula_custo', docs)
   }
 
   const removeDocumento = (index: number) =>
-    update('documentos', form.documentos.filter((_, i) => i !== index))
+    update('documentos_simula_custo', form.documentos_simula_custo.filter((_, i) => i !== index))
 
   // ─── Itens de produto (multi-linha) ───────────────────────────────────────
   const addItemProduto = () =>
@@ -1384,10 +1384,10 @@ export default function FormularioSimulaCusto() {
   }
 
   // ─── Taxas (nome via SelectGlobal do catálogo Cadastros) ───────────────────
-  const addTaxa = (lado: LadoTaxaSimulaCusto = 'taxas_destino') =>
+  const addTaxa = (lado: LadoTaxaSimulaCusto = 'taxas_destino_simula_custo') =>
     update(lado, [
       ...form[lado],
-      lado === 'taxas_origem'
+      lado === 'taxas_origem_simula_custo'
         ? criarTaxaOrigemEntradaVaziaSimulaCusto()
         : criarTaxaDestinoEntradaVaziaSimulaCusto(),
     ])
@@ -1401,7 +1401,7 @@ export default function FormularioSimulaCusto() {
     const taxas = [...form[lado]]
     const atual = taxas[index]
     if (!atual) return
-    if (lado === 'taxas_origem') {
+    if (lado === 'taxas_origem_simula_custo') {
       taxas[index] = campo === 'moeda'
         ? { ...atual, moeda_taxa_origem_simula_custo: String(valor) }
         : { ...atual, valor_total_taxa_origem_simula_custo: Number(valor) }
@@ -1418,10 +1418,10 @@ export default function FormularioSimulaCusto() {
     index: number,
     idTaxa: string | null,
   ) => {
-    const catalogo = lado === 'taxas_origem' ? catalogoTaxasOrigem.taxas : catalogoTaxasDestino.taxas
+    const catalogo = lado === 'taxas_origem_simula_custo' ? catalogoTaxasOrigem.taxas : catalogoTaxasDestino.taxas
     const taxas = [...form[lado]]
     if (!idTaxa) {
-      if (lado === 'taxas_origem') {
+      if (lado === 'taxas_origem_simula_custo') {
         taxas[index] = { ...taxas[index], id_taxa_origem_destino: null, nome_taxa_origem_simula_custo: '' }
       } else {
         taxas[index] = { ...taxas[index], id_taxa_origem_destino: null, nome_taxa_destino_simula_custo: '' }
@@ -1430,7 +1430,7 @@ export default function FormularioSimulaCusto() {
       return
     }
     const encontrada = catalogo.find((t) => t.id_taxa_origem_destino === idTaxa)
-    if (lado === 'taxas_origem') {
+    if (lado === 'taxas_origem_simula_custo') {
       taxas[index] = {
         ...taxas[index],
         id_taxa_origem_destino: idTaxa,
@@ -1453,13 +1453,13 @@ export default function FormularioSimulaCusto() {
     index: number,
     nome: string,
   ) => {
-    const catalogoLista = lado === 'taxas_origem' ? catalogoTaxasOrigem.taxas : catalogoTaxasDestino.taxas
+    const catalogoLista = lado === 'taxas_origem_simula_custo' ? catalogoTaxasOrigem.taxas : catalogoTaxasDestino.taxas
     const taxas = [...form[lado]]
     const nomeNormalizado = nome.trim().toLowerCase()
     const correspondencia = catalogoLista.find(
       (item) => item.nome_taxa_origem_destino.trim().toLowerCase() === nomeNormalizado,
     )
-    if (lado === 'taxas_origem') {
+    if (lado === 'taxas_origem_simula_custo') {
       taxas[index] = {
         ...taxas[index],
         nome_taxa_origem_simula_custo: nome,
@@ -1475,7 +1475,7 @@ export default function FormularioSimulaCusto() {
     update(lado, taxas)
   }
 
-  const removeTaxa = (lado: 'taxas_origem' | 'taxas_destino', index: number) =>
+  const removeTaxa = (lado: 'taxas_origem_simula_custo' | 'taxas_destino_simula_custo', index: number) =>
     update(lado, form[lado].filter((_, i) => i !== index))
 
   const alterarLadoTaxa = (
@@ -1484,18 +1484,18 @@ export default function FormularioSimulaCusto() {
     novoLado: LadoTaxaSimulaCusto,
   ) => {
     if (ladoAtual === novoLado) return
-    const origem = [...form.taxas_origem]
-    const destino = [...form.taxas_destino]
-    const removidas = ladoAtual === 'taxas_origem' ? origem.splice(index, 1) : destino.splice(index, 1)
+    const origem = [...form.taxas_origem_simula_custo]
+    const destino = [...form.taxas_destino_simula_custo]
+    const removidas = ladoAtual === 'taxas_origem_simula_custo' ? origem.splice(index, 1) : destino.splice(index, 1)
     if (!removidas[0]) return
-    if (novoLado === 'taxas_origem') origem.push(criarTaxaOrigemEntradaVaziaSimulaCusto())
+    if (novoLado === 'taxas_origem_simula_custo') origem.push(criarTaxaOrigemEntradaVaziaSimulaCusto())
     else destino.push(criarTaxaDestinoEntradaVaziaSimulaCusto())
-    setForm((prev) => ({ ...prev, taxas_origem: origem, taxas_destino: destino }))
+    setForm((prev) => ({ ...prev, taxas_origem_simula_custo: origem, taxas_destino_simula_custo: destino }))
   }
 
   const linhasTaxasUnificadas = useMemo(
-    () => montarLinhasTaxasUnificadas(form.taxas_origem, form.taxas_destino),
-    [form.taxas_origem, form.taxas_destino],
+    () => montarLinhasTaxasUnificadas(form.taxas_origem_simula_custo, form.taxas_destino_simula_custo),
+    [form.taxas_origem_simula_custo, form.taxas_destino_simula_custo],
   )
 
   // ─── Simular (preview, sem persistir) ─────────────────────────────────────
@@ -1558,16 +1558,8 @@ export default function FormularioSimulaCusto() {
         moeda_frete_simula_custo: formSincronizado.moeda_frete_simula_custo,
         valor_seguro_simula_custo: formSincronizado.valor_seguro_simula_custo,
         moeda_seguro_simula_custo: formSincronizado.moeda_seguro_simula_custo,
-        taxas_origem: formSincronizado.taxas_origem.map(tx => ({
-          nome: tx.nome_taxa_origem_simula_custo,
-          valor: tx.valor_total_taxa_origem_simula_custo,
-          moeda: tx.moeda_taxa_origem_simula_custo,
-        })),
-        taxas_destino: formSincronizado.taxas_destino.map(tx => ({
-          nome: tx.nome_taxa_destino_simula_custo,
-          valor: tx.valor_total_taxa_destino_simula_custo,
-          moeda: tx.moeda_taxa_destino_simula_custo,
-        })),
+        taxas_origem_simula_custo: formSincronizado.taxas_origem_simula_custo,
+        taxas_destino_simula_custo: formSincronizado.taxas_destino_simula_custo,
         uf_desembaraco_simula_custo: formSincronizado.uf_desembaraco_simula_custo,
         // Força alíquotas da fonte oficial (não o que estiver “chutado” no form).
         aliquota_ii_simula_custo: fonte.ii / 100,
@@ -2031,7 +2023,7 @@ export default function FormularioSimulaCusto() {
                   </tr>
                 </thead>
                 <tbody>
-                  {form.prazos_pagamento.length === 0 ? (
+                  {form.prazos_pagamento_simula_custo.length === 0 ? (
                     <tr className="nc-tabela-refinada-linha-vazia" aria-hidden="true">
                       <td><span className="nc-tabela-refinada-vazio">—</span></td>
                       <td><span className="nc-tabela-refinada-vazio">—</span></td>
@@ -2040,7 +2032,7 @@ export default function FormularioSimulaCusto() {
                       <td className="nc-tabela-refinada-col-acao" />
                     </tr>
                   ) : (
-                  form.prazos_pagamento.map((prazo, i) => (
+                  form.prazos_pagamento_simula_custo.map((prazo, i) => (
                     <tr key={i}>
                       <td>
                         <div className="nc-input-moeda">
@@ -2453,7 +2445,7 @@ export default function FormularioSimulaCusto() {
 
           <div className="nc-section-head nc-section-head--bloco-taxas">
             <NcSectionTitle icone={<ListPlus {...ICONE_LABEL_SECAO} />}>
-              {t('simulacusto.formulario.taxas_origem_destino', 'Taxas de origem e destino')}
+              {t('simulacusto.formulario.taxas_origem_simula_custo_destino', 'Taxas de origem e destino')}
             </NcSectionTitle>
             <button type="button" className="nc-btn-inline" onClick={() => addTaxa()}>
               <Plus weight="bold" size={14} /> {t('acoes.adicionar', 'Adicionar')}
@@ -2505,7 +2497,7 @@ export default function FormularioSimulaCusto() {
                   ) : (
                     linhasTaxasUnificadas.map(({ lado, indice }) => {
                       const taxa = form[lado][indice]
-                      const catalogo = lado === 'taxas_origem' ? catalogoTaxasOrigem : catalogoTaxasDestino
+                      const catalogo = lado === 'taxas_origem_simula_custo' ? catalogoTaxasOrigem : catalogoTaxasDestino
                       return (
                         <tr key={`${lado}-${indice}`}>
                           <td>
@@ -2590,16 +2582,16 @@ export default function FormularioSimulaCusto() {
         </p>
         <div className="nc-section-head">
           <NcSectionTitle icone={<Tag {...ICONE_LABEL_SECAO} />}>
-            {t('simulacusto.formulario.documentos', 'Documentos Vinculados')}
+            {t('simulacusto.formulario.documentos_simula_custo', 'Documentos Vinculados')}
           </NcSectionTitle>
           <button type="button" className="nc-btn-inline" onClick={addDocumento}>
             <Plus weight="bold" size={14} /> {t('acoes.adicionar', 'Adicionar')}
           </button>
         </div>
-        {form.documentos.length === 0 ? (
+        {form.documentos_simula_custo.length === 0 ? (
           <p className="nc-field-hint">{t('simulacusto.formulario.documentos_vazio', 'Nenhum documento vinculado.')}</p>
         ) : null}
-        {form.documentos.map((doc, i) => (
+        {form.documentos_simula_custo.map((doc, i) => (
           <div key={i} className="nc-linha-extra">
             <Field label={t('simulacusto.formulario.documento_tipo', 'Tipo')}>
               <select

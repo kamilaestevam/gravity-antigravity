@@ -127,7 +127,7 @@ export const DocumentoSimulaCustoSchema = z.object({
   id_documento_simula_custo: z.string(),
   tipo_documento_simula_custo: TipoDocumentoSimulaCustoSchema,
   numero_documento_simula_custo: z.string(),
-  anexos: z.array(AnexoDocumentoSimulaCustoSchema).default([]),
+  anexos_documento_simula_custo: z.array(AnexoDocumentoSimulaCustoSchema).default([]),
 })
 
 export const PrazoPagamentoSimulaCustoSchema = z.object({
@@ -141,10 +141,10 @@ export const PrazoPagamentoSimulaCustoSchema = z.object({
 })
 
 export const SimulaCustoDetalheSchema = SimulaCustoSchema.extend({
-  taxas_origem: z.array(TaxaOrigemSimulaCustoSchema),
-  taxas_destino: z.array(TaxaDestinoSimulaCustoSchema),
-  documentos: z.array(DocumentoSimulaCustoSchema),
-  prazos_pagamento: z.array(PrazoPagamentoSimulaCustoSchema).default([]),
+  taxas_origem_simula_custo: z.array(TaxaOrigemSimulaCustoSchema),
+  taxas_destino_simula_custo: z.array(TaxaDestinoSimulaCustoSchema),
+  documentos_simula_custo: z.array(DocumentoSimulaCustoSchema),
+  prazos_pagamento_simula_custo: z.array(PrazoPagamentoSimulaCustoSchema).default([]),
 })
 export type SimulaCustoDetalhe = z.infer<typeof SimulaCustoDetalheSchema>
 
@@ -239,8 +239,8 @@ export const RespostaSimulacaoSimulaCustoSchema = z.object({
       icms: DetalhamentoTributoSchema,
     }),
     total_tributos_brl: z.number(),
-    taxas_origem_brl: z.number(),
-    taxas_destino_brl: z.number(),
+    taxas_origem_brl_simula_custo: z.number(),
+    taxas_destino_brl_simula_custo: z.number(),
     custo_nacionalizado_brl: z.number(),
     calculado_em: z.string(),
   }),
@@ -306,6 +306,17 @@ export const ListaTaxasOrigemDestinoCadastroSchema = z.object({
 })
 
 // ─── Entrada (criação/edição) ────────────────────────────────────────────────
+
+/** Só UI — agregado nos campos legados antes de persistir; não é coluna no banco. */
+export const ItemProdutoEntradaSimulaCustoSchema = z.object({
+  ncm_item_produto_simula_custo: z.string(),
+  descricao_ncm_item_produto_simula_custo: z.string().optional(),
+  moeda_item_produto_simula_custo: z.string().length(3),
+  valor_unitario_item_produto_simula_custo: z.number().nonnegative(),
+  quantidade_item_produto_simula_custo: z.number().positive(),
+})
+export type ItemProdutoEntradaSimulaCusto = z.infer<typeof ItemProdutoEntradaSimulaCustoSchema>
+
 export interface TaxaOrigemEntradaSimulaCusto {
   id_taxa_origem_destino?: string | null
   nome_taxa_origem_simula_custo: string
@@ -361,6 +372,7 @@ export interface PrazoPagamentoEntradaSimulaCusto {
 
 export interface EntradaSimulaCusto {
   referencia_simula_custo?: string
+  /** Só entrada — vira numero_simula_custo ao persistir. */
   numero_manual_simula_custo?: string
   tipo_operacao_simula_custo: TipoOperacaoSimulaCusto
   detalhe_operacao_simula_custo: DetalheOperacaoSimulaCusto
@@ -384,21 +396,14 @@ export interface EntradaSimulaCusto {
   aliquota_pis_simula_custo: number
   aliquota_cofins_simula_custo: number
   reducao_ii_simula_custo?: number
+  /** Só UI — calcula aliquota_icms_simula_custo no form; não persiste. */
   reducao_icms_base_simula_custo?: number
-  taxas_origem: TaxaOrigemEntradaSimulaCusto[]
-  taxas_destino: TaxaDestinoEntradaSimulaCusto[]
-  documentos: DocumentoEntradaSimulaCusto[]
-  prazos_pagamento: PrazoPagamentoEntradaSimulaCusto[]
-  /** Multi-itens (UI) — agregado nos campos legados antes de simular/salvar. */
+  taxas_origem_simula_custo: TaxaOrigemEntradaSimulaCusto[]
+  taxas_destino_simula_custo: TaxaDestinoEntradaSimulaCusto[]
+  documentos_simula_custo: DocumentoEntradaSimulaCusto[]
+  prazos_pagamento_simula_custo: PrazoPagamentoEntradaSimulaCusto[]
+  /** Só UI — agregado nos campos legados antes de simular/salvar. */
   itens_produto_simula_custo?: ItemProdutoEntradaSimulaCusto[]
-}
-
-export interface ItemProdutoEntradaSimulaCusto {
-  ncm_item_produto_simula_custo: string
-  descricao_ncm_item_produto_simula_custo?: string
-  moeda_item_produto_simula_custo: string
-  valor_unitario_item_produto_simula_custo: number
-  quantidade_item_produto_simula_custo: number
 }
 
 export interface EntradaSimulacaoSimulaCusto {
@@ -410,8 +415,8 @@ export interface EntradaSimulacaoSimulaCusto {
   moeda_frete_simula_custo: string
   valor_seguro_simula_custo: number
   moeda_seguro_simula_custo: string
-  taxas_origem: Array<{ nome: string; valor: number; moeda: string }>
-  taxas_destino: Array<{ nome: string; valor: number; moeda: string }>
+  taxas_origem_simula_custo: Array<Pick<TaxaOrigemEntradaSimulaCusto, 'nome_taxa_origem_simula_custo' | 'valor_total_taxa_origem_simula_custo' | 'moeda_taxa_origem_simula_custo'>>
+  taxas_destino_simula_custo: Array<Pick<TaxaDestinoEntradaSimulaCusto, 'nome_taxa_destino_simula_custo' | 'valor_total_taxa_destino_simula_custo' | 'moeda_taxa_destino_simula_custo'>>
   uf_desembaraco_simula_custo: string
   aliquota_ii_simula_custo: number
   aliquota_ipi_simula_custo: number

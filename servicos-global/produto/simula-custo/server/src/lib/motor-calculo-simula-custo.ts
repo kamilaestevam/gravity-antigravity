@@ -7,10 +7,16 @@ import { calcularIcmsImportacaoSimulaCusto } from '../shared/calculo-icms-import
 import { resolverAliquotaIcmsInternaUfSimulaCusto } from '../shared/aliquotas-icms-interna-uf.js'
 import type { ModalidadeRecolhimentoIcmsSimulaCusto } from '../shared/modalidade-recolhimento-icms-simula-custo.js'
 
-export interface TaxaExtraSimulaCusto {
-  nome: string
-  valor: number
-  moeda: string
+export interface TaxaOrigemCalculoSimulaCusto {
+  nome_taxa_origem_simula_custo: string
+  valor_total_taxa_origem_simula_custo: number
+  moeda_taxa_origem_simula_custo: string
+}
+
+export interface TaxaDestinoCalculoSimulaCusto {
+  nome_taxa_destino_simula_custo: string
+  valor_total_taxa_destino_simula_custo: number
+  moeda_taxa_destino_simula_custo: string
 }
 
 export interface EntradaCalculoSimulaCusto {
@@ -22,8 +28,8 @@ export interface EntradaCalculoSimulaCusto {
   moeda_frete_simula_custo: string
   valor_seguro_simula_custo: number
   moeda_seguro_simula_custo: string
-  taxas_origem: TaxaExtraSimulaCusto[]
-  taxas_destino: TaxaExtraSimulaCusto[]
+  taxas_origem_simula_custo: TaxaOrigemCalculoSimulaCusto[]
+  taxas_destino_simula_custo: TaxaDestinoCalculoSimulaCusto[]
   uf_desembaraco_simula_custo: string
   aliquota_ii_simula_custo: number
   aliquota_ipi_simula_custo: number
@@ -54,8 +60,8 @@ export interface ResultadoCalculoSimulaCusto {
     icms: DetalhamentoTributoSimulaCusto
   }
   total_tributos_brl: number
-  taxas_origem_brl: number
-  taxas_destino_brl: number
+  taxas_origem_brl_simula_custo: number
+  taxas_destino_brl_simula_custo: number
   custo_nacionalizado_brl: number
   calculado_em: string
 }
@@ -83,8 +89,12 @@ export function executarCalculoSimulaCusto(
   const ptax = entrada.ptax_venda
 
   // Passo 1 — Taxas de Origem & Valor Aduaneiro
-  const taxasOrigemBrl = entrada.taxas_origem.reduce(
-    (acc, t) => acc + converterParaBRL(t.valor, t.moeda, ptax), 0
+  const taxasOrigemBrl = entrada.taxas_origem_simula_custo.reduce(
+    (acc, t) => acc + converterParaBRL(
+      t.valor_total_taxa_origem_simula_custo,
+      t.moeda_taxa_origem_simula_custo,
+      ptax,
+    ), 0
   )
   const produtoBrl = converterParaBRL(entrada.valor_produto_simula_custo, entrada.moeda_produto_simula_custo, ptax)
   const freteBrl = converterParaBRL(entrada.valor_frete_simula_custo, entrada.moeda_frete_simula_custo, ptax)
@@ -106,8 +116,12 @@ export function executarCalculoSimulaCusto(
   const valorCofins = valorAduaneiroBrl * entrada.aliquota_cofins_simula_custo
 
   // Taxas de Destino
-  const taxasDestinoBrl = entrada.taxas_destino.reduce(
-    (acc, t) => acc + converterParaBRL(t.valor, t.moeda, ptax), 0
+  const taxasDestinoBrl = entrada.taxas_destino_simula_custo.reduce(
+    (acc, t) => acc + converterParaBRL(
+      t.valor_total_taxa_destino_simula_custo,
+      t.moeda_taxa_destino_simula_custo,
+      ptax,
+    ), 0
   )
 
   // Passos 6 e 7 — ICMS "Por Dentro" (alíquota interna no gross-up; efetiva no imposto devido)
@@ -148,8 +162,8 @@ export function executarCalculoSimulaCusto(
       },
     },
     total_tributos_brl: totalTributos,
-    taxas_origem_brl: taxasOrigemBrl,
-    taxas_destino_brl: taxasDestinoBrl,
+    taxas_origem_brl_simula_custo: taxasOrigemBrl,
+    taxas_destino_brl_simula_custo: taxasDestinoBrl,
     custo_nacionalizado_brl: custoNacionalizadoBrl,
     calculado_em: new Date().toISOString(),
   }

@@ -22,8 +22,8 @@ function entradaBase(overrides: Partial<EntradaCalculoSimulaCusto> = {}): Entrad
     moeda_frete_simula_custo: 'USD',
     valor_seguro_simula_custo: 0,
     moeda_seguro_simula_custo: 'USD',
-    taxas_origem: [],
-    taxas_destino: [],
+    taxas_origem_simula_custo: [],
+    taxas_destino_simula_custo: [],
     uf_desembaraco_simula_custo: 'SP',
     aliquota_ii_simula_custo: 0,
     aliquota_ipi_simula_custo: 0,
@@ -54,10 +54,14 @@ describe('executarCalculoSimulaCusto', () => {
     const r = executarCalculoSimulaCusto(entradaBase({
       valor_frete_simula_custo: 500,   // USD → 2.500 BRL
       valor_seguro_simula_custo: 100,  // USD → 500 BRL
-      taxas_origem: [{ nome: 'THC', valor: 200, moeda: 'USD' }], // → 1.000 BRL
+      taxas_origem_simula_custo: [{
+        nome_taxa_origem_simula_custo: 'THC',
+        valor_total_taxa_origem_simula_custo: 200,
+        moeda_taxa_origem_simula_custo: 'USD',
+      }],
     }))
     expect(r.valor_aduaneiro_brl).toBe(50_000 + 2_500 + 500 + 1_000)
-    expect(r.taxas_origem_brl).toBe(1_000)
+    expect(r.taxas_origem_brl_simula_custo).toBe(1_000)
   })
 
   it('II incide sobre o valor aduaneiro', () => {
@@ -103,10 +107,14 @@ describe('executarCalculoSimulaCusto', () => {
   it('taxas de destino entram na base do ICMS e no custo final, sem compor o VA', () => {
     const r = executarCalculoSimulaCusto(entradaBase({
       aliquota_icms_simula_custo: 0.18,
-      taxas_destino: [{ nome: 'Armazenagem', valor: 8_200, moeda: 'BRL' }],
+      taxas_destino_simula_custo: [{
+        nome_taxa_destino_simula_custo: 'Armazenagem',
+        valor_total_taxa_destino_simula_custo: 8_200,
+        moeda_taxa_destino_simula_custo: 'BRL',
+      }],
     }))
     expect(r.valor_aduaneiro_brl).toBe(50_000)
-    expect(r.taxas_destino_brl).toBe(8_200)
+    expect(r.taxas_destino_brl_simula_custo).toBe(8_200)
     // base ICMS = (50.000 + 8.200) / 0.82
     expect(r.tributos.icms.base_calculo).toBeCloseTo(58_200 / 0.82, 2)
     expect(r.custo_nacionalizado_brl).toBeCloseTo(50_000 + r.total_tributos_brl + 8_200, 2)
@@ -121,10 +129,18 @@ describe('executarCalculoSimulaCusto', () => {
       aliquota_pis_simula_custo: 0.021,
       aliquota_cofins_simula_custo: 0.0965,
       aliquota_icms_simula_custo: 0.18,
-      taxas_origem: [{ nome: 'THC', valor: 120, moeda: 'USD' }],
-      taxas_destino: [{ nome: 'Armazenagem', valor: 800, moeda: 'BRL' }],
+      taxas_origem_simula_custo: [{
+        nome_taxa_origem_simula_custo: 'THC',
+        valor_total_taxa_origem_simula_custo: 120,
+        moeda_taxa_origem_simula_custo: 'USD',
+      }],
+      taxas_destino_simula_custo: [{
+        nome_taxa_destino_simula_custo: 'Armazenagem',
+        valor_total_taxa_destino_simula_custo: 800,
+        moeda_taxa_destino_simula_custo: 'BRL',
+      }],
     }))
-    const soma = r.valor_aduaneiro_brl + r.total_tributos_brl + r.taxas_destino_brl
+    const soma = r.valor_aduaneiro_brl + r.total_tributos_brl + r.taxas_destino_brl_simula_custo
     expect(r.custo_nacionalizado_brl).toBeCloseTo(soma, 6)
     const somaTributos =
       r.tributos.ii.valor + r.tributos.ipi.valor + r.tributos.pis.valor +

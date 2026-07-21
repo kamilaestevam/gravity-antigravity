@@ -145,11 +145,11 @@ model SimulaCusto {
   custo_nacionalizado_brl_simula_custo    Decimal? @db.Decimal(15, 2)
   fonte_calculo_simula_custo              String?  // 'siscomex' | 'gravity-engine' | 'fallback'
 
-  // Relações (sem sufixo — REGRA 6 da ddd-nomenclatura, gabarito BID Frete)
-  taxas_origem       TaxaOrigemSimulaCusto[]
-  taxas_destino      TaxaDestinoSimulaCusto[]
-  documentos         DocumentoSimulaCusto[]
-  prazos_pagamento   PrazoPagamentoSimulaCusto[]
+  // Relações — coleções com sufixo _simula_custo (decisão dono, paridade JSON = Prisma)
+  taxas_origem_simula_custo     TaxaOrigemSimulaCusto[]
+  taxas_destino_simula_custo    TaxaDestinoSimulaCusto[]
+  documentos_simula_custo       DocumentoSimulaCusto[]
+  prazos_pagamento_simula_custo PrazoPagamentoSimulaCusto[]
 
   // Timestamps
   data_criacao_simula_custo      DateTime @default(now())
@@ -234,7 +234,7 @@ model DocumentoSimulaCusto {
   numero_documento_simula_custo String // alfanumérico até 30 chars
 
   simula  SimulaCusto                  @relation(fields: [id_simula_custo], references: [id_simula_custo], onDelete: Cascade)
-  anexos  AnexoDocumentoSimulaCusto[]
+  anexos_documento_simula_custo  AnexoDocumentoSimulaCusto[]
 
   data_criacao_documento_simula_custo DateTime @default(now())
 

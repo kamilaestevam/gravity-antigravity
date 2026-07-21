@@ -34,8 +34,8 @@ export interface LinhaTaxaResumoSimulaCusto {
 export interface ComposicaoPorMoedaResumoSimulaCusto {
   moeda: string
   valores_internacionais: number
-  taxas_origem: number
-  taxas_destino: number
+  taxas_origem_simula_custo: number
+  taxas_destino_simula_custo: number
   total: number
 }
 
@@ -68,13 +68,13 @@ function linhasTaxaDestinoComValor(taxas: TaxaDestinoEntradaSimulaCusto[]): Linh
 }
 
 function acumularComposicaoMoeda(
-  mapa: Map<string, { valores_internacionais: number; taxas_origem: number; taxas_destino: number }>,
+  mapa: Map<string, { valores_internacionais: number; taxas_origem_simula_custo: number; taxas_destino_simula_custo: number }>,
   moeda: string,
-  campo: 'valores_internacionais' | 'taxas_origem' | 'taxas_destino',
+  campo: 'valores_internacionais' | 'taxas_origem_simula_custo' | 'taxas_destino_simula_custo',
   valor: number,
 ) {
   const chave = moeda.trim() || 'USD'
-  const atual = mapa.get(chave) ?? { valores_internacionais: 0, taxas_origem: 0, taxas_destino: 0 }
+  const atual = mapa.get(chave) ?? { valores_internacionais: 0, taxas_origem_simula_custo: 0, taxas_destino_simula_custo: 0 }
   atual[campo] += valor
   mapa.set(chave, atual)
 }
@@ -88,8 +88,8 @@ export function montarResumoValoresSimulaCusto(
     | 'valor_frete_simula_custo'
     | 'moeda_seguro_simula_custo'
     | 'valor_seguro_simula_custo'
-    | 'taxas_origem'
-    | 'taxas_destino'
+    | 'taxas_origem_simula_custo'
+    | 'taxas_destino_simula_custo'
     | 'itens_produto_simula_custo'
   >,
   rotulos: {
@@ -144,27 +144,27 @@ export function montarResumoValoresSimulaCusto(
     })
   }
 
-  const linhasOrigem = linhasTaxaOrigemComValor(form.taxas_origem)
-  const linhasDestino = linhasTaxaDestinoComValor(form.taxas_destino)
+  const linhasOrigem = linhasTaxaOrigemComValor(form.taxas_origem_simula_custo)
+  const linhasDestino = linhasTaxaDestinoComValor(form.taxas_destino_simula_custo)
 
-  const mapa = new Map<string, { valores_internacionais: number; taxas_origem: number; taxas_destino: number }>()
+  const mapa = new Map<string, { valores_internacionais: number; taxas_origem_simula_custo: number; taxas_destino_simula_custo: number }>()
 
   for (const item of valoresInternacionais) {
     acumularComposicaoMoeda(mapa, item.moeda, 'valores_internacionais', item.valor)
   }
   for (const linha of linhasOrigem) {
-    acumularComposicaoMoeda(mapa, linha.moeda, 'taxas_origem', linha.valor)
+    acumularComposicaoMoeda(mapa, linha.moeda, 'taxas_origem_simula_custo', linha.valor)
   }
   for (const linha of linhasDestino) {
-    acumularComposicaoMoeda(mapa, linha.moeda, 'taxas_destino', linha.valor)
+    acumularComposicaoMoeda(mapa, linha.moeda, 'taxas_destino_simula_custo', linha.valor)
   }
 
   const composicao: ComposicaoPorMoedaResumoSimulaCusto[] = [...mapa.entries()].map(([moeda, partes]) => ({
     moeda,
     valores_internacionais: partes.valores_internacionais,
-    taxas_origem: partes.taxas_origem,
-    taxas_destino: partes.taxas_destino,
-    total: partes.valores_internacionais + partes.taxas_origem + partes.taxas_destino,
+    taxas_origem_simula_custo: partes.taxas_origem_simula_custo,
+    taxas_destino_simula_custo: partes.taxas_destino_simula_custo,
+    total: partes.valores_internacionais + partes.taxas_origem_simula_custo + partes.taxas_destino_simula_custo,
   }))
 
   const positivos = composicao.filter(({ total }) => total > 0)

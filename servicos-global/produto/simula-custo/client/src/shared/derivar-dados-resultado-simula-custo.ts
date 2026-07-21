@@ -52,7 +52,7 @@ const CUSTOS_FIXOS_MOCK: Array<{ nome: string; valorBrl: number; cor: string }> 
 ]
 
 function rotuloPrazoPagamento(
-  prazo: EntradaSimulaCusto['prazos_pagamento'][number],
+  prazo: EntradaSimulaCusto['prazos_pagamento_simula_custo'][number],
 ): string {
   const tipo = TIPO_VALOR_PRAZO_LABELS[prazo.tipo_valor_prazo_pagamento_simula_custo]
   const valor =
@@ -72,7 +72,7 @@ export function derivarFluxoCaixaSimulaCusto(
 ): DadosFluxoCaixaSimulaCusto {
   const moeda = form.moeda_produto_simula_custo
   const totalMercadoria = form.valor_produto_simula_custo
-  const prazos = form.prazos_pagamento
+  const prazos = form.prazos_pagamento_simula_custo
 
   if (prazos.length === 0 || totalMercadoria <= 0) {
     return {

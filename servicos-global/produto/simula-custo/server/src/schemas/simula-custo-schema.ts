@@ -63,6 +63,15 @@ const PrazoPagamentoEntradaSchema = z.object({
   fato_gerador_prazo_pagamento_simula_custo: z.enum(FATOS_GERADOR_PRAZO_PAGAMENTO_SIMULA_CUSTO),
 })
 
+/** Só UI — agregado nos campos legados antes de persistir; não é coluna no banco. */
+export const ItemProdutoEntradaSimulaCustoSchema = z.object({
+  ncm_item_produto_simula_custo: z.string().min(1).max(10),
+  descricao_ncm_item_produto_simula_custo: z.string().max(500).optional(),
+  moeda_item_produto_simula_custo: z.string().length(3),
+  valor_unitario_item_produto_simula_custo: z.number().nonnegative(),
+  quantidade_item_produto_simula_custo: z.number().positive(),
+})
+
 export const CriarSimulaCustoSchema = z.object({
   referencia_simula_custo: z.string().max(30).optional(),
   numero_manual_simula_custo: z.string().max(30).optional(), // se ausente, gera EST-IMP-00001/26
@@ -93,10 +102,15 @@ export const CriarSimulaCustoSchema = z.object({
   aliquota_cofins_simula_custo: z.number().min(0).max(1).default(0),
   reducao_ii_simula_custo: z.number().min(0).max(1).default(0),
 
-  taxas_origem: z.array(TaxaOrigemEntradaSimulaCustoSchema).default([]),
-  taxas_destino: z.array(TaxaDestinoEntradaSimulaCustoSchema).default([]),
-  documentos: z.array(DocumentoEntradaSchema).default([]),
-  prazos_pagamento: z.array(PrazoPagamentoEntradaSchema).default([]),
+  /** Só UI — calcula aliquota_icms_simula_custo no form; não persiste. */
+  reducao_icms_base_simula_custo: z.number().min(0).max(1).optional(),
+  /** Só UI — agregado em ncm/quantidade/valor_produto antes de persistir. */
+  itens_produto_simula_custo: z.array(ItemProdutoEntradaSimulaCustoSchema).optional(),
+
+  taxas_origem_simula_custo: z.array(TaxaOrigemEntradaSimulaCustoSchema).default([]),
+  taxas_destino_simula_custo: z.array(TaxaDestinoEntradaSimulaCustoSchema).default([]),
+  documentos_simula_custo: z.array(DocumentoEntradaSchema).default([]),
+  prazos_pagamento_simula_custo: z.array(PrazoPagamentoEntradaSchema).default([]),
 })
 
 export const AtualizarSimulaCustoSchema = CriarSimulaCustoSchema.partial()
@@ -121,6 +135,18 @@ export const ListarSimulasCustoQuerySchema = z.object({
   direcao: z.enum(['asc', 'desc']).default('desc'),
 })
 
+const TaxaOrigemSimularSimulaCustoSchema = TaxaOrigemEntradaSimulaCustoSchema.pick({
+  nome_taxa_origem_simula_custo: true,
+  moeda_taxa_origem_simula_custo: true,
+  valor_total_taxa_origem_simula_custo: true,
+})
+
+const TaxaDestinoSimularSimulaCustoSchema = TaxaDestinoEntradaSimulaCustoSchema.pick({
+  nome_taxa_destino_simula_custo: true,
+  moeda_taxa_destino_simula_custo: true,
+  valor_total_taxa_destino_simula_custo: true,
+})
+
 export const SimularSimulaCustoSchema = z.object({
   ncm_simula_custo: z.string().length(8),
   valor_produto_simula_custo: z.number().positive(),
@@ -130,8 +156,8 @@ export const SimularSimulaCustoSchema = z.object({
   moeda_frete_simula_custo: z.string().length(3).default('USD'),
   valor_seguro_simula_custo: z.number().nonnegative().default(0),
   moeda_seguro_simula_custo: z.string().length(3).default('USD'),
-  taxas_origem: z.array(z.object({ nome: z.string().min(1), valor: z.number().nonnegative(), moeda: z.string().length(3) })).default([]),
-  taxas_destino: z.array(z.object({ nome: z.string().min(1), valor: z.number().nonnegative(), moeda: z.string().length(3) })).default([]),
+  taxas_origem_simula_custo: z.array(TaxaOrigemSimularSimulaCustoSchema).default([]),
+  taxas_destino_simula_custo: z.array(TaxaDestinoSimularSimulaCustoSchema).default([]),
   uf_desembaraco_simula_custo: z.string().length(2).default('SP'),
   aliquota_ii_simula_custo: z.number().min(0).max(1),
   aliquota_ipi_simula_custo: z.number().min(0).max(1),
@@ -143,6 +169,7 @@ export const SimularSimulaCustoSchema = z.object({
   reducao_ii_simula_custo: z.number().min(0).max(1).optional(),
 })
 
+export type ItemProdutoEntradaSimulaCusto = z.infer<typeof ItemProdutoEntradaSimulaCustoSchema>
 export type CriarSimulaCustoInput = z.infer<typeof CriarSimulaCustoSchema>
 export type AtualizarSimulaCustoInput = z.infer<typeof AtualizarSimulaCustoSchema>
 export type SimularSimulaCustoInput = z.infer<typeof SimularSimulaCustoSchema>

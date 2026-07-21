@@ -66,7 +66,7 @@ function montarDadosTaxasOrigem(
   dados: CriarSimulaCustoInput,
   contexto: { tenantId: string; idWorkspace: string; idUsuario: string },
 ) {
-  return dados.taxas_origem.map((t) => ({
+  return dados.taxas_origem_simula_custo.map((t) => ({
     id_organizacao: contexto.tenantId,
     id_workspace: contexto.idWorkspace,
     id_usuario: contexto.idUsuario,
@@ -83,7 +83,7 @@ function montarDadosTaxasDestino(
   dados: CriarSimulaCustoInput,
   contexto: { tenantId: string; idWorkspace: string; idUsuario: string },
 ) {
-  return dados.taxas_destino.map((t) => ({
+  return dados.taxas_destino_simula_custo.map((t) => ({
     id_organizacao: contexto.tenantId,
     id_workspace: contexto.idWorkspace,
     id_usuario: contexto.idUsuario,
@@ -107,7 +107,7 @@ async function recalcularEPersistirSimulaCusto(
 ): Promise<void> {
   const e = await prisma.simulaCusto.findFirst({
     where: { id_simula_custo: idSimulaCusto },
-    include: { taxas_origem: true, taxas_destino: true },
+    include: { taxas_origem_simula_custo: true, taxas_destino_simula_custo: true },
   })
   if (!e) return
 
@@ -122,15 +122,15 @@ async function recalcularEPersistirSimulaCusto(
     moeda_frete_simula_custo: e.moeda_frete_simula_custo,
     valor_seguro_simula_custo: Number(e.valor_seguro_simula_custo),
     moeda_seguro_simula_custo: e.moeda_seguro_simula_custo,
-    taxas_origem: e.taxas_origem.map(t => ({
-      nome: t.nome_taxa_origem_simula_custo,
-      valor: Number(t.valor_total_taxa_origem_simula_custo),
-      moeda: t.moeda_taxa_origem_simula_custo,
+    taxas_origem_simula_custo: e.taxas_origem_simula_custo.map(t => ({
+      nome_taxa_origem_simula_custo: t.nome_taxa_origem_simula_custo,
+      valor_total_taxa_origem_simula_custo: Number(t.valor_total_taxa_origem_simula_custo),
+      moeda_taxa_origem_simula_custo: t.moeda_taxa_origem_simula_custo,
     })),
-    taxas_destino: e.taxas_destino.map(t => ({
-      nome: t.nome_taxa_destino_simula_custo,
-      valor: Number(t.valor_total_taxa_destino_simula_custo),
-      moeda: t.moeda_taxa_destino_simula_custo,
+    taxas_destino_simula_custo: e.taxas_destino_simula_custo.map(t => ({
+      nome_taxa_destino_simula_custo: t.nome_taxa_destino_simula_custo,
+      valor_total_taxa_destino_simula_custo: Number(t.valor_total_taxa_destino_simula_custo),
+      moeda_taxa_destino_simula_custo: t.moeda_taxa_destino_simula_custo,
     })),
     uf_desembaraco_simula_custo: e.uf_desembaraco_simula_custo,
     aliquota_ii_simula_custo: Number(e.aliquota_ii_simula_custo),
@@ -204,10 +204,10 @@ simulasCustoRouter.post('/', async (req: TenantRequest, res: Response, next: Nex
         aliquota_pis_simula_custo: dados.aliquota_pis_simula_custo,
         aliquota_cofins_simula_custo: dados.aliquota_cofins_simula_custo,
         reducao_ii_simula_custo: dados.reducao_ii_simula_custo,
-        taxas_origem: { create: montarDadosTaxasOrigem(dados, { tenantId, idWorkspace, idUsuario }) as never },
-        taxas_destino: { create: montarDadosTaxasDestino(dados, { tenantId, idWorkspace, idUsuario }) as never },
-        documentos: {
-          create: dados.documentos.map((d) => ({
+        taxas_origem_simula_custo: { create: montarDadosTaxasOrigem(dados, { tenantId, idWorkspace, idUsuario }) as never },
+        taxas_destino_simula_custo: { create: montarDadosTaxasDestino(dados, { tenantId, idWorkspace, idUsuario }) as never },
+        documentos_simula_custo: {
+          create: dados.documentos_simula_custo.map((d) => ({
             id_organizacao: tenantId,
             id_workspace: idWorkspace,
             id_usuario: idUsuario,
@@ -215,8 +215,8 @@ simulasCustoRouter.post('/', async (req: TenantRequest, res: Response, next: Nex
             numero_documento_simula_custo: d.numero_documento_simula_custo,
           })),
         },
-        prazos_pagamento: {
-          create: dados.prazos_pagamento.map((p, ordem) => ({
+        prazos_pagamento_simula_custo: {
+          create: dados.prazos_pagamento_simula_custo.map((p, ordem) => ({
             id_organizacao: tenantId,
             id_workspace: idWorkspace,
             id_usuario: idUsuario,
@@ -313,19 +313,19 @@ simulasCustoRouter.get('/:id_simula_custo', async (req: TenantRequest, res: Resp
     const simula = await prisma.simulaCusto.findFirst({
       where: { id_simula_custo: req.params.id_simula_custo },
       include: {
-        taxas_origem: true,
-        taxas_destino: true,
-        documentos: { include: { anexos: true } },
-        prazos_pagamento: true,
+        taxas_origem_simula_custo: true,
+        taxas_destino_simula_custo: true,
+        documentos_simula_custo: { include: { anexos_documento_simula_custo: true } },
+        prazos_pagamento_simula_custo: true,
       },
     })
     if (!simula) throw new AppError('Simula não encontrada', 404, 'NOT_FOUND')
 
-    const { taxas_origem, taxas_destino, documentos, prazos_pagamento, ...linha } = simula
+    const { taxas_origem_simula_custo, taxas_destino_simula_custo, documentos_simula_custo, prazos_pagamento_simula_custo, ...linha } = simula
     res.json({
       simula_custo: {
         ...serializarSimulaCusto(linha),
-        taxas_origem: taxas_origem.map(t => ({
+        taxas_origem_simula_custo: taxas_origem_simula_custo.map(t => ({
           id_taxa_origem_simula_custo: t.id_taxa_origem_simula_custo,
           id_taxa_origem_destino: t.id_taxa_origem_destino,
           nome_taxa_origem_simula_custo: t.nome_taxa_origem_simula_custo,
@@ -334,7 +334,7 @@ simulasCustoRouter.get('/:id_simula_custo', async (req: TenantRequest, res: Resp
           valor_minimo_taxa_origem_simula_custo: Number(t.valor_minimo_taxa_origem_simula_custo),
           valor_total_taxa_origem_simula_custo: Number(t.valor_total_taxa_origem_simula_custo),
         })),
-        taxas_destino: taxas_destino.map(t => ({
+        taxas_destino_simula_custo: taxas_destino_simula_custo.map(t => ({
           id_taxa_destino_simula_custo: t.id_taxa_destino_simula_custo,
           id_taxa_origem_destino: t.id_taxa_origem_destino,
           nome_taxa_destino_simula_custo: t.nome_taxa_destino_simula_custo,
@@ -343,15 +343,15 @@ simulasCustoRouter.get('/:id_simula_custo', async (req: TenantRequest, res: Resp
           valor_minimo_taxa_destino_simula_custo: Number(t.valor_minimo_taxa_destino_simula_custo),
           valor_total_taxa_destino_simula_custo: Number(t.valor_total_taxa_destino_simula_custo),
         })),
-        documentos: documentos.map(d => ({
+        documentos_simula_custo: documentos_simula_custo.map(d => ({
           id_documento_simula_custo: d.id_documento_simula_custo,
           tipo_documento_simula_custo: d.tipo_documento_simula_custo,
           numero_documento_simula_custo: d.numero_documento_simula_custo,
-          anexos: ('anexos' in d && Array.isArray(d.anexos))
-            ? d.anexos.map(serializarAnexoDocumentoSimulaCusto)
+          anexos_documento_simula_custo: ('anexos_documento_simula_custo' in d && Array.isArray(d.anexos_documento_simula_custo))
+            ? d.anexos_documento_simula_custo.map(serializarAnexoDocumentoSimulaCusto)
             : [],
         })),
-        prazos_pagamento: prazos_pagamento
+        prazos_pagamento_simula_custo: prazos_pagamento_simula_custo
           .slice()
           .sort((a, b) => a.ordem_prazo_pagamento_simula_custo - b.ordem_prazo_pagamento_simula_custo)
           .map((p) => ({
@@ -402,22 +402,22 @@ simulasCustoRouter.put('/:id_simula_custo', async (req: TenantRequest, res: Resp
     }
 
     // Taxas: substituição completa quando enviadas (padrão replace-all do formulário)
-    if (dados.taxas_origem !== undefined) {
-      dataUpdate.taxas_origem = {
+    if (dados.taxas_origem_simula_custo !== undefined) {
+      dataUpdate.taxas_origem_simula_custo = {
         deleteMany: {},
         create: montarDadosTaxasOrigem(dados as CriarSimulaCustoInput, { tenantId, idWorkspace, idUsuario }) as never,
       }
     }
-    if (dados.taxas_destino !== undefined) {
-      dataUpdate.taxas_destino = {
+    if (dados.taxas_destino_simula_custo !== undefined) {
+      dataUpdate.taxas_destino_simula_custo = {
         deleteMany: {},
         create: montarDadosTaxasDestino(dados as CriarSimulaCustoInput, { tenantId, idWorkspace, idUsuario }) as never,
       }
     }
-    if (dados.documentos !== undefined) {
-      dataUpdate.documentos = {
+    if (dados.documentos_simula_custo !== undefined) {
+      dataUpdate.documentos_simula_custo = {
         deleteMany: {},
-        create: dados.documentos.map((d) => ({
+        create: dados.documentos_simula_custo.map((d) => ({
           id_organizacao: tenantId,
           id_workspace: idWorkspace,
           id_usuario: idUsuario,
@@ -426,10 +426,10 @@ simulasCustoRouter.put('/:id_simula_custo', async (req: TenantRequest, res: Resp
         })),
       }
     }
-    if (dados.prazos_pagamento !== undefined) {
-      dataUpdate.prazos_pagamento = {
+    if (dados.prazos_pagamento_simula_custo !== undefined) {
+      dataUpdate.prazos_pagamento_simula_custo = {
         deleteMany: {},
-        create: dados.prazos_pagamento.map((p, ordem) => ({
+        create: dados.prazos_pagamento_simula_custo.map((p, ordem) => ({
           id_organizacao: tenantId,
           id_workspace: idWorkspace,
           id_usuario: idUsuario,
@@ -491,10 +491,10 @@ simulasCustoRouter.post('/:id_simula_custo/duplicar', async (req: TenantRequest,
     const original = await prisma.simulaCusto.findFirst({
       where: { id_simula_custo: req.params.id_simula_custo },
       include: {
-        taxas_origem: true,
-        taxas_destino: true,
-        documentos: { include: { anexos: true } },
-        prazos_pagamento: true,
+        taxas_origem_simula_custo: true,
+        taxas_destino_simula_custo: true,
+        documentos_simula_custo: { include: { anexos_documento_simula_custo: true } },
+        prazos_pagamento_simula_custo: true,
       },
     })
     if (!original) throw new AppError('Simula original não encontrada', 404, 'NOT_FOUND')
@@ -532,8 +532,8 @@ simulasCustoRouter.post('/:id_simula_custo/duplicar', async (req: TenantRequest,
         aliquota_pis_simula_custo: original.aliquota_pis_simula_custo,
         aliquota_cofins_simula_custo: original.aliquota_cofins_simula_custo,
         reducao_ii_simula_custo: original.reducao_ii_simula_custo,
-        taxas_origem: {
-          create: original.taxas_origem.map(t => ({
+        taxas_origem_simula_custo: {
+          create: original.taxas_origem_simula_custo.map(t => ({
             id_organizacao: tenantId,
             id_workspace: idWorkspace,
             id_usuario: idUsuario,
@@ -545,8 +545,8 @@ simulasCustoRouter.post('/:id_simula_custo/duplicar', async (req: TenantRequest,
             valor_total_taxa_origem_simula_custo: t.valor_total_taxa_origem_simula_custo,
           })),
         },
-        taxas_destino: {
-          create: original.taxas_destino.map(t => ({
+        taxas_destino_simula_custo: {
+          create: original.taxas_destino_simula_custo.map(t => ({
             id_organizacao: tenantId,
             id_workspace: idWorkspace,
             id_usuario: idUsuario,
@@ -558,8 +558,8 @@ simulasCustoRouter.post('/:id_simula_custo/duplicar', async (req: TenantRequest,
             valor_total_taxa_destino_simula_custo: t.valor_total_taxa_destino_simula_custo,
           })),
         },
-        documentos: {
-          create: original.documentos.map(d => ({
+        documentos_simula_custo: {
+          create: original.documentos_simula_custo.map(d => ({
             id_organizacao: tenantId,
             id_workspace: idWorkspace,
             id_usuario: idUsuario,
@@ -567,8 +567,8 @@ simulasCustoRouter.post('/:id_simula_custo/duplicar', async (req: TenantRequest,
             numero_documento_simula_custo: d.numero_documento_simula_custo,
           })),
         },
-        prazos_pagamento: {
-          create: original.prazos_pagamento.map((p) => ({
+        prazos_pagamento_simula_custo: {
+          create: original.prazos_pagamento_simula_custo.map((p) => ({
             id_organizacao: tenantId,
             id_workspace: idWorkspace,
             id_usuario: idUsuario,

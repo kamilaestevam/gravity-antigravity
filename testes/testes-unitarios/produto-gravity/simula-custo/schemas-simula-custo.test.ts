@@ -27,9 +27,9 @@ describe('CriarSimulaCustoSchema', () => {
     expect(r.moeda_produto_simula_custo).toBe('USD')
     expect(r.uf_desembaraco_simula_custo).toBe('SP')
     expect(r.quantidade_simula_custo).toBe(1)
-    expect(r.taxas_origem).toEqual([])
-    expect(r.taxas_destino).toEqual([])
-    expect(r.documentos).toEqual([])
+    expect(r.taxas_origem_simula_custo).toEqual([])
+    expect(r.taxas_destino_simula_custo).toEqual([])
+    expect(r.documentos_simula_custo).toEqual([])
   })
 
   it('rejeita NCM curto e valor negativo', () => {
@@ -55,21 +55,39 @@ describe('CriarSimulaCustoSchema', () => {
     }).success).toBe(false)
   })
 
+  it('aceita campos só-UI com sufixo _simula_custo (não persistem)', () => {
+    const r = CriarSimulaCustoSchema.parse({
+      ...PAYLOAD_MINIMO,
+      numero_manual_simula_custo: 'EST-IMP-00099/26',
+      reducao_icms_base_simula_custo: 0.4,
+      itens_produto_simula_custo: [{
+        ncm_item_produto_simula_custo: '84713012',
+        moeda_item_produto_simula_custo: 'USD',
+        valor_unitario_item_produto_simula_custo: 500,
+        quantidade_item_produto_simula_custo: 2,
+      }],
+    })
+    expect(r.numero_manual_simula_custo).toBe('EST-IMP-00099/26')
+    expect(r.reducao_icms_base_simula_custo).toBe(0.4)
+    expect(r.itens_produto_simula_custo).toHaveLength(1)
+    expect(r.itens_produto_simula_custo![0].ncm_item_produto_simula_custo).toBe('84713012')
+  })
+
   it('valida taxas e documentos aninhados', () => {
     const r = CriarSimulaCustoSchema.parse({
       ...PAYLOAD_MINIMO,
-      taxas_origem: [{
+      taxas_origem_simula_custo: [{
         nome_taxa_origem_simula_custo: 'THC',
         moeda_taxa_origem_simula_custo: 'USD',
         valor_total_taxa_origem_simula_custo: 120,
       }],
-      documentos: [{ tipo_documento_simula_custo: 'INVOICE', numero_documento_simula_custo: 'INV-1' }],
+      documentos_simula_custo: [{ tipo_documento_simula_custo: 'INVOICE', numero_documento_simula_custo: 'INV-1' }],
     })
-    expect(r.taxas_origem[0].tipo_cobranca_taxa_origem_simula_custo).toBe('PROCESSO')
-    expect(r.taxas_origem[0].valor_minimo_taxa_origem_simula_custo).toBe(0)
+    expect(r.taxas_origem_simula_custo[0].tipo_cobranca_taxa_origem_simula_custo).toBe('PROCESSO')
+    expect(r.taxas_origem_simula_custo[0].valor_minimo_taxa_origem_simula_custo).toBe(0)
     expect(CriarSimulaCustoSchema.safeParse({
       ...PAYLOAD_MINIMO,
-      documentos: [{ tipo_documento_simula_custo: 'NOTA_FISCAL', numero_documento_simula_custo: 'X' }],
+      documentos_simula_custo: [{ tipo_documento_simula_custo: 'NOTA_FISCAL', numero_documento_simula_custo: 'X' }],
     }).success).toBe(false)
   })
 })

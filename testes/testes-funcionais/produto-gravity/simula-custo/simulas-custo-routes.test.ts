@@ -37,10 +37,10 @@ import { AppError } from '../../../../servicos-global/produto/simula-custo/serve
 interface LinhaSimula extends Record<string, unknown> {
   id_simula_custo: string
   id_organizacao: string
-  taxas_origem: Record<string, unknown>[]
-  taxas_destino: Record<string, unknown>[]
-  documentos: Record<string, unknown>[]
-  prazos_pagamento: Record<string, unknown>[]
+  taxas_origem_simula_custo: Record<string, unknown>[]
+  taxas_destino_simula_custo: Record<string, unknown>[]
+  documentos_simula_custo: Record<string, unknown>[]
+  prazos_pagamento_simula_custo: Record<string, unknown>[]
 }
 
 let simulas: LinhaSimula[] = []
@@ -70,7 +70,7 @@ function criarPrismaMock(orgId: string) {
   return {
     simulaCusto: {
       create: vi.fn(async ({ data, select }: { data: Record<string, unknown>; select?: Record<string, boolean> }) => {
-        const { taxas_origem, taxas_destino, documentos, prazos_pagamento, ...campos } = data
+        const { taxas_origem_simula_custo, taxas_destino_simula_custo, documentos_simula_custo, prazos_pagamento_simula_custo, ...campos } = data
         const linha: LinhaSimula = {
           quantidade_simula_custo: 1,
           descricao_ncm_simula_custo: null,
@@ -84,10 +84,10 @@ function criarPrismaMock(orgId: string) {
           ...campos,
           id_simula_custo: `est-${nextId++}`,
           id_organizacao: orgId,
-          taxas_origem: ((taxas_origem as { create?: Record<string, unknown>[] })?.create ?? []) as Record<string, unknown>[],
-          taxas_destino: ((taxas_destino as { create?: Record<string, unknown>[] })?.create ?? []) as Record<string, unknown>[],
-          documentos: ((documentos as { create?: Record<string, unknown>[] })?.create ?? []) as Record<string, unknown>[],
-          prazos_pagamento: ((prazos_pagamento as { create?: Record<string, unknown>[] })?.create ?? []) as Record<string, unknown>[],
+          taxas_origem_simula_custo: ((taxas_origem_simula_custo as { create?: Record<string, unknown>[] })?.create ?? []) as Record<string, unknown>[],
+          taxas_destino_simula_custo: ((taxas_destino_simula_custo as { create?: Record<string, unknown>[] })?.create ?? []) as Record<string, unknown>[],
+          documentos_simula_custo: ((documentos_simula_custo as { create?: Record<string, unknown>[] })?.create ?? []) as Record<string, unknown>[],
+          prazos_pagamento_simula_custo: ((prazos_pagamento_simula_custo as { create?: Record<string, unknown>[] })?.create ?? []) as Record<string, unknown>[],
         }
         simulas.push(linha)
         return aplicarSelect(linha, select)
@@ -117,7 +117,7 @@ function criarPrismaMock(orgId: string) {
       }) => {
         const linha = filtrar(where)[0]
         if (!linha) throw Object.assign(new Error('Record not found'), { code: 'P2025' })
-        const { taxas_origem, taxas_destino, documentos, prazos_pagamento, ...campos } = data
+        const { taxas_origem_simula_custo, taxas_destino_simula_custo, documentos_simula_custo, prazos_pagamento_simula_custo, ...campos } = data
         Object.assign(linha, campos, { data_atualizacao_simula_custo: new Date() })
         return aplicarSelect(linha, select)
       }),
@@ -184,12 +184,12 @@ const PAYLOAD_VALIDO = {
   aliquota_pis_simula_custo: 0.021,
   aliquota_cofins_simula_custo: 0.0965,
   aliquota_icms_simula_custo: 0.18,
-  taxas_origem: [{
+  taxas_origem_simula_custo: [{
     nome_taxa_origem_simula_custo: 'THC',
     moeda_taxa_origem_simula_custo: 'USD',
     valor_total_taxa_origem_simula_custo: 120,
   }],
-  documentos: [{ tipo_documento_simula_custo: 'INVOICE', numero_documento_simula_custo: 'INV-1' }],
+  documentos_simula_custo: [{ tipo_documento_simula_custo: 'INVOICE', numero_documento_simula_custo: 'INV-1' }],
 }
 
 beforeEach(() => {
@@ -242,8 +242,8 @@ describe('POST /simulas-custo', () => {
 
     const criada = simulas[0]
     expect(criada.id_organizacao).toBe('org-a')
-    expect(criada.taxas_origem[0].id_organizacao).toBe('org-a')
-    expect(criada.documentos[0].id_organizacao).toBe('org-a')
+    expect(criada.taxas_origem_simula_custo[0].id_organizacao).toBe('org-a')
+    expect(criada.documentos_simula_custo[0].id_organizacao).toBe('org-a')
   })
 })
 

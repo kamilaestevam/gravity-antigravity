@@ -130,8 +130,8 @@ export function TabelaResumoValoresSimulaCusto({
     | 'valor_frete_simula_custo'
     | 'moeda_seguro_simula_custo'
     | 'valor_seguro_simula_custo'
-    | 'taxas_origem'
-    | 'taxas_destino'
+    | 'taxas_origem_simula_custo'
+    | 'taxas_destino_simula_custo'
     | 'itens_produto_simula_custo'
   >
 }) {

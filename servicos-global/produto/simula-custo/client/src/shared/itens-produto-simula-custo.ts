@@ -4,13 +4,7 @@
 import { formatarNcmDisplaySimulaCusto } from './ultimos-ncm-simula-custo'
 import type { EntradaSimulaCusto, ItemProdutoEntradaSimulaCusto } from './schemas-simula-custo'
 
-export interface ItemProdutoEntradaSimulaCusto {
-  ncm_item_produto_simula_custo: string
-  descricao_ncm_item_produto_simula_custo?: string
-  moeda_item_produto_simula_custo: string
-  valor_unitario_item_produto_simula_custo: number
-  quantidade_item_produto_simula_custo: number
-}
+export type { ItemProdutoEntradaSimulaCusto } from './schemas-simula-custo'
 
 export const ITEM_PRODUTO_VAZIO_SIMULA_CUSTO: ItemProdutoEntradaSimulaCusto = {
   ncm_item_produto_simula_custo: '',

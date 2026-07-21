@@ -2223,11 +2223,12 @@ export function ModalEdicaoMassaPedidos({ pedidos, itensSelecionadosIds, pedidoI
           0 0 0 1px rgba(99, 102, 241, 0.08),
           inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
       }
+      /* Só o span do indicador 1/N (sem button). Não esconder o wrap do Próximo. */
       .mpg-dialog > div:last-child {
         justify-content: flex-end !important;
         gap: 0.75rem !important;
       }
-      .mpg-dialog > div:last-child > div > span {
+      .mpg-dialog > div:last-child > div > span:not(:has(button)) {
         display: none !important;
       }
       .em-secao {

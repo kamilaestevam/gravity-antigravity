@@ -999,11 +999,13 @@ export function ModalConsolidarPedidos({
         gap: 0.5rem;
       }
       /* ── Footer: botões juntos à direita, sem indicador 1/3 ── */
+      /* Só o span do indicador (sem button). O Próximo vem em <span><BotaoGlobal/></span>
+         desde dataTutorialAlvoBotaoAvancar (55454f12) — seletor antigo escondia os dois. */
       .mpg-dialog > div:last-child {
         justify-content: flex-end !important;
         gap: 0.75rem !important;
       }
-      .mpg-dialog > div:last-child > div > span {
+      .mpg-dialog > div:last-child > div > span:not(:has(button)) {
         display: none !important;
       }
       .cons-secao-titulo::before {

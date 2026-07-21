@@ -1446,6 +1446,7 @@ export function SelecionarWorkspace() {
                     }))}
                     t={t}
                     onIrStore={() => navigate('/store')}
+                    onIrUniversity={() => navigate('/university-gravity')}
                     onAbrirProdutoContratado={abrirProdutoContratadoHub}
                     pecasExtras={pecasExtrasHub}
                   />

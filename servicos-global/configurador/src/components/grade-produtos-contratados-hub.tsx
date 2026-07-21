@@ -4,7 +4,13 @@
 
 import type { TFunction } from 'i18next'
 import React, { useMemo } from 'react'
-import { ArrowRight, Package, RocketLaunch, ShoppingBagOpen } from '@phosphor-icons/react'
+import {
+  ArrowRight,
+  GraduationCap,
+  Package,
+  RocketLaunch,
+  ShoppingBagOpen,
+} from '@phosphor-icons/react'
 import { StorePuzzleCarousel } from './store-puzzle-carousel'
 import {
   BarrasMeterPuzzleStackProdutos,
@@ -39,6 +45,8 @@ export interface GradeProdutosContratadosHubProps {
   produtosContratados: ProdutoContratadoHubItem[]
   t: TFunction
   onIrStore?: () => void
+  /** HUB: primeiro acesso — abrir Gravity University (treinamento). */
+  onIrUniversity?: () => void
   /** HUB: sessão de workspace + navegação direta ao módulo contratado. */
   onAbrirProdutoContratado?: (slug: string, rota: string) => void
   /** HUB: peça extra visão fornecedor BID (perm `visao_fornecedor:cotar`). */
@@ -50,6 +58,7 @@ export function GradeProdutosContratadosHub({
   produtosContratados,
   t,
   onIrStore,
+  onIrUniversity,
   onAbrirProdutoContratado,
   pecasExtras = [],
 }: GradeProdutosContratadosHubProps) {
@@ -129,6 +138,47 @@ export function GradeProdutosContratadosHub({
           >
             <ShoppingBagOpen size={16} weight="duotone" aria-hidden />
             {t('sw.hub_ir_gravity_store', 'Ir para Gravity Store')}
+            <ArrowRight size={14} weight="bold" aria-hidden />
+          </button>
+        </div>
+      )}
+
+      {semProdutosContratados && onIrUniversity && (
+        <div
+          className="sw-hub-onboarding-store"
+          role="region"
+          aria-label={t(
+            'sw.hub_treinamento_university_titulo',
+            'Conclua o treinamento na Gravity University',
+          )}
+        >
+          <span className="sw-hub-onboarding-store__icon" aria-hidden>
+            <GraduationCap size={22} weight="duotone" />
+          </span>
+          <div className="sw-hub-onboarding-store__copy">
+            <p className="sw-hub-onboarding-store__kicker">
+              {t('sw.hub_treinamento_university_kicker', 'Treinamento')}
+            </p>
+            <h3 className="sw-hub-onboarding-store__title">
+              {t(
+                'sw.hub_treinamento_university_titulo',
+                'Conclua o treinamento na Gravity University',
+              )}
+            </h3>
+            <p className="sw-hub-onboarding-store__desc">
+              {t(
+                'sw.hub_treinamento_university_desc',
+                'A conclusão do treinamento via Gravity University é fundamental para operar na plataforma com segurança e eficiência.',
+              )}
+            </p>
+          </div>
+          <button
+            type="button"
+            className="sw-hub-cta-primario sw-hub-onboarding-store__cta"
+            onClick={onIrUniversity}
+          >
+            <GraduationCap size={16} weight="duotone" aria-hidden />
+            {t('sw.hub_ir_gravity_university', 'Ir para Gravity University')}
             <ArrowRight size={14} weight="bold" aria-hidden />
           </button>
         </div>

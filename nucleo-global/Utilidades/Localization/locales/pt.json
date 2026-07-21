@@ -8,10 +8,6 @@
       "docs": "Manuais",
       "builders": "Gravity Partner",
       "produtos_gravity": "Produtos Gravity",
-      "modulo_basico": "Módulo Básico",
-      "modulo_basico_subtitulo": "Para todos os produtos Gravity",
-      "modulo_por_produto_gravity": "Módulo por Produto Gravity",
-      "modulo_por_produto_gravity_subtitulo": "Trilhas por produto contratado",
       "modulos_plataforma": "Todos os produtos Gravity"
     },
     "nav_status": {
@@ -47,105 +43,44 @@
           "titulo": "Panorama da jornada",
           "resumo": "Visão geral do que você já fez, do que falta e por onde retomar.",
           "explorar": {
-            "hero": {
-              "titulo": "1. Cartão Continue de onde parou",
-              "descricao": "Módulo em andamento, etapa atual e anel com etapas concluídas"
-            },
-            "continuar": {
-              "titulo": "2. Botão Continuar jornada",
-              "descricao": "Abre direto a trilha do módulo que você estava fazendo"
-            },
-            "kpis": {
-              "titulo": "3. Resumo em números",
-              "descricao": "Pontos, concluídas, em andamento e certificados — leitura rápida do progresso"
-            },
-            "certificados": {
-              "titulo": "4. Meus certificados",
-              "descricao": "Módulo básico e produtos (Pedido, Smart Docs, BID Frete) — conclua 100% para desbloquear"
-            },
-            "progresso": {
-              "titulo": "5. Progresso nos produtos contratados",
-              "descricao": "Barra contínua e tags filtráveis — clique nas tags para focar produtos no gráfico"
-            },
-            "faltam": {
-              "titulo": "6. O que falta",
-              "descricao": "Módulos pendentes com atalho Iniciar ou Continuar"
-            }
+            "hero": { "titulo": "1. Cartão Continue de onde parou", "descricao": "Módulo em andamento, etapa atual e anel com etapas concluídas" },
+            "continuar": { "titulo": "2. Botão Continuar jornada", "descricao": "Abre direto a trilha do módulo que você estava fazendo" },
+            "kpis": { "titulo": "3. Resumo em números", "descricao": "Pontos, concluídas, em andamento e certificados — leitura rápida do progresso" },
+            "certificados": { "titulo": "4. Meus certificados", "descricao": "Módulo básico e produtos (Pedido, Smart Docs, BID Frete) — conclua 100% para desbloquear" },
+            "progresso": { "titulo": "5. Progresso nos produtos contratados", "descricao": "Barra contínua e tags filtráveis — clique nas tags para focar produtos no gráfico" },
+            "faltam": { "titulo": "6. O que falta", "descricao": "Módulos pendentes com atalho Iniciar ou Continuar" }
           },
-          "avancar": {
-            "acao": "Próxima área",
-            "titulo": "Nível e recompensas",
-            "descricao": "Passe o mouse aqui e veja a coluna direita — XP, ritmo, ofensiva, badges e ranking"
-          }
+          "avancar": { "acao": "Próxima área", "titulo": "Nível e recompensas", "descricao": "Passe o mouse aqui e veja a coluna direita — XP, ritmo, ofensiva, badges e ranking" }
         },
         "gamificacao": {
           "titulo": "Gamificação",
           "resumo": "Nível, ritmo de estudo, recompensas e comparação com colegas.",
           "explorar": {
-            "nivel": {
-              "titulo": "1. Nível, ritmo e ofensiva",
-              "descricao": "Barra de XP, meta do nível, ritmo da jornada e dias seguidos de atividade"
-            },
-            "recompensas": {
-              "titulo": "2. Recompensas",
-              "descricao": "Badges e Gravity Points desbloqueados ao concluir etapas"
-            },
-            "ranking": {
-              "titulo": "3. Ranking geral",
-              "descricao": "Sua posição e XP comparado aos colegas da organização"
-            }
+            "nivel": { "titulo": "1. Nível, ritmo e ofensiva", "descricao": "Barra de XP, meta do nível, ritmo da jornada e dias seguidos de atividade" },
+            "recompensas": { "titulo": "2. Recompensas", "descricao": "Badges e Gravity Points desbloqueados ao concluir etapas" },
+            "ranking": { "titulo": "3. Ranking geral", "descricao": "Sua posição e XP comparado aos colegas da organização" }
           },
-          "avancar": {
-            "acao": "Menu lateral",
-            "titulo": "Minha jornada no menu",
-            "descricao": "Clique em Siga em frente para ver como navegar pelos guias no menu"
-          }
+          "avancar": { "acao": "Menu lateral", "titulo": "Minha jornada no menu", "descricao": "Clique em Siga em frente para ver como navegar pelos guias no menu" }
         },
         "menu_basico": {
           "titulo": "Menu — fundação",
           "resumo": "Onde ficam Minha jornada e o Módulo básico que todo usuário faz uma vez.",
           "explorar": {
-            "jornada": {
-              "titulo": "1. Minha jornada",
-              "descricao": "Sempre volta a este painel central de progresso e métricas"
-            },
-            "modulo": {
-              "titulo": "2. Módulo básico",
-              "descricao": "Bem-vindo, Login, Navegação, Configurador, Gabi, Hub e Store — guias fundacionais"
-            },
-            "status": {
-              "titulo": "3. Legenda de status",
-              "descricao": "Contratado, concluído e em aberto — ícones à direita de cada item do menu"
-            }
+            "jornada": { "titulo": "1. Minha jornada", "descricao": "Sempre volta a este painel central de progresso e métricas" },
+            "modulo": { "titulo": "2. Módulo básico", "descricao": "Bem-vindo, Login, Navegação, Configurador, Gabi, Hub e Store — guias fundacionais" },
+            "status": { "titulo": "3. Legenda de status", "descricao": "Contratado, concluído e em aberto — ícones à direita de cada item do menu" }
           },
-          "avancar": {
-            "acao": "Produtos",
-            "titulo": "Trilhas por produto",
-            "descricao": "Avance para conhecer Pedido, Smart Docs e BID Frete no menu"
-          }
+          "avancar": { "acao": "Produtos", "titulo": "Trilhas por produto", "descricao": "Avance para conhecer Pedido, Smart Docs e BID Frete no menu" }
         },
         "produtos": {
           "titulo": "Menu — produtos",
           "resumo": "Cada produto contratado tem sua própria trilha de onboarding.",
           "explorar": {
-            "pedido": {
-              "titulo": "1. Pedido",
-              "descricao": "Lista, kanban, configurações e fluxos operacionais do módulo"
-            },
-            "smart_read": {
-              "titulo": "2. Smart Docs",
-              "descricao": "Leitura de documentos, lista e configurações do produto"
-            },
-            "bid_frete": {
-              "titulo": "3. BID Frete Internacional",
-              "descricao": "Cotações, fornecedores e operação de frete internacional"
-            }
+            "pedido": { "titulo": "1. Pedido", "descricao": "Lista, kanban, configurações e fluxos operacionais do módulo" },
+            "smart_read": { "titulo": "2. Smart Docs", "descricao": "Leitura de documentos, lista e configurações do produto" },
+            "bid_frete": { "titulo": "3. BID Frete Internacional", "descricao": "Cotações, fornecedores e operação de frete internacional" }
           },
-          "avancar": {
-            "acao": "Concluir",
-            "titulo": "Pronto para explorar",
-            "descricao": "Feche o tour e comece pelo módulo que preferir — ou reabra pelo botão Quickly Tour"
-          }
+          "avancar": { "acao": "Concluir", "titulo": "Pronto para explorar", "descricao": "Feche o tour e comece pelo módulo que preferir — ou reabra pelo botão Quickly Tour" }
         }
       }
     },
@@ -301,26 +236,26 @@
     "certificado": {
       "secao_titulo": "Meus certificados",
       "contagem": "{{obtidos}}/{{total}} obtidos",
-      "tipo_modulo_basico": "Módulo Básico",
+      "tipo_modulo_basico": "Módulo básico",
       "tipo_pedido": "Pedido",
-      "tipo_bid_frete": "BID Frete Internacional",
+      "tipo_bid_frete": "Bid Frete",
       "tipo_smart_read": "Smart Docs",
       "tipo": "CERTIFICADO DE CONCLUSÃO",
       "numero": "Nº {{numero}}",
       "intro": "Certificamos que",
-      "descricao": "Concluiu com aproveitamento o módulo do programa de capacitação Gravity University, cumprindo todas as etapas e avaliações propostas:",
+      "descricao": "concluiu com aproveitamento o módulo do programa de capacitação Gravity University, cumprindo todas as etapas e avaliações propostas:",
       "nivel_rotulo": "NÍVEL ALCANÇADO",
       "xp_rotulo": "XP CONQUISTADO",
       "data_rotulo": "CONCLUÍDO EM",
       "equipe": "Equipe Gravity University",
       "emissao_oficial": "Emissão oficial · DATI Tecnologia",
       "verificar_em": "Verifique em university.gravity.com/verificar",
-      "vazio": "Conclua o Módulo Básico ou um produto (Pedido, BID Frete Internacional, Smart Docs) para desbloquear certificados",
+      "vazio": "Conclua o Módulo básico ou um produto (Pedido, Bid Frete, Smart Docs) para desbloquear certificados",
       "ver": "Ver certificado",
       "abrir": "Abrir certificado — {{modulo}}",
       "fechar": "Fechar",
-      "modal_titulo": "Certificado de Conclusão",
-      "aria_certificado": "Certificado de Conclusão — {{modulo}}"
+      "modal_titulo": "Certificado de conclusão",
+      "aria_certificado": "Certificado de conclusão — {{modulo}}"
     },
     "dica": {
       "titulo": "Dicas e Explicações",
@@ -355,19 +290,7 @@
       "descricao": "Manuais e vídeos de toda a plataforma — base de conhecimento da GABI."
     },
     "builders": {
-      "descricao": "Programa de parceiros Gravity — comercial, integração e onboarding.",
-      "badge_em_breve": "Em breve",
-      "titulo_hero": "Em breve, você pode ser um Gravity Partner",
-      "subtitulo_hero": "Um ecossistema para quem leva a plataforma mais longe — junto com a Gravity.",
-      "intro": "Estamos preparando trilhas, benefícios e ferramentas para três perfis de parceiro. Cadastre-se na lista de interesse em breve.",
-      "perfil_comercial_titulo": "Parceiro comercial",
-      "perfil_comercial_descricao": "Revenda, indique e expanda a base de clientes Gravity com material de vendas, comissionamento e suporte dedicado.",
-      "perfil_integrador_titulo": "Integrador",
-      "perfil_integrador_descricao": "Conecte ERPs, APIs e fluxos customizados via API Cockpit — com documentação, sandbox e certificação técnica.",
-      "perfil_onboarding_titulo": "Onboarding",
-      "perfil_onboarding_descricao": "Implante, treine equipes e acelere a adoção dos produtos Gravity nas organizações dos seus clientes.",
-      "perfil_em_breve": "Em breve",
-      "rodape": "Quer ser avisado quando o programa abrir? Fique de olho na Gravity University — em breve liberamos o cadastro de interesse."
+      "descricao": "Direcionamento para integradores e desenvolvedores (API Cockpit)."
     }
   },
   "comum": {
@@ -2518,14 +2441,7 @@
       "ver_todas": "Ver todas",
       "sem_simulacoes": "Nenhuma simulação encontrada para este workspace.",
       "filtrar_ncm_pais": "Filtrar por NCM ou País",
-      "alertas_cambio": "Alertas de Câmbio",
-      "subtitulo_pagina": "KPIs e cards configuráveis",
-      "paineis": "Painéis",
-      "painel_padrao": "Padrão",
-      "widgets": "Widgets",
-      "configurar_cards": "Configurar cards",
-      "distribuicao_status": "Estimativas por status",
-      "resumo_financeiro": "Resumo financeiro"
+      "alertas_cambio": "Alertas de Câmbio"
     },
     "periodos": {
       "7_dias": "7 dias",
@@ -2539,57 +2455,40 @@
     },
     "estimativas": {
       "titulo": "Estimativas de Custo",
-      "subtitulo": "Gerencie suas estimativas de custo nacionalizado",
+      "subtitulo": "Gerencie suas simulações de Landed Cost",
       "nova": "Nova Estimativa",
-      "nova_curto": "Nova",
       "nova_titulo": "Nova Estimativa de Custo",
       "editar_titulo": "Editar Estimativa",
-      "nova_subtitulo": "Cálculo de custo nacionalizado de importação",
+      "nova_subtitulo": "Calcule o Landed Cost completo antes de fechar o negócio",
       "total": "Total de Estimativas",
       "em_criacao": "Em Criação",
       "criadas": "Criadas",
       "arquivadas": "Arquivadas",
-      "custo_medio": "Custo Nacionalizado Médio",
-      "confirmar_exclusao": "Excluir esta estimativa definitivamente?",
-      "excluir_titulo": "Excluir estimativa",
-      "duplicada_sucesso": "Estimativa duplicada com sucesso.",
-      "duplicada_erro": "Não foi possível duplicar a estimativa.",
-      "arquivada_sucesso": "Estimativa arquivada.",
-      "arquivada_erro": "Não foi possível arquivar a estimativa.",
-      "excluida_sucesso": "Estimativa excluída definitivamente.",
-      "excluida_erro": "Não foi possível excluir a estimativa.",
+      "landed_cost_medio": "Landed Cost Médio",
       "tabela": {
         "numero": "Número",
         "status": "Status",
         "operacao": "Operação",
         "ncm": "NCM",
         "referencia": "Referência",
-        "custo_nacionalizado": "Custo Nacionalizado",
+        "landed_cost": "Landed Cost",
         "tributos": "Tributos",
         "data": "Data"
       },
       "acoes": {
         "ver_detalhes": "Ver detalhes",
         "duplicar": "Duplicar estimativa",
-        "arquivar": "Arquivar",
-        "excluir": "Excluir"
+        "arquivar": "Arquivar"
       },
       "vazio": "Nenhuma estimativa encontrada",
       "vazio_descricao": "Crie sua primeira estimativa de custo de importação.",
-      "buscar": "Buscar por número, NCM, referência…",
-      "aria_tabela": "Tabela de estimativas de custo",
-      "todas": "Todas as estimativas",
-      "kpi_total": "Total de Estimativas",
-      "kpi_total_subtexto": "{{arquivadas}} arquivadas",
-      "kpi_em_criacao_subtexto": "Aguardando conclusão do cálculo",
-      "kpi_criadas_subtexto": "Com custo nacionalizado calculado",
-      "kpi_custo_medio_subtexto": "Tributos acumulados {{tributos}}",
-      "status_secao": "Status",
-      "faixa_navegacao": "Status da lista",
-      "abas_status": "Filtrar por status",
-      "lista_titulo": "Estimativas de Custo",
-      "lista_subtitulo": "Todas as estimativas de custo em tabela",
-      "export_titulo": "Estimativas de Custo",
+      "buscar": "Buscar por número, NCM, referência...",
+      "aria_tabela": "Tabela de estimativas",
+      "todas": "Todas",
+      "kpi_total": "Total",
+      "lista_titulo": "Lista",
+      "lista_subtitulo": "Estimativas de custo de importação",
+      "export_titulo": "Estimativas",
       "export_excel": "Excel (.xlsx)",
       "export_csv": "CSV",
       "export_txt": "TXT",
@@ -2597,42 +2496,28 @@
       "export_json": "JSON"
     },
     "formulario": {
-      "subtitulo_nova": "Preencha os dados para calcular o custo nacionalizado",
-      "titulo_editar": "Estimativa de Custo",
-      "subtitulo_editar": "Detalhes, taxas e resultado fiscal da estimativa",
       "operacao": "Operação",
       "modalidade": "Modalidade",
       "referencia": "Referência Interna",
-      "produto_origem": "Produto e Origem",
+      "produto_origem": "Produto & Origem",
       "ncm": "NCM (8 dígitos)",
-      "ncm_obrigatorio": "Informe um NCM de 8 dígitos para simular.",
+      "pais_origem": "País de Origem (ISO)",
       "uf_desembaraco": "UF de Desembaraço",
-      "quantidade": "Quantidade",
-      "numero_manual": "Número manual (opcional)",
       "valores": "Valores",
       "valor_produto": "Valor do Produto",
       "frete_internacional": "Frete Internacional",
       "seguro_internacional": "Seguro Internacional",
       "aliquotas": "Alíquotas",
       "reducao_ii": "Redução II — Acordos (%)",
-      "taxas_origem": "Taxas de Origem",
-      "taxas_destino": "Taxas de Destino",
-      "taxa_nome": "Nome da taxa",
-      "taxa_valor": "Valor",
       "documentos": "Documentos Vinculados",
-      "documento_tipo": "Tipo",
-      "documento_numero": "Número",
       "portal_unico": "Portal Único",
-      "engine": "Gravity Engine",
-      "custo_nacionalizado": "Custo Nacionalizado",
+      "engine": "Gravity Cloud Engine",
+      "landed_cost": "Landed Cost Total",
       "valor_aduaneiro": "Valor Aduaneiro (VA)",
       "total_tributos": "Total de Tributos",
       "salvar_estimativa": "Salvar Estimativa",
-      "calculando": "Calculando…",
-      "simular_custo": "Simular Custo",
-      "nao_encontrada": "Estimativa não encontrada",
-      "erro_simular": "Erro ao simular",
-      "erro_salvar": "Erro ao salvar"
+      "calculando": "Calculando...",
+      "simular_custo": "Simular Custo"
     },
     "modal_simulacao": {
       "titulo": "Simular Novo Custo",
@@ -2672,46 +2557,6 @@
       "faturamento_cliente": "Faturamento por Cliente e Base",
       "gestao_manual": "Gestão Manual",
       "gestao_desc": "Utilize as ações laterais para baixar relatórios individuais ou gerar novos cálculos automáticos."
-    },
-    "nav": {
-      "insights": "Insights",
-      "lista": "Lista",
-      "dashboard": "Dashboard",
-      "kanban": "Kanban",
-      "configuracoes": "Configurações",
-      "historico": "Histórico"
-    },
-    "insights": {
-      "titulo": "Insights",
-      "subtitulo": "Resumo das estimativas de custo de importação",
-      "kpi_total": "Total de Estimativas",
-      "kpi_tributos": "Tributos Acumulados",
-      "recentes": "Estimativas recentes",
-      "ver_todas": "Ver todas",
-      "atalhos": "Atalhos",
-      "maior_custo": "Maior custo",
-      "menor_custo": "Menor custo",
-      "distribuicao": "Distribuição por status",
-      "extremos": "Extremos de custo",
-      "kpi": {
-        "total": { "subtexto": "{{em_criacao}} em criação · {{criadas}} criadas" },
-        "custo_medio": { "subtexto": "Maior {{maior}} · Menor {{menor}}" },
-        "tributos": {
-          "subtexto": "II + IPI + PIS + COFINS + ICMS das estimativas calculadas",
-          "tooltip": "Soma dos tributos de todas as estimativas"
-        }
-      }
-    },
-    "kanban": {
-      "titulo": "Kanban",
-      "subtitulo": "Estimativas organizadas por status",
-      "coluna_vazia": "Solte cards aqui",
-      "localizar": "Localizar estimativa...",
-      "total_estimativas": "{{count}} estimativas",
-      "referencia_prefixo": "Ref:"
-    },
-    "configuracoes": {
-      "subtitulo": "Personalize cards, kanban e preferências do produto"
     }
   },
   "bidfrete": {
@@ -3039,19 +2884,10 @@
       },
       "tabela": {
         "descricao": "Configure paginação e destaque visual na listagem de cotações.",
-        "antecedencia_aviso": "Antecedência do aviso",
-        "antecedencia_aviso_desc": "Escolha quanto tempo antes da expiração a Lista deve destacar a linha.",
         "destacar_expirar": "Destacar cotações prestes a expirar",
+        "destacar_expirar_desc": "Aplica borda sutil avermelhada a cotações com menos de 2 horas restantes para expiração.",
         "linhas_por_pagina": "Linhas por página padrão",
         "preferencias": "Preferências de exibição",
-        "regras_campo_usado": "Campo usado",
-        "regras_gatilho": "Gatilho",
-        "regras_gatilho_desc": "Destaca a linha quando esse prazo ainda não venceu e o tempo restante até o vencimento é menor ou igual à antecedência escolhida acima.",
-        "regras_resultado": "Resultado esperado",
-        "regras_resultado_desc": "A Lista aplica uma borda avermelhada sutil à esquerda da linha. Em grupos BID, a linha pai destaca se qualquer filha estiver no intervalo. Clique em Salvar para aplicar na Lista aberta.",
-        "regras_status": "Status",
-        "regras_status_desc": "Não destaca EXPIRADA, CANCELADA, APROVADA ou REPROVADA. Só entra no destaque se {{campo}} estiver preenchido.",
-        "regras_titulo": "Como funciona o destaque",
         "titulo": "Preferências da Tabela"
       }
     },
@@ -3627,7 +3463,6 @@
       "campos_disponiveis": "Campos disponíveis",
       "kanban_colunas_titulo": "Colunas do Kanban",
       "kanban_colunas_desc": "Configure quais colunas de status devem aparecer no seu Kanban de BID de Frete.",
-      "kanban_colunas_rodape": "Estas são as colunas padrão. Para criar novos status, acesse a seção <strong>Status Cotação</strong> no menu lateral.",
       "exibir_kanban": "Exibir no Kanban",
       "ocultar_kanban": "Ocultar do Kanban",
       "modal_rapido_hint": "Todas as informações completas continuam acessíveis através do botão Detalhes na cotação.",
@@ -4639,11 +4474,7 @@
       "moedaMeta": "Moeda meta",
       "fornecedorVencedor": "Fornecedor vencedor",
       "ganhoEstimado": "Ganho estimado",
-      "ganhoPercentual": "Ganho (%)",
-      "freteBaseProposta": "Frete base",
-      "taxasOrigemProposta": "Taxas de Origem",
-      "taxasDestinoProposta": "Taxas de Destino",
-      "valorFreteTotalProposta": "Valor do Frete Total"
+      "ganhoPercentual": "Ganho (%)"
     },
     "visao_geral": {
       "em_construcao": "Visão Geral — Em construção"
@@ -9916,6 +9747,7 @@
       "cookies": "Cookies",
       "lgpd": "LGPD",
       "copyright": "© {{year}} Gravity. Todos os direitos reservados.",
+      "propriedade_dati": "Gravity é propriedade da DATI S.A.",
       "status_online": "Status: Online",
       "lgpd_compliant": "LGPD Compliant"
     },

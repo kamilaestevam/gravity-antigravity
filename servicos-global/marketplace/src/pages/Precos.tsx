@@ -1,222 +1,193 @@
 import { useState } from 'react'
-import {
-  CheckCircle,
-  ArrowRight,
-  ChatCircle,
-  Crown,
-  Rocket,
-  Star,
-} from '@phosphor-icons/react'
-import { useTranslation } from 'react-i18next'
+import { Package, Sparkle, Truck } from '@phosphor-icons/react'
+import type { ComponentType, CSSProperties } from 'react'
+import type { IconProps } from '@phosphor-icons/react'
+import '../styles/precos.css'
 
-type Billing = 'anual' | 'mensal'
+interface PlanoPreco {
+  id: string
+  Icon: ComponentType<IconProps>
+  name: string
+  tag: string
+  tagColor: string
+  sub: string
+  annual: number
+  monthly: number
+  popular: boolean
+  features: string[]
+}
 
-const PLANS = [
+const PLANS: PlanoPreco[] = [
   {
-    id: 'basico',
-    name: 'Básico',
-    desc: 'Para times pequenos começando',
-    priceAnual: 97,
-    priceMensal: 127,
+    id: 'pedido',
+    Icon: Package,
+    name: 'Pedido',
+    tag: 'OPERAÇÕES',
+    tagColor: '#8b7bff',
+    sub: 'Gestão de processos de COMEX',
+    annual: 97,
+    monthly: 127,
     popular: false,
     features: [
-      '3 usuários',
-      '2 produtos ativos',
-      'Dashboard unificado',
-      'Email transacional (5k/mês)',
+      '3 usuários inclusos',
+      'Processos ilimitados',
+      'Saldo automático e etapas',
+      'Rastreabilidade ponta a ponta',
       'Suporte via chat',
     ],
-    notIncluded: ['WhatsApp Business', 'Relatórios avançados', 'SLA garantido'],
   },
   {
-    id: 'profissional',
-    name: 'Profissional',
-    desc: 'Para empresas em crescimento',
-    priceAnual: 247,
-    priceMensal: 317,
+    id: 'smart-read',
+    Icon: Sparkle,
+    name: 'Smart Docs',
+    tag: 'INTELIGÊNCIA',
+    tagColor: '#b6a6ff',
+    sub: 'Inteligência documental com IA',
+    annual: 147,
+    monthly: 190,
     popular: true,
     features: [
-      '15 usuários',
-      'Produtos ilimitados',
-      'Dashboard + WhatsApp',
-      'Email (50k/mês)',
-      'Síntese analítica com IA',
+      '5 usuários inclusos',
+      '500 documentos / mês',
+      'Extração e conferência por IA',
+      'Síntese analítica',
       'Automações entre módulos',
       'Suporte prioritário',
     ],
-    notIncluded: ['SLA 99.9% garantido'],
   },
   {
-    id: 'enterprise',
-    name: 'Enterprise',
-    desc: 'Para operações de grande escala',
-    priceAnual: null,
-    priceMensal: null,
+    id: 'bid-frete',
+    Icon: Truck,
+    name: 'BID Frete',
+    tag: 'COTAÇÕES',
+    tagColor: '#f2a33c',
+    sub: 'Licitação de fretes internacionais',
+    annual: 197,
+    monthly: 257,
     popular: false,
-    custom: true,
     features: [
       'Usuários ilimitados',
-      'Todos os produtos',
-      'SLA 99.9% garantido',
-      'Onboarding dedicado',
-      'Integração ERP',
-      'Suporte 24/7 Premium',
-      'Ambiente on-premise opcional',
+      'Cotações ilimitadas',
+      'Ranking automático e savings',
+      'Histórico completo',
+      'Multi-fornecedor',
     ],
-    notIncluded: [],
   },
 ]
 
+function estiloTag(tagColor: string): CSSProperties {
+  return {
+    '--tag-color': tagColor,
+    '--tag-bg': `${tagColor}1c`,
+    '--tag-border': `${tagColor}3a`,
+    '--icon-bg': `${tagColor}18`,
+    '--icon-border': `${tagColor}30`,
+  } as CSSProperties
+}
+
 export function Precos() {
-  const { t } = useTranslation()
-  const [billing, setBilling] = useState<Billing>('anual')
-  const CONFIGURADOR = import.meta.env.VITE_CONFIGURADOR_URL ?? 'https://configurador.usegravity.com.br'
+  const [annual, setAnnual] = useState(true)
+  const configurador = import.meta.env.VITE_CONFIGURADOR_URL ?? 'https://configurador.usegravity.com.br'
 
   return (
-    <div>
-      {/* Header */}
-      <section className="section-sm" style={{ background: 'var(--bg-base)', borderBottom: '1px solid var(--bg-elevated)' }}>
-        <div className="container" style={{ textAlign: 'center' }}>
-          <p className="text-micro" style={{ color: 'var(--accent)', marginBottom: '0.75rem' }}>{t('marketplace.precos.badge')}</p>
-          <h1 className="text-h1" style={{ marginBottom: '0.75rem' }}>
-            {t('marketplace.precos.titulo')} <span className="gradient-text">{t('marketplace.precos.titulo_destaque')}</span>
-          </h1>
-          <p style={{ color: 'var(--text-secondary)', maxWidth: '480px', margin: '0 auto 1.5rem', fontSize: '1.0625rem' }}>
-            {t('marketplace.precos.subtitulo')}
-          </p>
+    <section className="precos-page">
+      <div className="precos-page__hero">
+        <h1 className="precos-page__titulo">
+          Preço <span className="precos-page__titulo-destaque">por produto.</span>
+        </h1>
+        <p className="precos-page__sub">
+          Pague só pelos módulos que usar. Combine à vontade — cada produto tem seu próprio preço.
+        </p>
 
-          {/* Toggle Anual / Mensal */}
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.875rem' }}>
-            <div className="tabs-pill">
-              <button
-                className={`tab-pill ${billing === 'anual' ? 'active' : ''}`}
-                id="billing-anual"
-                onClick={() => setBilling('anual')}
-              >
-                {t('marketplace.precos.anual')}
-              </button>
-              <button
-                className={`tab-pill ${billing === 'mensal' ? 'active' : ''}`}
-                id="billing-mensal"
-                onClick={() => setBilling('mensal')}
-              >
-                {t('marketplace.precos.mensal')}
-              </button>
-            </div>
-            {billing === 'anual' && (
-              <span className="badge badge-success">
-                <Star size={11} weight="fill" />
-                {t('marketplace.precos.economize')}
-              </span>
-            )}
+        <div className="precos-page__toggle-row">
+          <div className="precos-page__toggle">
+            <button
+              type="button"
+              className={`precos-page__toggle-btn${annual ? ' precos-page__toggle-btn--active' : ''}`}
+              onClick={() => setAnnual(true)}
+            >
+              Anual
+            </button>
+            <button
+              type="button"
+              className={`precos-page__toggle-btn${!annual ? ' precos-page__toggle-btn--active' : ''}`}
+              onClick={() => setAnnual(false)}
+            >
+              Mensal
+            </button>
           </div>
+          <span className="precos-page__economia">★ Economize 23%</span>
         </div>
-      </section>
+      </div>
 
-      {/* Plans — Lei de Hick: máximo 3 planos visíveis */}
-      <section className="section">
-        <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem', alignItems: 'start', maxWidth: '960px', margin: '0 auto' }}>
-            {PLANS.map(plan => (
-              <div
-                key={plan.id}
-                className={`pricing-card ${plan.popular ? 'popular' : ''}`}
+      <div className="precos-page__conteudo">
+        <div className="precos-page__grid">
+          {PLANS.map(p => {
+            const price = annual ? p.annual : p.monthly
+            return (
+              <article
+                key={p.id}
+                className={`precos-card${p.popular ? ' precos-card--popular' : ''}`}
+                style={estiloTag(p.tagColor)}
               >
-                {/* Plan Header */}
-                <div>
-                  {plan.popular && (
-                    <Crown size={24} color="var(--accent)" weight="duotone" style={{ marginBottom: '0.75rem' }} />
-                  )}
-                  <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.25rem' }}>
-                    {plan.name}
-                  </h2>
-                  <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>{plan.desc}</p>
+                {p.popular ? (
+                  <div className="precos-card__popular">MAIS POPULAR</div>
+                ) : null}
+
+                <div className="precos-card__topo">
+                  <span className="precos-card__icone">
+                    <p.Icon size={22} weight="duotone" />
+                  </span>
+                  <span className="precos-card__badge">{p.tag}</span>
                 </div>
 
-                {/* Price */}
-                <div>
-                  {plan.custom ? (
-                    <div>
-                      <p style={{ fontSize: '1.75rem', fontWeight: 800 }}>{t('marketplace.precos.personalizado')}</p>
-                      <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                        {t('marketplace.precos.fale_equipe')}
-                      </p>
-                    </div>
-                  ) : (
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
-                        <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)', fontWeight: 500 }}>R$</span>
-                        <span style={{ fontSize: '2.5rem', fontWeight: 800, color: plan.popular ? 'var(--accent)' : 'var(--text-primary)' }}>
-                          {billing === 'anual' ? plan.priceAnual : plan.priceMensal}
-                        </span>
-                        <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>{t('marketplace.checkout.por_mes')}</span>
-                      </div>
-                      {billing === 'anual' && (
-                        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                          {t('marketplace.precos.cobrado_anualmente')}
-                        </p>
-                      )}
-                    </div>
-                  )}
+                <div className="precos-card__nome">{p.name}</div>
+                <div className="precos-card__sub">{p.sub}</div>
+
+                <div className="precos-card__preco-linha">
+                  <span className="precos-card__moeda">R$</span>
+                  <span
+                    className="precos-card__valor"
+                    style={{ color: p.popular ? '#b6a6ff' : '#c9c3ff' }}
+                  >
+                    {price}
+                  </span>
+                  <span className="precos-card__periodo">/mês</span>
+                </div>
+                <div className="precos-card__cobranca">
+                  {annual ? 'Cobrado anualmente' : 'Cobrado mensalmente'}
                 </div>
 
-                {/* CTA */}
-                {plan.custom ? (
-                  <a
-                    href={`${CONFIGURADOR}/contato?plano=enterprise`}
-                    className="btn btn-secondary"
-                    id={`precos-cta-${plan.id}`}
-                    style={{ width: '100%', justifyContent: 'center' }}
-                  >
-                    <ChatCircle size={16} weight="duotone" />
-                    {t('marketplace.precos.falar_vendas')}
-                  </a>
-                ) : (
-                  <a
-                    href={`${CONFIGURADOR}/trial?plano=${plan.id}&trial=true`}
-                    className={`btn ${plan.popular ? 'btn-primary' : 'btn-secondary'}`}
-                    id={`precos-cta-${plan.id}`}
-                    style={{ width: '100%', justifyContent: 'center' }}
-                  >
-                    <Rocket size={16} weight="duotone" />
-                    {t('marketplace.precos.comecar_com', { plano: plan.name })}
-                    <ArrowRight size={15} />
-                  </a>
-                )}
+                <a
+                  href={`${configurador}/trial?produto=${p.id}&trial=true`}
+                  className={`precos-card__cta${p.popular ? ' precos-card__cta--popular' : ''}`}
+                >
+                  Começar com {p.name} <span>→</span>
+                </a>
 
-                <div className="divider" style={{ margin: '0' }} />
+                <div className="precos-card__divisor" />
 
-                {/* Features list */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
-                  {plan.features.map(f => (
-                    <div key={f} className="feature-item">
-                      <div className="feature-item-icon" style={{ width: '1.25rem', height: '1.25rem', minWidth: '1.25rem' }}>
-                        <CheckCircle size={13} weight="bold" />
-                      </div>
-                      <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>{f}</span>
-                    </div>
-                  ))}
-                  {plan.notIncluded.map(f => (
-                    <div key={f} className="feature-item" style={{ opacity: 0.4 }}>
-                      <div style={{ width: '1.25rem', height: '1.25rem', minWidth: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <div style={{ width: '10px', height: '1px', background: 'var(--text-muted)' }} />
-                      </div>
-                      <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>{f}</span>
+                <div className="precos-card__features">
+                  {p.features.map(f => (
+                    <div key={f} className="precos-card__feature">
+                      <span className="precos-card__check">✓</span>
+                      <span>{f}</span>
                     </div>
                   ))}
                 </div>
-              </div>
-            ))}
-          </div>
-
-          {/* FAQ Inline */}
-          <div style={{ maxWidth: '520px', margin: '3rem auto 0', textAlign: 'center' }}>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9375rem' }}>
-              {t('marketplace.precos.faq_info')}
-            </p>
-          </div>
+              </article>
+            )
+          })}
         </div>
-      </section>
-    </div>
+
+        <p className="precos-page__rodape">
+          Precisa de vários módulos ou volume alto?{' '}
+          <a href={`${configurador}/contato`} className="precos-page__vendas">
+            Fale com Vendas
+          </a>{' '}
+          para um plano combinado.
+        </p>
+      </div>
+    </section>
   )
 }

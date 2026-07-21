@@ -1,0 +1,10 @@
+/* dashboard-simulador-bid-frete.css — Dashboard do simulador BID Frete.
+ * Reusa a base visual do dashboard do simulador do Pedido e os estilos GABI do produto. */
+
+@import '../pedido/dashboard-simulador-pedido.css';
+@import '../../../../servicos-global/produto/bid-frete-internacional/client/src/pages/dashboard.css';
+
+.bfs-dashboard-simulador {
+  --accent: #60a5fa;
+  --gtv-accent: #60a5fa;
+}

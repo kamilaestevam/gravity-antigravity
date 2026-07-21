@@ -1,0 +1,426 @@
+/* Modal aprovar — simulador BID Frete (paridade modal-aprovar-proposta real) */
+
+.bfs-modal-aprovar__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: rgba(2, 6, 23, 0.72);
+  backdrop-filter: blur(4px);
+}
+
+.bfs-modal-aprovar__container {
+  display: flex;
+  flex-direction: column;
+  width: min(920px, 100%);
+  max-height: min(92vh, 880px);
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: linear-gradient(168deg, #232d40 0%, #1b2536 46%, #141d2c 100%);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+.bfs-modal-aprovar__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem 0.85rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.bfs-modal-aprovar__header-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.bfs-modal-aprovar__titulo-linha {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bfs-modal-aprovar__icone-titulo {
+  color: #818cf8;
+  flex-shrink: 0;
+}
+
+.bfs-modal-aprovar__titulo {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #f1f5f9;
+}
+
+.bfs-modal-aprovar__subtitulo {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: #94a3b8;
+}
+
+.bfs-modal-aprovar__fechar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.bfs-modal-aprovar__fechar:hover:not(:disabled) {
+  background: rgba(148, 163, 184, 0.12);
+  color: #e2e8f0;
+}
+
+.bfs-modal-aprovar__body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  overflow: auto;
+}
+
+.bfs-modal-aprovar__aviso,
+.bfs-modal-aprovar__fornecedor,
+.bfs-modal-aprovar__taxa {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+}
+
+.bfs-modal-aprovar__aviso {
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(129, 140, 248, 0.28);
+  color: #cbd5e1;
+}
+
+.bfs-modal-aprovar__aviso p {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.bfs-modal-aprovar__fornecedor {
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(74, 222, 128, 0.22);
+}
+
+.bfs-modal-aprovar__fornecedor span {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.bfs-modal-aprovar__fornecedor strong {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.88rem;
+  color: #f1f5f9;
+}
+
+.bfs-modal-aprovar__fornecedor svg {
+  color: #4ade80;
+  flex-shrink: 0;
+}
+
+.bfs-modal-aprovar__taxa {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+}
+
+.bfs-modal-aprovar__taxa svg {
+  color: #fbbf24;
+  flex-shrink: 0;
+}
+
+.bfs-modal-aprovar__taxa-cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.bfs-modal-aprovar__taxa-cabecalho span {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.bfs-modal-aprovar__taxa-cabecalho strong {
+  font-size: 0.82rem;
+  color: #f1f5f9;
+}
+
+.bfs-modal-aprovar__taxa p {
+  margin: 0 0 0.45rem;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: #cbd5e1;
+}
+
+.bfs-modal-aprovar__taxa a {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #818cf8;
+  text-decoration: none;
+}
+
+.bfs-modal-aprovar__secao {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.bfs-modal-aprovar__resumo {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.bfs-modal-aprovar__resumo-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.65rem 0.7rem;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.bfs-modal-aprovar__resumo-col span {
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.bfs-modal-aprovar__resumo-col strong {
+  font-size: 0.82rem;
+  color: #f1f5f9;
+}
+
+.bfs-modal-aprovar__resumo-col small {
+  font-size: 0.64rem;
+  color: #64748b;
+}
+
+.bfs-modal-aprovar__resumo-col--total {
+  border-color: rgba(129, 140, 248, 0.35);
+  background: rgba(99, 102, 241, 0.12);
+}
+
+.bfs-modal-aprovar__resumo-col--total strong {
+  font-size: 0.95rem;
+  color: #c7d2fe;
+}
+
+.bfs-modal-aprovar__campos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.bfs-modal-aprovar__campos > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  background: rgba(15, 23, 42, 0.35);
+}
+
+.bfs-modal-aprovar__campos span {
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.bfs-modal-aprovar__campos strong {
+  font-size: 0.76rem;
+  color: #e2e8f0;
+}
+
+.bfs-modal-aprovar__comentarios {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #cbd5e1;
+}
+
+.bfs-modal-aprovar__comentarios textarea {
+  width: 100%;
+  min-height: 5.5rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(15, 23, 42, 0.55);
+  color: #e2e8f0;
+  font: inherit;
+  resize: vertical;
+}
+
+.bfs-modal-aprovar__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.55rem;
+  padding: 0.85rem 1.25rem 1rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+  background: rgba(15, 23, 42, 0.35);
+}
+
+.bfs-modal-aprovar__footer--sucesso {
+  justify-content: flex-end;
+}
+
+.bfs-modal-aprovar__btn-sec,
+.bfs-modal-aprovar__btn-prim {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 9px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  transform: translateY(3px);
+}
+
+.bfs-modal-aprovar__btn-sec {
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: transparent;
+  color: #e2e8f0;
+}
+
+.bfs-modal-aprovar__btn-prim {
+  border: 1px solid rgba(129, 140, 248, 0.45);
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  color: #fff;
+}
+
+.bfs-modal-aprovar__btn-prim:disabled,
+.bfs-modal-aprovar__btn-sec:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.bfs-modal-aprovar__sucesso {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.55rem;
+  padding: 2rem 1.5rem 1.25rem;
+}
+
+.bfs-modal-aprovar__sucesso-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 999px;
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+}
+
+.bfs-modal-aprovar__sucesso h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: #f1f5f9;
+}
+
+.bfs-modal-aprovar__sucesso p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #cbd5e1;
+}
+
+.bfs-modal-aprovar__sucesso-aviso {
+  font-size: 0.74rem !important;
+  color: #94a3b8 !important;
+}
+
+.bfs-modal-aprovar__saving {
+  width: 100%;
+  max-width: 320px;
+  margin-top: 0.35rem;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  background: rgba(52, 211, 153, 0.08);
+}
+
+.bfs-modal-aprovar__saving-topo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6ee7b7;
+}
+
+.bfs-modal-aprovar__saving-valores {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.55rem;
+  margin-top: 0.35rem;
+}
+
+.bfs-modal-aprovar__saving-valores strong {
+  font-size: 1.2rem;
+  color: #f1f5f9;
+}
+
+.bfs-modal-aprovar__saving-valores span {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #34d399;
+}
+
+@media (max-width: 760px) {
+  .bfs-modal-aprovar__resumo {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bfs-modal-aprovar__campos {
+    grid-template-columns: 1fr 1fr;
+  }
+}

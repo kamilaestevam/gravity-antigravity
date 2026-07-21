@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;450;500;600&display=swap" rel="stylesheet">
+<style>
+  body{margin:0}
+  a{color:#8b7bff;text-decoration:none}
+  a:hover{color:#a99bff}
+  @keyframes gv-core{0%,100%{box-shadow:0 0 55px rgba(139,123,255,.22),inset 0 0 30px rgba(139,123,255,.12)}50%{box-shadow:0 0 78px rgba(139,123,255,.4),inset 0 0 34px rgba(139,123,255,.2)}}
+  @keyframes gv-ring{0%{transform:scale(.7);opacity:.55}100%{transform:scale(1.55);opacity:0}}
+  @keyframes gv-dash{to{stroke-dashoffset:-16}}
+</style>
+</helmet>
+<section style="position:relative;background:radial-gradient(1100px 640px at 50% 30%, #16172a 0%, #0a0b16 58%, #080910 100%);color:#e9eaf5;font-family:Inter,system-ui,sans-serif;overflow:hidden;padding:88px 40px 96px;box-sizing:border-box">
+
+  <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(900px 560px at 50% 40%,#000 0%,transparent 82%);pointer-events:none"></div>
+
+  <div style="position:relative;max-width:1240px;margin:0 auto">
+
+    <!-- header -->
+    <div style="text-align:center;max-width:720px;margin:0 auto 20px">
+      <div style="display:inline-flex;align-items:center;gap:9px;font-family:Sora,sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#8b7bff;margin-bottom:16px">
+        <span style="width:6px;height:6px;border-radius:50%;background:#8b7bff;box-shadow:0 0 10px #8b7bff"></span>
+        Entra e sai · sem amarras
+      </div>
+      <h2 style="font-family:Sora,sans-serif;font-weight:600;font-size:clamp(24px,2.4vw,34px);line-height:1.18;letter-spacing:-.01em;margin:0 0 16px;color:#eef0fb">
+        Seus dados entram e saem —
+        <span style="background:linear-gradient(90deg,#8b7bff,#b6a6ff);-webkit-background-clip:text;background-clip:text;color:transparent">do jeito que sua operação já trabalha.</span>
+      </h2>
+      <p style="font-size:16px;line-height:1.6;color:#9fa1bb;margin:0 auto;max-width:640px">
+        Qualquer módulo recebe informação por API, ERP, sistemas de COMEX, planilha, leitura com IA ou cadastro manual — e devolve do mesmo jeito: integrando com sistemas ou exportando em Excel, PDF, TXT, XML e JSON.
+      </p>
+    </div>
+
+    <!-- flow diagram -->
+    <div id="flowwrap" style="position:relative;width:100%;display:flex;justify-content:center">
+    <div id="flowscale" style="position:relative;width:1240px;height:620px;transform-origin:top center">
+
+      <div style="position:absolute;left:30px;top:16px;font-family:Sora,sans-serif;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#f2a33c;display:flex;align-items:center;gap:8px"><span style="width:7px;height:7px;border-radius:50%;background:#f2a33c;box-shadow:0 0 8px #f2a33c"></span>Entrada de dados</div>
+      <div style="position:absolute;right:30px;top:16px;font-family:Sora,sans-serif;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#3ddc97;display:flex;align-items:center;gap:8px;flex-direction:row-reverse"><span style="width:7px;height:7px;border-radius:50%;background:#3ddc97;box-shadow:0 0 8px #3ddc97"></span>Saída de dados</div>
+
+      <!-- connectors -->
+      <svg width="1240" height="620" viewBox="0 0 1240 620" style="position:absolute;inset:0;overflow:visible">
+        <defs>
+          <linearGradient id="gin" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#f2a33c" stop-opacity="0"/>
+            <stop offset="1" stop-color="#f2a33c" stop-opacity=".55"/>
+          </linearGradient>
+          <linearGradient id="gout" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#3ddc97" stop-opacity=".55"/>
+            <stop offset="1" stop-color="#3ddc97" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+
+        <g fill="none" stroke="url(#gin)" stroke-width="1.6" stroke-dasharray="2 6" stroke-linecap="round" style="animation:gv-dash 1s linear infinite">
+          <path d="M240 70 C 380 70, 410 246, 500 246"/>
+          <path d="M240 162 C 380 162, 410 268, 500 268"/>
+          <path d="M240 254 C 380 254, 410 290, 500 290"/>
+          <path d="M240 346 C 380 346, 410 312, 500 312"/>
+          <path d="M240 438 C 380 438, 410 334, 500 334"/>
+          <path d="M240 530 C 380 530, 410 356, 500 356"/>
+        </g>
+        <g fill="none" stroke="url(#gout)" stroke-width="1.6" stroke-dasharray="2 6" stroke-linecap="round" style="animation:gv-dash 1s linear infinite">
+          <path d="M740 235 C 860 235, 860 70, 1000 70"/>
+          <path d="M740 257 C 860 257, 860 147, 1000 147"/>
+          <path d="M740 279 C 860 279, 860 223, 1000 223"/>
+          <path d="M740 301 C 860 301, 860 300, 1000 300"/>
+          <path d="M740 323 C 860 323, 860 377, 1000 377"/>
+          <path d="M740 345 C 860 345, 860 453, 1000 453"/>
+          <path d="M740 367 C 860 367, 860 530, 1000 530"/>
+        </g>
+
+        <g fill="#f2c98a">
+          <circle r="3.4"><animateMotion dur="2.2s" begin="-0.1s" repeatCount="indefinite" path="M240 70 C 380 70, 410 246, 500 246"/></circle>
+          <circle r="3.4"><animateMotion dur="2.2s" begin="-0.5s" repeatCount="indefinite" path="M240 162 C 380 162, 410 268, 500 268"/></circle>
+          <circle r="3.4"><animateMotion dur="2.2s" begin="-0.9s" repeatCount="indefinite" path="M240 254 C 380 254, 410 290, 500 290"/></circle>
+          <circle r="3.4"><animateMotion dur="2.2s" begin="-1.3s" repeatCount="indefinite" path="M240 346 C 380 346, 410 312, 500 312"/></circle>
+          <circle r="3.4"><animateMotion dur="2.2s" begin="-1.7s" repeatCount="indefinite" path="M240 438 C 380 438, 410 334, 500 334"/></circle>
+          <circle r="3.4"><animateMotion dur="2.2s" begin="-2.1s" repeatCount="indefinite" path="M240 530 C 380 530, 410 356, 500 356"/></circle>
+        </g>
+        <g fill="#8ff0c4">
+          <circle r="3.4"><animateMotion dur="2.2s" begin="-0.3s" repeatCount="indefinite" path="M740 235 C 860 235, 860 70, 1000 70"/></circle>
+          <circle r="3.4"><animateMotion dur="2.2s" begin="-0.6s" repeatCount="indefinite" path="M740 257 C 860 257, 860 147, 1000 147"/></circle>
+          <circle r="3.4"><animateMotion dur="2.2s" begin="-0.9s" repeatCount="indefinite" path="M740 279 C 860 279, 860 223, 1000 223"/></circle>
+          <circle r="3.4"><animateMotion dur="2.2s" begin="-1.2s" repeatCount="indefinite" path="M740 301 C 860 301, 860 300, 1000 300"/></circle>
+          <circle r="3.4"><animateMotion dur="2.2s" begin="-1.5s" repeatCount="indefinite" path="M740 323 C 860 323, 860 377, 1000 377"/></circle>
+          <circle r="3.4"><animateMotion dur="2.2s" begin="-1.8s" repeatCount="indefinite" path="M740 345 C 860 345, 860 453, 1000 453"/></circle>
+          <circle r="3.4"><animateMotion dur="2.2s" begin="-2.1s" repeatCount="indefinite" path="M740 367 C 860 367, 860 530, 1000 530"/></circle>
+        </g>
+      </svg>
+
+      <!-- INPUT nodes -->
+      <div style="position:absolute;left:30px;top:42px;width:214px;box-sizing:border-box;display:flex;align-items:center;gap:11px;padding:11px 14px;border-radius:12px;background:#14151f;border:1px solid rgba(242,163,60,.3);box-shadow:0 8px 22px rgba(0,0,0,.35)">
+        <span style="width:9px;height:9px;border-radius:50%;background:#f2a33c;flex:none;box-shadow:0 0 8px #f2a33c"></span>
+        <div style="min-width:0"><div style="font-family:Sora,sans-serif;font-weight:600;font-size:14px;color:#eef0fb">API &amp; Webhooks</div><div style="font-size:11.5px;color:#8f92ad">Integração em tempo real</div></div>
+      </div>
+      <div style="position:absolute;left:30px;top:134px;width:214px;box-sizing:border-box;display:flex;align-items:center;gap:11px;padding:11px 14px;border-radius:12px;background:#14151f;border:1px solid rgba(242,163,60,.3);box-shadow:0 8px 22px rgba(0,0,0,.35)">
+        <span style="width:9px;height:9px;border-radius:50%;background:#f2a33c;flex:none;box-shadow:0 0 8px #f2a33c"></span>
+        <div style="min-width:0"><div style="font-family:Sora,sans-serif;font-weight:600;font-size:14px;color:#eef0fb">ERP</div><div style="font-size:11.5px;color:#8f92ad">TOTVS · SAP · Sankhya</div></div>
+      </div>
+      <div style="position:absolute;left:30px;top:226px;width:214px;box-sizing:border-box;display:flex;align-items:center;gap:11px;padding:11px 14px;border-radius:12px;background:#14151f;border:1px solid rgba(242,163,60,.3);box-shadow:0 8px 22px rgba(0,0,0,.35)">
+        <span style="width:9px;height:9px;border-radius:50%;background:#f2a33c;flex:none;box-shadow:0 0 8px #f2a33c"></span>
+        <div style="min-width:0"><div style="font-family:Sora,sans-serif;font-weight:600;font-size:14px;color:#eef0fb">Sistemas de COMEX</div><div style="font-size:11.5px;color:#8f92ad">Siscomex · Portal Único</div></div>
+      </div>
+      <div style="position:absolute;left:30px;top:318px;width:214px;box-sizing:border-box;display:flex;align-items:center;gap:11px;padding:11px 14px;border-radius:12px;background:#14151f;border:1px solid rgba(242,163,60,.3);box-shadow:0 8px 22px rgba(0,0,0,.35)">
+        <span style="width:9px;height:9px;border-radius:50%;background:#f2a33c;flex:none;box-shadow:0 0 8px #f2a33c"></span>
+        <div style="min-width:0"><div style="font-family:Sora,sans-serif;font-weight:600;font-size:14px;color:#eef0fb">Planilha</div><div style="font-size:11.5px;color:#8f92ad">Excel · CSV</div></div>
+      </div>
+      <div style="position:absolute;left:30px;top:410px;width:214px;box-sizing:border-box;display:flex;align-items:center;gap:11px;padding:11px 14px;border-radius:12px;background:#14151f;border:1px solid rgba(242,163,60,.3);box-shadow:0 8px 22px rgba(0,0,0,.35)">
+        <span style="width:9px;height:9px;border-radius:50%;background:#f2a33c;flex:none;box-shadow:0 0 8px #f2a33c"></span>
+        <div style="min-width:0"><div style="font-family:Sora,sans-serif;font-weight:600;font-size:14px;color:#eef0fb">Leitura com IA</div><div style="font-size:11.5px;color:#8f92ad">Documentos e PDFs</div></div>
+      </div>
+      <div style="position:absolute;left:30px;top:502px;width:214px;box-sizing:border-box;display:flex;align-items:center;gap:11px;padding:11px 14px;border-radius:12px;background:#14151f;border:1px solid rgba(242,163,60,.3);box-shadow:0 8px 22px rgba(0,0,0,.35)">
+        <span style="width:9px;height:9px;border-radius:50%;background:#f2a33c;flex:none;box-shadow:0 0 8px #f2a33c"></span>
+        <div style="min-width:0"><div style="font-family:Sora,sans-serif;font-weight:600;font-size:14px;color:#eef0fb">Manual</div><div style="font-size:11.5px;color:#8f92ad">Cadastro na tela</div></div>
+      </div>
+
+      <!-- CORE -->
+      <div style="position:absolute;left:500px;top:190px;width:240px;height:220px;border-radius:22px;background:linear-gradient(160deg,rgba(139,123,255,.2),rgba(18,19,30,.92));border:1px solid rgba(139,123,255,.5);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;backdrop-filter:blur(4px);animation:gv-core 3.4s ease-in-out infinite">
+        <div style="position:absolute;inset:0;border-radius:22px;border:1px solid rgba(139,123,255,.4);animation:gv-ring 3.4s ease-out infinite;pointer-events:none"></div>
+        <div style="width:56px;height:56px;border-radius:16px;background:linear-gradient(150deg,#8b7bff,#6d5ae6);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 26px rgba(125,108,245,.5)">
+          <div style="width:22px;height:22px;border-radius:6px;border:2.5px solid #fff;opacity:.95"></div>
+        </div>
+        <div style="font-family:Sora,sans-serif;font-size:11px;letter-spacing:.18em;color:#b6a6ff;margin-top:4px">MOTOR GRAVITY</div>
+        <div style="font-family:Sora,sans-serif;font-weight:700;font-size:19px;color:#fff">Qualquer módulo</div>
+        <div style="font-size:12.5px;color:#9598b4">recebe · processa · devolve</div>
+      </div>
+
+      <!-- OUTPUT nodes -->
+      <div style="position:absolute;left:1000px;top:42px;width:214px;box-sizing:border-box;display:flex;align-items:center;gap:11px;padding:10px 14px;border-radius:12px;background:#14151f;border:1px solid rgba(61,220,151,.3);box-shadow:0 8px 22px rgba(0,0,0,.35)">
+        <span style="width:9px;height:9px;border-radius:50%;background:#3ddc97;flex:none;box-shadow:0 0 8px #3ddc97"></span>
+        <div style="min-width:0"><div style="font-family:Sora,sans-serif;font-weight:600;font-size:14px;color:#eef0fb">Sistemas</div><div style="font-size:11.5px;color:#8f92ad">API &amp; Webhooks</div></div>
+      </div>
+      <div style="position:absolute;left:1000px;top:119px;width:214px;box-sizing:border-box;display:flex;align-items:center;gap:11px;padding:10px 14px;border-radius:12px;background:#14151f;border:1px solid rgba(61,220,151,.3);box-shadow:0 8px 22px rgba(0,0,0,.35)">
+        <span style="width:9px;height:9px;border-radius:50%;background:#3ddc97;flex:none;box-shadow:0 0 8px #3ddc97"></span>
+        <div style="min-width:0"><div style="font-family:Sora,sans-serif;font-weight:600;font-size:14px;color:#eef0fb">Excel</div><div style="font-size:11.5px;color:#8f92ad">Relatórios .xlsx</div></div>
+      </div>
+      <div style="position:absolute;left:1000px;top:195px;width:214px;box-sizing:border-box;display:flex;align-items:center;gap:11px;padding:10px 14px;border-radius:12px;background:#14151f;border:1px solid rgba(61,220,151,.3);box-shadow:0 8px 22px rgba(0,0,0,.35)">
+        <span style="width:9px;height:9px;border-radius:50%;background:#3ddc97;flex:none;box-shadow:0 0 8px #3ddc97"></span>
+        <div style="min-width:0"><div style="font-family:Sora,sans-serif;font-weight:600;font-size:14px;color:#eef0fb">PDF</div><div style="font-size:11.5px;color:#8f92ad">Documentos</div></div>
+      </div>
+      <div style="position:absolute;left:1000px;top:272px;width:214px;box-sizing:border-box;display:flex;align-items:center;gap:11px;padding:10px 14px;border-radius:12px;background:#151a24;border:1px solid rgba(61,220,151,.4);box-shadow:0 8px 22px rgba(0,0,0,.35)">
+        <span style="width:9px;height:9px;border-radius:50%;background:#3ddc97;flex:none;box-shadow:0 0 8px #3ddc97"></span>
+        <div style="min-width:0"><div style="font-family:Sora,sans-serif;font-weight:600;font-size:14px;color:#eef0fb">Email</div><div style="font-size:11.5px;color:#8f92ad">Relatórios automáticos</div></div>
+      </div>
+      <div style="position:absolute;left:1000px;top:349px;width:214px;box-sizing:border-box;display:flex;align-items:center;gap:11px;padding:10px 14px;border-radius:12px;background:#14151f;border:1px solid rgba(61,220,151,.3);box-shadow:0 8px 22px rgba(0,0,0,.35)">
+        <span style="width:9px;height:9px;border-radius:50%;background:#3ddc97;flex:none;box-shadow:0 0 8px #3ddc97"></span>
+        <div style="min-width:0"><div style="font-family:Sora,sans-serif;font-weight:600;font-size:14px;color:#eef0fb">TXT</div><div style="font-size:11.5px;color:#8f92ad">Arquivos texto</div></div>
+      </div>
+      <div style="position:absolute;left:1000px;top:425px;width:214px;box-sizing:border-box;display:flex;align-items:center;gap:11px;padding:10px 14px;border-radius:12px;background:#14151f;border:1px solid rgba(61,220,151,.3);box-shadow:0 8px 22px rgba(0,0,0,.35)">
+        <span style="width:9px;height:9px;border-radius:50%;background:#3ddc97;flex:none;box-shadow:0 0 8px #3ddc97"></span>
+        <div style="min-width:0"><div style="font-family:Sora,sans-serif;font-weight:600;font-size:14px;color:#eef0fb">XML</div><div style="font-size:11.5px;color:#8f92ad">Integrações fiscais</div></div>
+      </div>
+      <div style="position:absolute;left:1000px;top:502px;width:214px;box-sizing:border-box;display:flex;align-items:center;gap:11px;padding:10px 14px;border-radius:12px;background:#14151f;border:1px solid rgba(61,220,151,.3);box-shadow:0 8px 22px rgba(0,0,0,.35)">
+        <span style="width:9px;height:9px;border-radius:50%;background:#3ddc97;flex:none;box-shadow:0 0 8px #3ddc97"></span>
+        <div style="min-width:0"><div style="font-family:Sora,sans-serif;font-weight:600;font-size:14px;color:#eef0fb">JSON</div><div style="font-size:11.5px;color:#8f92ad">APIs e apps</div></div>
+      </div>
+
+    </div>
+    </div>
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1320,&quot;height&quot;:880}}">class Component extends DCLogic {
+  componentDidMount() {
+    this.fit = this.fit.bind(this);
+    this.fit();
+    this._t = setTimeout(this.fit, 300);
+    window.addEventListener('resize', this.fit);
+  }
+  componentWillUnmount() {
+    clearTimeout(this._t);
+    window.removeEventListener('resize', this.fit);
+  }
+  fit() {
+    const w = document.getElementById('flowwrap');
+    const el = document.getElementById('flowscale');
+    if (!w || !el) return;
+    const s = Math.min(1, w.clientWidth / 1300);
+    el.style.transform = 'scale(' + s + ')';
+    w.style.height = (620 * s) + 'px';
+  }
+}</script>
+</body>
+</html>

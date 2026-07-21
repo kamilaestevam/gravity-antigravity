@@ -426,6 +426,7 @@ function PedidoSimulatorInner({ onFecharSimulador }: { onFecharSimulador?: () =>
             telas={TELAS_TUTORIAL_OPCIONAL_PEDIDO}
             habilitado
             posicaoFixa
+            classeHost="pds-tutorial-guia-pedido"
             refAncoraSimulador={refRaizTutorial}
             posicaoPreferencial={posicaoTutorial}
             onAlvoDestacadoChange={setAlvoTutorialDestacado}

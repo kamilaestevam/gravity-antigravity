@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;450;500;600&display=swap" rel="stylesheet">
+<style>
+  body{margin:0}
+  a{color:#8b7bff;text-decoration:none}
+  a:hover{color:#a99bff}
+</style>
+</helmet>
+<section style="position:relative;background:radial-gradient(1200px 700px at 28% 10%, #171528 0%, #0a0b16 60%, #080910 100%);color:#e9eaf5;font-family:Inter,system-ui,sans-serif;overflow:hidden;padding:96px 6vw 104px;box-sizing:border-box">
+
+  <div style="position:absolute;inset:0;background-image:radial-gradient(circle at 1px 1px,rgba(255,255,255,.05) 1px,transparent 0);background-size:42px 42px;mask-image:radial-gradient(900px 560px at 40% 24%,#000 0%,transparent 82%);pointer-events:none"></div>
+
+  <div style="position:relative;max-width:1120px;margin:0 auto">
+
+    <div style="max-width:720px;margin:0 auto 56px;text-align:center">
+      <div style="display:inline-flex;align-items:center;gap:9px;font-family:Sora,sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#8b7bff;margin-bottom:18px">
+        <span style="width:6px;height:6px;border-radius:50%;background:#8b7bff;box-shadow:0 0 10px #8b7bff"></span>
+        Controle nas suas mãos
+      </div>
+      <h2 style="font-family:Sora,sans-serif;font-weight:600;font-size:clamp(26px,2.8vw,40px);line-height:1.14;letter-spacing:-.015em;margin:0 0 16px;color:#eef0fb">
+        Você é o master —
+        <span style="background:linear-gradient(90deg,#8b7bff,#b6a6ff);-webkit-background-clip:text;background-clip:text;color:transparent">e o acesso é seu para desenhar.</span>
+      </h2>
+      <p style="font-size:17px;line-height:1.6;color:#9fa1bb;margin:0 auto;max-width:600px">
+        Crie usuários e empresas, defina o tipo de cada pessoa e vincule quem enxerga quais empresas e quais produtos. Tudo na hora, sem depender de ninguém.
+      </p>
+    </div>
+
+    <!-- Capacidades do master -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px">
+
+      <div style="grid-column:span 3;display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+        <div style="border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.03);border-radius:16px;padding:22px">
+          <div style="width:38px;height:38px;border-radius:11px;background:rgba(139,123,255,.16);display:flex;align-items:center;justify-content:center;margin-bottom:14px">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="#b6a6ff" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <div style="font-family:Sora,sans-serif;font-weight:600;font-size:15.5px;color:#eef0fb;margin-bottom:5px">Criar usuários</div>
+          <div style="font-size:14px;line-height:1.5;color:#9295b1">Adicione as pessoas do seu time em segundos.</div>
+        </div>
+
+        <div style="border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.03);border-radius:16px;padding:22px">
+          <div style="width:38px;height:38px;border-radius:11px;background:rgba(139,123,255,.16);display:flex;align-items:center;justify-content:center;margin-bottom:14px">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M10 2l6 2.5v4.5c0 3.5-2.4 6.6-6 8-3.6-1.4-6-4.5-6-8V4.5L10 2z" stroke="#b6a6ff" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          </div>
+          <div style="font-family:Sora,sans-serif;font-weight:600;font-size:15.5px;color:#eef0fb;margin-bottom:5px">Definir permissões</div>
+          <div style="font-size:14px;line-height:1.5;color:#9295b1">Escolha o tipo e o que cada um pode acessar.</div>
+        </div>
+
+        <div style="border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.03);border-radius:16px;padding:22px">
+          <div style="width:38px;height:38px;border-radius:11px;background:rgba(242,163,60,.16);display:flex;align-items:center;justify-content:center;margin-bottom:14px">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="6" height="13" rx="1" stroke="#f2a33c" stroke-width="1.6"/><rect x="11" y="7" width="6" height="10" rx="1" stroke="#f2a33c" stroke-width="1.6"/></svg>
+          </div>
+          <div style="font-family:Sora,sans-serif;font-weight:600;font-size:15.5px;color:#eef0fb;margin-bottom:5px">Criar e vincular empresas</div>
+          <div style="font-size:14px;line-height:1.5;color:#9295b1">Matriz, filiais e grupo — e quem atua em cada uma.</div>
+        </div>
+      </div>
+
+      <div style="grid-column:span 3;border:1px solid rgba(139,123,255,.22);background:linear-gradient(100deg,rgba(139,123,255,.1),rgba(255,255,255,.02));border-radius:16px;padding:22px 24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+        <div style="width:38px;height:38px;border-radius:11px;background:rgba(139,123,255,.2);display:flex;align-items:center;justify-content:center;flex:none">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="6" height="6" rx="1" stroke="#b6a6ff" stroke-width="1.6"/><rect x="11" y="3" width="6" height="6" rx="1" stroke="#b6a6ff" stroke-width="1.6"/><rect x="3" y="11" width="6" height="6" rx="1" stroke="#b6a6ff" stroke-width="1.6"/><rect x="11" y="11" width="6" height="6" rx="1" stroke="#b6a6ff" stroke-width="1.6"/></svg>
+        </div>
+        <div style="flex:1;min-width:240px">
+          <div style="font-family:Sora,sans-serif;font-weight:600;font-size:15.5px;color:#eef0fb;margin-bottom:4px">Vincular a produtos</div>
+          <div style="font-size:14px;line-height:1.5;color:#9295b1">Libere para cada pessoa apenas os módulos que ela realmente usa — nada além disso.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tipos de usuário -->
+    <div style="margin-top:44px">
+      <div style="text-align:center;font-family:Sora,sans-serif;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#8890ad;margin-bottom:22px">Você define o tipo de cada pessoa</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
+
+        <div style="border:1px solid rgba(139,123,255,.3);background:rgba(139,123,255,.06);border-radius:16px;padding:20px;border-top:3px solid #8b7bff">
+          <div style="font-family:Sora,sans-serif;font-weight:700;font-size:16px;color:#eef0fb;margin-bottom:8px">Master</div>
+          <div style="font-size:13.5px;line-height:1.5;color:#9295b1">Acesso total. Cria, permissiona e vincula tudo.</div>
+        </div>
+
+        <div style="border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);border-radius:16px;padding:20px;border-top:3px solid #f2a33c">
+          <div style="font-family:Sora,sans-serif;font-weight:700;font-size:16px;color:#eef0fb;margin-bottom:8px">Gestor</div>
+          <div style="font-size:13.5px;line-height:1.5;color:#9295b1">Gerencia equipe e empresas vinculadas a ele.</div>
+        </div>
+
+        <div style="border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);border-radius:16px;padding:20px;border-top:3px solid #3ddc97">
+          <div style="font-family:Sora,sans-serif;font-weight:700;font-size:16px;color:#eef0fb;margin-bottom:8px">Operador</div>
+          <div style="font-size:13.5px;line-height:1.5;color:#9295b1">Opera o dia a dia só nos produtos liberados.</div>
+        </div>
+
+        <div style="border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);border-radius:16px;padding:20px;border-top:3px solid #8b93b0">
+          <div style="font-family:Sora,sans-serif;font-weight:700;font-size:16px;color:#eef0fb;margin-bottom:8px">Visitante</div>
+          <div style="font-size:13.5px;line-height:1.5;color:#9295b1">Somente leitura, sem alterar nada.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1120,&quot;height&quot;:720}}"></script>
+</body>
+</html>

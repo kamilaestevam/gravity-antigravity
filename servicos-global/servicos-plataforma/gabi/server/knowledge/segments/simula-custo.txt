@@ -500,16 +500,16 @@ model SequenciaEstimativa {
 5. Se Siscomex falhar, fallback para Engine Fiscal Local (7 passos)
 6. Retorna resultado com `source: 'siscomex' | 'local_engine'`
 
-#### CRUD de Estimativas
+#### CRUD de Simulas
 
 | Method | Endpoint | Descricao |
 |--------|----------|-----------|
-| POST | `/api/v1/simula-custo/estimativas` | Criar estimativa (numero auto: EST-IMP-00001/26) |
-| GET | `/api/v1/simula-custo/estimativas` | Listar estimativas (busca, status, paginacao) |
-| GET | `/api/v1/simula-custo/estimativas/kpis` | KPIs: total, por status, landed cost medio, tributos acumulados |
-| GET | `/api/v1/simula-custo/estimativas/:id` | Detalhe de uma estimativa |
-| POST | `/api/v1/simula-custo/estimativas/:id/duplicar` | Duplicar estimativa existente |
-| PATCH | `/api/v1/simula-custo/estimativas/:id/status` | Alterar status (EM_CRIACAO, CRIADA, ARQUIVADA) |
+| POST | `/api/v1/simula-custo/simulas-custo` | Criar simula (numero auto: EST-IMP-00001/26) |
+| GET | `/api/v1/simula-custo/simulas-custo` | Listar simulas (busca, status, paginacao) |
+| GET | `/api/v1/simula-custo/simulas-custo/kpis` | KPIs: total, por status, landed cost medio, tributos acumulados |
+| GET | `/api/v1/simula-custo/simulas-custo/:id` | Detalhe de uma simula |
+| POST | `/api/v1/simula-custo/simulas-custo/:id/duplicar` | Duplicar simula existente |
+| PATCH | `/api/v1/simula-custo/simulas-custo/:id/status` | Alterar status (EM_CRIACAO, CRIADA, ARQUIVADA) |
 
 #### Dashboard
 

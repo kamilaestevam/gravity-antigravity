@@ -1,5 +1,5 @@
 /**
- * cadastros-client.ts — Client REST do serviço Cadastros (Estimativa Custo).
+ * cadastros-client.ts — Client REST do serviço Cadastros (Simula Custo).
  * NCM é catálogo global com fonte única no Cadastros (NcmSync) — leitura ao vivo,
  * SEM cache local (cadastros-snapshot-policy). Gabarito: BID Frete.
  */
@@ -15,7 +15,7 @@ function obterChaveInterna(): string {
   if (process.env.NODE_ENV !== 'production') {
     return process.env.VITE_CHAVE_INTERNA_SERVICO ?? 'gravity-dev-internal-key-2026'
   }
-  throw new Error('CHAVE_INTERNA_SERVICO ausente — Estimativa Custo não pode chamar Cadastros')
+  throw new Error('CHAVE_INTERNA_SERVICO ausente — Simula Custo não pode chamar Cadastros')
 }
 
 export async function buscarJsonCadastros<T>(

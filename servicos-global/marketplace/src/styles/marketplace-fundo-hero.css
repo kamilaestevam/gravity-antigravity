@@ -1,0 +1,97 @@
+/* Tela de fundo padrão da home — grade + glows (SSOT visual com .hero em home.css) */
+
+.marketplace-fundo-hero {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: var(--bg-body-dark);
+  overflow: hidden;
+}
+
+.marketplace-fundo-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center top;
+  mask-image: radial-gradient(ellipse 60% 50% at 50% 0%, #000 70%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 60% 50% at 50% 0%, #000 70%, transparent 100%);
+}
+
+.marketplace-fundo-hero__glows {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.marketplace-fundo-hero__glows .ambient-glow {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.18;
+  mix-blend-mode: screen;
+}
+
+.marketplace-fundo-hero__glows .glow-indigo {
+  background: radial-gradient(circle, #6366f1 0%, transparent 70%);
+  top: -10%;
+  left: 10%;
+  animation: marketplace-hero-float 20s infinite ease-in-out alternate;
+}
+
+.marketplace-fundo-hero__glows .glow-purple {
+  background: radial-gradient(circle, #a855f7 0%, transparent 70%);
+  top: 15%;
+  right: -5%;
+  animation: marketplace-hero-float 25s infinite ease-in-out alternate-reverse;
+}
+
+.marketplace-fundo-hero__glows .glow-cyan {
+  background: radial-gradient(circle, #06b6d4 0%, transparent 70%);
+  bottom: -10%;
+  left: 30%;
+  animation: marketplace-hero-float 18s infinite ease-in-out alternate;
+}
+
+@keyframes marketplace-hero-float {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(40px, -20px) scale(1.1); }
+  100% { transform: translate(-20px, 30px) scale(0.95); }
+}
+
+body.marketplace-fundo-hero-body {
+  background-color: var(--bg-body-dark);
+}
+
+.marketplace-layout--fundo-hero {
+  position: relative;
+  isolation: isolate;
+}
+
+.marketplace-layout--fundo-hero .navbar,
+.marketplace-layout--fundo-hero main,
+.marketplace-layout--fundo-hero .footer {
+  position: relative;
+  z-index: 1;
+}
+
+.marketplace-layout--fundo-hero .footer {
+  background: transparent;
+  border-top-color: rgba(255, 255, 255, 0.05);
+}
+
+.marketplace-layout--fundo-hero .produtos-page,
+.marketplace-layout--fundo-hero .precos-page,
+.marketplace-layout--fundo-hero .trial-page,
+.marketplace-layout--fundo-hero .precos-page__hero,
+.marketplace-layout--fundo-hero .trial-page__hero {
+  background: transparent;
+}

@@ -1,0 +1,230 @@
+/* dashboard-simula-custo.css — paridade visual Dashboard Bid Frete Internacional */
+
+.ecdb-page {
+  padding: 0 var(--simula-custo-page-px, 2rem) var(--simula-custo-page-pb, 2rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  flex: 1;
+  min-height: 0;
+  box-sizing: border-box;
+  overflow-y: auto;
+  color: #f1f5f9;
+}
+
+/* ── Barra de painéis ── */
+.ecdb-paineis-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.6rem;
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.28);
+  border-radius: 0.5rem;
+  flex-shrink: 0;
+}
+
+.ecdb-paineis-bar__label {
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #a78bfa;
+  padding-right: 0.375rem;
+  border-right: 1px solid rgba(139, 92, 246, 0.25);
+}
+
+.ecdb-paineis-bar__tab {
+  padding: 0.15rem 0.55rem;
+  border-radius: 4px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.ecdb-paineis-bar__tab--ativo {
+  background: rgba(139, 92, 246, 0.32);
+  border: 1px solid rgba(167, 139, 250, 0.65);
+  color: #ede9fe;
+}
+
+.ecdb-paineis-bar__config {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-left: auto;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  font-family: inherit;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.ecdb-paineis-bar__config:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f1f5f9;
+}
+
+/* ── Widgets (cards configuráveis) ── */
+.ecdb-widgets {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.25rem;
+  flex-shrink: 0;
+}
+
+.ecdb-widgets .cg-card {
+  width: auto;
+}
+
+/* ── Painéis de distribuição ── */
+.ecdb-paineis-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+/* Cards de seção (mesma identidade do Insights — chunks CSS separados) */
+.ecdb-page .ecd-card {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ecdb-page .ecd-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.ecdb-page .ecd-card--accent-indigo:hover  { box-shadow: 0 8px 32px 0 rgba(0,0,0,0.25), 0 0 16px rgba(129, 140, 248, 0.18); }
+.ecdb-page .ecd-card--accent-emerald:hover { box-shadow: 0 8px 32px 0 rgba(0,0,0,0.25), 0 0 16px rgba(52, 211, 153, 0.15); }
+
+.ecdb-page .ecd-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.ecdb-page .ecd-card__head .cg-card__label { margin: 0; }
+
+.ecdb-page .ecd-dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+
+.ecdb-page .ecd-distribuicao__barra {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.ecdb-page .ecd-distribuicao__fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+
+/* Distribuição em colunas */
+.ecdb-distribuicao {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.ecdb-distribuicao__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+}
+
+.ecdb-distribuicao__topo {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ecdb-distribuicao__nome {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ecdb-distribuicao__pct {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.ecdb-distribuicao__valor {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.1;
+}
+
+/* Resumo financeiro */
+.ecdb-resumo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.ecdb-resumo__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+}
+
+.ecdb-resumo__label {
+  font-size: 0.75rem;
+  color: #cbd5e1;
+}
+
+.ecdb-resumo__valor {
+  font-size: 0.95rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.ecdb-resumo__valor--sucesso { color: #34d399; }
+.ecdb-resumo__valor--aviso   { color: #fbbf24; }
+
+/* ── Responsivo ── */
+@media (max-width: 1200px) {
+  .ecdb-paineis-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .ecdb-distribuicao { grid-template-columns: 1fr; }
+}

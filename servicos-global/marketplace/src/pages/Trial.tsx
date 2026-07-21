@@ -1,137 +1,191 @@
 import { useSearchParams } from 'react-router-dom'
-import {
-  CheckCircle,
-  Clock,
-  CreditCard,
-  ArrowRight,
-  Rocket,
-  Shield,
-} from '@phosphor-icons/react'
-import { useTranslation } from 'react-i18next'
+import { Package, Sparkle, Truck, Rocket } from '@phosphor-icons/react'
+import type { ComponentType, CSSProperties } from 'react'
+import type { IconProps } from '@phosphor-icons/react'
+import '../styles/trial.css'
+
+interface TrialProduto {
+  id: string
+  Icon: ComponentType<IconProps>
+  name: string
+  sub: string
+  tag: string
+  tagColor: string
+  value: string
+  note: string
+}
+
+const TRIALS: TrialProduto[] = [
+  {
+    id: 'pedido',
+    Icon: Package,
+    name: 'Pedido',
+    sub: 'Gestão de processos de COMEX',
+    tag: 'OPERAÇÕES',
+    tagColor: '#8b7bff',
+    value: '14 dias',
+    note: 'Acesso total ao módulo por 14 dias corridos.',
+  },
+  {
+    id: 'smart-read',
+    Icon: Sparkle,
+    name: 'Smart Docs',
+    sub: 'Inteligência documental com IA',
+    tag: 'INTELIGÊNCIA',
+    tagColor: '#b6a6ff',
+    value: '10 docs / mês',
+    note: 'Processe até 10 documentos por mês, sem custo.',
+  },
+  {
+    id: 'bid-frete',
+    Icon: Truck,
+    name: 'BID Frete',
+    sub: 'Licitação de fretes internacionais',
+    tag: 'COTAÇÕES',
+    tagColor: '#f2a33c',
+    value: 'Livre',
+    note: 'Uso livre no trial — cote quantas vezes quiser.',
+  },
+]
+
+const INCLUIDO = [
+  'Acesso completo aos módulos que você ativar no trial',
+  'Cada produto com sua própria isenção — dias, volume ou uso livre',
+  'Suporte via chat durante o período',
+  'Dados reais, não mock — seu negócio, agora',
+  'Export de dados antes de finalizar, se quiser',
+]
+
+const ISENCOES_ATIVAS = [
+  { nome: 'Pedido', valor: '14 dias' },
+  { nome: 'Smart Docs', valor: '10 docs/mês' },
+  { nome: 'BID Frete', valor: 'Livre' },
+]
+
+function estiloTag(tagColor: string): CSSProperties {
+  return {
+    '--tag-color': tagColor,
+    '--tag-bg': `${tagColor}1c`,
+    '--tag-border': `${tagColor}3a`,
+    '--icon-bg': `${tagColor}18`,
+    '--icon-border': `${tagColor}30`,
+  } as CSSProperties
+}
 
 export function Trial() {
-  const { t } = useTranslation()
   const [searchParams] = useSearchParams()
   const produto = searchParams.get('produto') ?? ''
-  const CONFIGURADOR = import.meta.env.VITE_CONFIGURADOR_URL ?? 'https://configurador.usegravity.com.br'
-
-  const INCLUDED = [
-    t('marketplace.trial.items_incluidos.acesso'),
-    t('marketplace.trial.items_incluidos.dias'),
-    t('marketplace.trial.items_incluidos.suporte'),
-    t('marketplace.trial.items_incluidos.dados'),
-    t('marketplace.trial.items_incluidos.export'),
-  ]
-
-  const NOT_REQUIRED = [
-    { icon: <CreditCard size={18} weight="duotone" />, text: t('marketplace.trial.sem_cartao') },
-    { icon: <Shield size={18} weight="duotone" />, text: t('marketplace.trial.sem_compromisso') },
-    { icon: <Clock size={18} weight="duotone" />, text: t('marketplace.trial.cancele') },
-  ]
-
-  const trialUrl = `${CONFIGURADOR}/trial?trial=true${produto ? `&produto=${produto}` : ''}`
-
-  const productLabel: Record<string, string> = {
-    'simulador-comex': 'Simulador Comex',
-    'nf-importacao': 'NF Importação',
-    'dashboard': 'Dashboard Analítico',
-    'simulacusto': 'SimulaCusto',
-  }
+  const configurador = import.meta.env.VITE_CONFIGURADOR_URL ?? 'https://configurador.usegravity.com.br'
+  const trialUrl = `${configurador}/trial?trial=true${produto ? `&produto=${produto}` : ''}`
 
   return (
-    <div>
-      {/* Header */}
-      <section style={{ background: 'var(--bg-base)', borderBottom: '1px solid var(--bg-elevated)', padding: '3rem 0' }}>
-        <div className="container container-narrow" style={{ textAlign: 'center' }}>
-          <p className="text-micro" style={{ color: 'var(--success)', marginBottom: '0.75rem' }}>
-            {t('marketplace.trial.badge')}
-          </p>
-          <h1 className="text-h1" style={{ marginBottom: '0.75rem' }}>
-            {t('marketplace.trial.titulo')}
-            <span className="gradient-text">{t('marketplace.trial.titulo_destaque')}</span>
-          </h1>
-          {produto && productLabel[produto] && (
-            <p style={{ color: 'var(--text-secondary)', fontSize: '1.0625rem' }}>
-              {t('marketplace.trial.selecionou')}<strong style={{ color: 'var(--text-primary)' }}>{productLabel[produto]}</strong>
-            </p>
-          )}
+    <section className="trial-page">
+      <div className="trial-page__hero">
+        <div className="trial-page__kicker">Trial gratuito</div>
+        <h1 className="trial-page__titulo">
+          Experimente cada produto{' '}
+          <span className="trial-page__titulo-destaque">no seu ritmo.</span>
+        </h1>
+        <p className="trial-page__sub">
+          Cada módulo Gravity tem seu próprio trial — comece pelo que faz sentido para a sua operação.
+        </p>
+      </div>
+
+      <div className="trial-page__conteudo">
+        <h2 className="trial-page__secao-titulo">Trial por produto</h2>
+        <div className="trial-page__grid-trials">
+          {TRIALS.map(t => (
+            <article key={t.id} className="trial-card" style={estiloTag(t.tagColor)}>
+              <div className="trial-card__topo">
+                <span className="trial-card__icone">
+                  <t.Icon size={20} weight="duotone" />
+                </span>
+                <span className="trial-card__badge">{t.tag}</span>
+              </div>
+
+              <div className="trial-card__nome">{t.name}</div>
+              <div className="trial-card__sub">{t.sub}</div>
+
+              <div className="trial-card__rotulo">Isenção do trial</div>
+              <div className="trial-card__valor">{t.value}</div>
+              <div className="trial-card__nota">{t.note}</div>
+            </article>
+          ))}
         </div>
-      </section>
 
-      {/* Conteúdo */}
-      <section className="section">
-        <div className="container container-narrow">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem', alignItems: 'start' }}>
-            {/* O que está incluído */}
-            <div>
-              <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '1.25rem' }}>
-                {t('marketplace.trial.incluido_titulo')}
-              </h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '2rem' }}>
-                {INCLUDED.map(item => (
-                  <div key={item} className="feature-item">
-                    <div className="feature-item-icon">
-                      <CheckCircle size={14} weight="bold" />
-                    </div>
-                    <span style={{ fontSize: '0.9375rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                      {item}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              {/* SEM pedido de cartão — regra obrigatória */}
-              <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.875rem' }}>
-                {t('marketplace.trial.nao_necessario')}
-              </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
-                {NOT_REQUIRED.map(item => (
-                  <div key={item.text} style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', fontSize: '0.9375rem', color: 'var(--success)' }}>
-                    {item.icon}
-                    <span>{item.text}</span>
-                  </div>
-                ))}
-              </div>
+        <div className="trial-page__duas-colunas">
+          <div>
+            <h2 className="trial-page__bloco-titulo">O que está incluído</h2>
+            <div className="trial-page__lista-incluido">
+              {INCLUIDO.map(item => (
+                <div key={item} className="trial-page__item-incluido">
+                  <span className="trial-page__check">✓</span>
+                  <span>{item}</span>
+                </div>
+              ))}
             </div>
 
-            {/* CTA card */}
-            <div className="pricing-card" style={{ textAlign: 'center' }}>
-              <div style={{ marginBottom: '0.5rem' }}>
-                <Rocket size={40} color="var(--accent)" weight="duotone" style={{ margin: '0 auto 1rem' }} />
-                <h2 style={{ fontSize: '1.375rem', fontWeight: 700, marginBottom: '0.5rem' }}>
-                  {t('marketplace.trial.comece_titulo')}
-                </h2>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9375rem', lineHeight: 1.6 }}>
-                  {t('marketplace.trial.comece_desc')}
-                </p>
+            <h2 className="trial-page__bloco-titulo">Não é necessário</h2>
+            <div className="trial-page__lista-nao">
+              <div className="trial-page__item-nao">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden>
+                  <rect x="2" y="5" width="16" height="11" rx="2" stroke="#3ddc97" strokeWidth="1.5" />
+                  <path d="M2 9h16" stroke="#3ddc97" strokeWidth="1.5" />
+                </svg>
+                <span>Sem cartão de crédito</span>
               </div>
-
-              <div style={{ background: 'var(--bg-surface)', borderRadius: '12px', padding: '1.25rem', marginBottom: '1.5rem' }}>
-                <div style={{ display: 'flex', justify: 'space-between', alignItems: 'center' }}>
-                  <span className="text-micro" style={{ color: 'var(--text-muted)' }}>{t('marketplace.trial.duracao')}</span>
-                  <strong style={{ color: 'var(--success)', fontSize: '1.5rem', fontWeight: 800 }}>14 dias</strong>
-                </div>
+              <div className="trial-page__item-nao">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden>
+                  <path
+                    d="M10 2l6 2.5v4.5c0 3.6-2.5 6.7-6 7.8-3.5-1.1-6-4.2-6-7.8V4.5L10 2z"
+                    stroke="#3ddc97"
+                    strokeWidth="1.5"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <span>Sem compromisso</span>
               </div>
-
-              {/* CTA — redireciona ao Configurador, sem pedir cartão */}
-              <a
-                href={trialUrl}
-                className="btn btn-gradient"
-                id="trial-mao-na-massa"
-                style={{ width: '100%', justifyContent: 'center', marginBottom: '0.875rem' }}
-              >
-                <Rocket size={18} weight="duotone" />
-                {t('marketplace.trial.mao_na_massa')}
-                <ArrowRight size={16} weight="bold" />
-              </a>
-
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                {t('marketplace.trial.redirecionamento')}
-              </p>
+              <div className="trial-page__item-nao">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden>
+                  <circle cx="10" cy="10" r="8" stroke="#3ddc97" strokeWidth="1.5" />
+                  <path d="M10 6v4l3 2" stroke="#3ddc97" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+                <span>Cancele a qualquer hora</span>
+              </div>
             </div>
           </div>
+
+          <aside className="trial-page__cta-card">
+            <div className="trial-page__cta-icone">
+              <Rocket size={28} weight="duotone" />
+            </div>
+            <h2 className="trial-page__cta-titulo">Comece em 60 segundos</h2>
+            <p className="trial-page__cta-desc">
+              Crie sua conta no Configurador, escolha os produtos e ative o trial de cada um.
+            </p>
+
+            <div className="trial-page__isencoes">
+              <div className="trial-page__isencoes-rotulo">Isenções ativas</div>
+              <div className="trial-page__isencoes-lista">
+                {ISENCOES_ATIVAS.map(i => (
+                  <div key={i.nome} className="trial-page__isencao-linha">
+                    <span>{i.nome}</span>
+                    <span>{i.valor}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <a href={trialUrl} className="trial-page__cta-btn" id="trial-mao-na-massa">
+              <Rocket size={18} weight="duotone" />
+              Mão na Massa! <span>→</span>
+            </a>
+            <p className="trial-page__cta-rodape">
+              Você será redirecionado para o Configurador para criar sua conta. Sem cartão. Sem burocracia.
+            </p>
+          </aside>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   )
 }

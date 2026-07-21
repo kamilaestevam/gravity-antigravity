@@ -1,5 +1,5 @@
 /**
- * isolamento-tenant.ts — Middleware de Isolamento de Tenant (Estimativa Custo)
+ * isolamento-tenant.ts — Middleware de Isolamento de Tenant (Simula Custo)
  * Injeta id_organizacao em todas as queries via Prisma Extension.
  * Skill: antigravity-tenant-isolation
  *
@@ -41,8 +41,8 @@ setInterval(() => {
   basePrisma.$queryRaw`SELECT 1`.catch(() => { /* reconecta na próxima query */ })
 }, 30_000).unref()
 
-// Models públicos (sem id_organizacao) que NÃO recebem filtro de tenant.
-const MODELS_SEM_TENANT = new Set(['CacheCambioBacen'])
+// Models públicos sem id_organizacao (nenhum no Simula Custo após remoção de cache_cambio_bacen).
+const MODELS_SEM_TENANT = new Set<string>()
 
 type QueryArgs = {
   where?: Record<string, unknown>

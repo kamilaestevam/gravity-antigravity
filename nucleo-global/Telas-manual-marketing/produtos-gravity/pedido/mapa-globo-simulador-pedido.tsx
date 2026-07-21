@@ -67,17 +67,57 @@ function desenharSetaDirecionalRota(
 
 type PinProjetado = PinMapaSimuladorPedido & { px: number; py: number; opacity: number }
 
+export type RotulosTooltipPinMapaSimulador = {
+  contagem: string
+  secundario: string
+  receber: string
+  pagar: string
+}
+
+export type ContextoRefinarMapaSimuladorOverride = {
+  mapaBase: MapaPedidoEmpresaSimulador
+  metadados: ReturnType<typeof prepararContextoRefinarMapaSimuladorPedido>['metadados']
+  opcoes: ReturnType<typeof prepararContextoRefinarMapaSimuladorPedido>['opcoes']
+}
+
+const ROTULOS_TOOLTIP_PIN_PADRAO: RotulosTooltipPinMapaSimulador = {
+  contagem: 'Pedidos ativos',
+  secundario: 'Contratos câmbio',
+  receber: 'Total a receber',
+  pagar: 'Total a pagar',
+}
+
 type Props = {
   empresasSelecionadas?: PerfilEmpresaSimulador[]
   mapaEscopoOverride?: MapaPedidoEmpresaSimulador
+  contextoRefinarOverride?: ContextoRefinarMapaSimuladorOverride
+  titulo?: string
+  subtitulo?: string
+  ariaLabel?: string
+  rotulosTooltipPin?: RotulosTooltipPinMapaSimulador
+  rotuloExportadoresRefinar?: string
+  rotuloImportadoresRefinar?: string
+  onPinClick?: (pinId: number) => void
 }
 
-export function MapaGloboSimuladorPedido({ empresasSelecionadas = [], mapaEscopoOverride }: Props) {
+export function MapaGloboSimuladorPedido({
+  empresasSelecionadas = [],
+  mapaEscopoOverride,
+  contextoRefinarOverride,
+  titulo = 'Visão Geral Global de Pedidos',
+  subtitulo = 'Origens, destinos e volume por localização (arraste para girar)',
+  ariaLabel = 'Visão geral global de pedidos',
+  rotulosTooltipPin = ROTULOS_TOOLTIP_PIN_PADRAO,
+  rotuloExportadoresRefinar,
+  rotuloImportadoresRefinar,
+  onPinClick,
+}: Props) {
   const contextoRefinar = useMemo(() => {
+    if (contextoRefinarOverride) return contextoRefinarOverride
     const base = prepararContextoRefinarMapaSimuladorPedido(empresasSelecionadas)
     if (!mapaEscopoOverride) return base
     return { ...base, mapaBase: mapaEscopoOverride }
-  }, [empresasSelecionadas, mapaEscopoOverride])
+  }, [empresasSelecionadas, mapaEscopoOverride, contextoRefinarOverride])
 
   const [filtrosRefinar, setFiltrosRefinar] = useState<FiltrosRefinarMapaSimuladorPedido | null>(null)
 
@@ -611,16 +651,14 @@ export function MapaGloboSimuladorPedido({ empresasSelecionadas = [], mapaEscopo
 
       <section
         className={`pds-mapa-globo pds-insights-card${telaCheia ? ' pds-mapa-globo--tela-cheia' : ''}`}
-        aria-label="Visão geral global de pedidos"
+        aria-label={ariaLabel}
         role={telaCheia ? 'dialog' : undefined}
         aria-modal={telaCheia ? true : undefined}
       >
         <div className="pds-mapa-globo__header">
           <div className="pds-mapa-globo__header-texto">
-            <h3 className="pds-insights-card__titulo">Visão Geral Global de Pedidos</h3>
-            <p className="pds-mapa-globo__subtitulo">
-              Origens, destinos e volume por localização (arraste para girar)
-            </p>
+            <h3 className="pds-insights-card__titulo">{titulo}</h3>
+            <p className="pds-mapa-globo__subtitulo">{subtitulo}</p>
           </div>
           <TooltipGlobal descricao={telaCheia ? 'Recolher mapa' : 'Expandir mapa'}>
             <button
@@ -644,6 +682,8 @@ export function MapaGloboSimuladorPedido({ empresasSelecionadas = [], mapaEscopo
             filtros={filtrosResolvidos}
             onFiltrosChange={setFiltrosRefinar}
             variantePainel={telaCheia ? 'tela-cheia' : 'card'}
+            rotuloExportadores={rotuloExportadoresRefinar}
+            rotuloImportadores={rotuloImportadoresRefinar}
           />
 
         <div
@@ -753,12 +793,13 @@ export function MapaGloboSimuladorPedido({ empresasSelecionadas = [], mapaEscopo
           return (
             <div
               key={pin.id}
-              className={`pds-mapa-globo__pin${isHovered ? ' pds-mapa-globo__pin--ativo' : ''}`}
+              className={`pds-mapa-globo__pin${isHovered ? ' pds-mapa-globo__pin--ativo' : ''}${onPinClick ? ' pds-mapa-globo__pin--clicavel' : ''}`}
               style={{
                 top: pin.py,
                 left: pin.px,
                 opacity: pin.opacity,
                 pointerEvents: pin.opacity < 0.65 ? 'none' : 'auto',
+                cursor: onPinClick ? 'pointer' : undefined,
               }}
               onMouseEnter={() => {
                 setHoveredPin(pin.id)
@@ -767,6 +808,12 @@ export function MapaGloboSimuladorPedido({ empresasSelecionadas = [], mapaEscopo
               onMouseLeave={() => {
                 setHoveredPin(null)
                 isRotationPausedRef.current = !isAutoRotatingRef.current
+              }}
+              onClick={(e) => {
+                if (!onPinClick) return
+                e.stopPropagation()
+                isRotationPausedRef.current = true
+                onPinClick(pin.id)
               }}
             >
               <div
@@ -799,19 +846,19 @@ export function MapaGloboSimuladorPedido({ empresasSelecionadas = [], mapaEscopo
                   </div>
                   <div className="pds-mapa-globo__tooltip-body">
                     <div className="pds-mapa-globo__tooltip-stat">
-                      <span>Pedidos ativos</span>
+                      <span>{rotulosTooltipPin.contagem}</span>
                       <strong>{pin.pedidosCount}</strong>
                     </div>
                     <div className="pds-mapa-globo__tooltip-stat">
-                      <span>Contratos câmbio</span>
+                      <span>{rotulosTooltipPin.secundario}</span>
                       <strong>{pin.contratosCambioCount}</strong>
                     </div>
                     <div className="pds-mapa-globo__tooltip-stat">
-                      <span>Total a receber</span>
+                      <span>{rotulosTooltipPin.receber}</span>
                       <strong style={{ color: '#34d399' }}>{pin.totalAReceber}</strong>
                     </div>
                     <div className="pds-mapa-globo__tooltip-stat">
-                      <span>Total a pagar</span>
+                      <span>{rotulosTooltipPin.pagar}</span>
                       <strong style={{ color: '#f59e0b' }}>{pin.totalAPagar}</strong>
                     </div>
                   </div>
@@ -820,7 +867,9 @@ export function MapaGloboSimuladorPedido({ empresasSelecionadas = [], mapaEscopo
                       <span>
                         Parceiro: <strong>{pin.fornecedorPrincipal}</strong>
                       </span>
-                      <span className="pds-mapa-globo__tooltip-hint">👉 Passe o mouse para ver rotas</span>
+                      <span className="pds-mapa-globo__tooltip-hint">
+                        {onPinClick ? '👉 Clique para ver rotas' : '👉 Passe o mouse para ver rotas'}
+                      </span>
                     </div>
                   )}
                   <div className="pds-mapa-globo__tooltip-after" aria-hidden />

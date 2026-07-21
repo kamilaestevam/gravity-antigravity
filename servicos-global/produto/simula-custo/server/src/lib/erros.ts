@@ -1,5 +1,5 @@
 /**
- * erros.ts — AppError padrão Gravity (Estimativa Custo)
+ * erros.ts — AppError padrão Gravity (Simula Custo)
  * Skill: antigravity-criar-produto
  */
 export class AppError extends Error {

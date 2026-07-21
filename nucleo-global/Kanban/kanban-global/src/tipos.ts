@@ -189,4 +189,10 @@ export interface KanbanGlobalProps<T extends KanbanItem = KanbanItem> {
   dataTutorialAlvoSort?: string
   dataTutorialAlvoSortOpcoes?: string
   onSortPopoverOpenChange?: (colunaKey: string, aberto: boolean) => void
+  /**
+   * true (padrão): card flutua em DragOverlay (ideal no app real).
+   * false: arrasta o próprio card in-place — necessário no simulador de marketing
+   * (ancestrais com transform quebram o posicionamento do overlay).
+   */
+  usarDragOverlay?: boolean
 }

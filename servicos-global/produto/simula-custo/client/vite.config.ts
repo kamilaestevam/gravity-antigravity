@@ -45,10 +45,16 @@ export default defineConfig({
       allow: [monorepoRoot],
     },
     proxy: {
-      // Cadastros (NCM universal) — paridade bid-frete-internacional/client
+      // Cadastros (moedas, NCM, taxas) — injeta chave S2S como no Configurador
       '/api/v1/cadastros': {
         target: 'http://localhost:8031',
         changeOrigin: true,
+        configure(proxy) {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('x-internal-key', 'gravity-dev-internal-key-2026')
+            proxyReq.setHeader('x-chave-interna-servico', 'gravity-dev-internal-key-2026')
+          })
+        },
       },
       '/api': {
         target: 'http://localhost:8020',

@@ -269,6 +269,7 @@ export function KanbanSimuladorPedido({
         itens={itensFiltrados}
         renderCard={renderCard}
         onMoverItem={handleMover}
+        usarDragOverlay={false}
         onCardClick={item => {
           setModalPedido(item.pedido)
           setAbaModal('pedido')

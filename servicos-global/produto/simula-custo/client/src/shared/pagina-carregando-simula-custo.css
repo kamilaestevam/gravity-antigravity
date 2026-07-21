@@ -1,0 +1,20 @@
+/* pagina-carregando-simula-custo — paridade bf-pagina-carregando */
+.ec-pagina-carregando {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  width: 100%;
+  overflow: hidden;
+  isolation: isolate;
+  position: relative;
+}
+
+.ec-pagina-carregando .gl-container {
+  min-height: 0;
+  max-width: 100%;
+}
+
+.ec-pagina-carregando .gl-cena {
+  max-width: 100%;
+}

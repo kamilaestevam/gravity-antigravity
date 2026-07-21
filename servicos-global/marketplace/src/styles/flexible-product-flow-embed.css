@@ -1,0 +1,14 @@
+.flexible-product-flow-embed {
+  width: 100%;
+  background: #080910;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.flexible-product-flow-embed__frame {
+  display: block;
+  width: 100%;
+  min-height: 820px;
+  border: 0;
+  background: #080910;
+  overflow: hidden;
+}

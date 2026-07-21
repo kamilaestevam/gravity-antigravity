@@ -32,6 +32,9 @@ export function KanbanCardWrapper({ item, colunaKey }: KanbanCardWrapperProps) {
     dataTutorialAlvoMoverMenu,
     onMoverMenuOpenChange,
     dataTutorialAlvoMoverOpcoes,
+    usarDragOverlay,
+    fantasmaArrasteAtivo,
+    activeId,
   } = useKanban()
 
   const isReadOnlyEfetivo = isReadOnly || (
@@ -52,13 +55,26 @@ export function KanbanCardWrapper({ item, colunaKey }: KanbanCardWrapperProps) {
     data:     { colunaKey },
   })
 
-  const style: React.CSSProperties = {
-    transform:  CSS.Transform.toString(transform),
-    transition: transition ?? undefined,
-  }
+  const arrastandoEste = activeId === item.id
+  const ocultarPlaceholder =
+    isDragging && (usarDragOverlay || fantasmaArrasteAtivo)
+
+  const style: React.CSSProperties = ocultarPlaceholder
+    ? usarDragOverlay
+      ? { opacity: 0, transform: CSS.Translate.toString(transform) }
+      : { opacity: 0 }
+    : {
+        transform: CSS.Translate.toString(transform),
+        transition: isDragging ? undefined : (transition ?? undefined),
+      }
 
   const isMoving = movingId === item.id
   const feedback = feedbackMap[item.id] ?? null
+  const arrastouRef = useRef(false)
+
+  useEffect(() => {
+    if (isDragging) arrastouRef.current = true
+  }, [isDragging])
 
   // ── Menu "Mover para" ────────────────────────────────────────────────────
   const [showMenu, setShowMenu] = useState(false)
@@ -91,7 +107,8 @@ export function KanbanCardWrapper({ item, colunaKey }: KanbanCardWrapperProps) {
   // ── Classes ──────────────────────────────────────────────────────────────
   const classes = [
     'kg-card-wrapper',
-    isDragging        ? 'kg-dragging'       : '',
+    isDragging && ocultarPlaceholder ? 'kg-dragging' : '',
+    isDragging && arrastandoEste && !ocultarPlaceholder ? 'kg-dragging kg-drag-fallback' : '',
     isReadOnlyEfetivo ? 'kg-readonly'       : '',
     isMoving          ? 'kg-moving'         : '',
     feedback === 'sucesso' ? 'kg-feedback-sucesso' : '',
@@ -111,7 +128,17 @@ export function KanbanCardWrapper({ item, colunaKey }: KanbanCardWrapperProps) {
       {...attributes}
       {...(isReadOnlyEfetivo ? {} : listeners)}
       role="listitem"
-      onClick={onCardClick && !isDragging ? () => onCardClick(item) : undefined}
+      onClick={
+        onCardClick
+          ? () => {
+              if (isDragging || arrastouRef.current) {
+                arrastouRef.current = false
+                return
+              }
+              onCardClick(item)
+            }
+          : undefined
+      }
     >
       {renderCard(item, isDragging)}
 

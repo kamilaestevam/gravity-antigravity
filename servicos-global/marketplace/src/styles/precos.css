@@ -1,0 +1,308 @@
+/* /precos — fiel ao HTML DC original; ícones = Phosphor oficiais */
+
+.precos-page {
+  position: relative;
+  background: transparent;
+  color: #e9eaf5;
+  font-family: Inter, system-ui, sans-serif;
+  min-height: 940px;
+  box-sizing: border-box;
+}
+
+.precos-page__hero {
+  position: relative;
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 46px 5vw 44px;
+  text-align: center;
+}
+
+.precos-page__titulo {
+  font-family: Sora, sans-serif;
+  font-weight: 700;
+  font-size: clamp(28px, 3.4vw, 42px);
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  margin: 0 0 8px;
+  color: #f4f5fb;
+}
+
+.precos-page__titulo-destaque {
+  background: linear-gradient(90deg, #8b7bff, #b6a6ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.precos-page__sub {
+  font-size: 16px;
+  color: #9fa1bb;
+  margin: 0 auto 26px;
+  max-width: 520px;
+}
+
+.precos-page__toggle-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.precos-page__toggle {
+  display: flex;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 5px;
+}
+
+.precos-page__toggle-btn {
+  padding: 9px 20px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-family: Sora, sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  border: none;
+  background: transparent;
+  color: #9295b1;
+  transition: all 0.2s ease;
+}
+
+.precos-page__toggle-btn--active {
+  background: #fff;
+  color: #0b0c16;
+}
+
+.precos-page__economia {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 13px;
+  border-radius: 999px;
+  background: rgba(61, 220, 151, 0.14);
+  border: 1px solid rgba(61, 220, 151, 0.34);
+  color: #3ddc97;
+  font-family: Sora, sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.precos-page__conteudo {
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 52px 5vw 60px;
+}
+
+.precos-page__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.precos-card {
+  position: relative;
+  border-radius: 22px;
+  padding: 30px 28px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.008));
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.precos-card--popular {
+  background: linear-gradient(180deg, rgba(139, 123, 255, 0.12), rgba(255, 255, 255, 0.015));
+  border: 1px solid rgba(139, 123, 255, 0.55);
+  box-shadow: 0 20px 60px rgba(125, 108, 245, 0.22);
+}
+
+.precos-card__popular {
+  position: absolute;
+  top: -13px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #7d6cf5, #9a8bff);
+  color: #fff;
+  font-family: Sora, sans-serif;
+  font-weight: 700;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.precos-card__topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.precos-card__icone {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tag-color);
+  background: var(--icon-bg);
+  border: 1px solid var(--icon-border);
+}
+
+.precos-card__badge {
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-family: Sora, sans-serif;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  background: var(--tag-bg);
+  color: var(--tag-color);
+  border: 1px solid var(--tag-border);
+}
+
+.precos-card__nome {
+  font-family: Sora, sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: #f4f5fb;
+  margin-bottom: 5px;
+}
+
+.precos-card__sub {
+  font-size: 14px;
+  color: #8f92ad;
+  margin-bottom: 22px;
+}
+
+.precos-card__preco-linha {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  margin-bottom: 4px;
+}
+
+.precos-card__moeda {
+  font-size: 16px;
+  color: #9295b1;
+}
+
+.precos-card__valor {
+  font-family: Sora, sans-serif;
+  font-weight: 700;
+  font-size: 44px;
+  line-height: 1;
+}
+
+.precos-card__periodo {
+  font-size: 15px;
+  color: #9295b1;
+}
+
+.precos-card__cobranca {
+  font-size: 13px;
+  color: #8890ad;
+  margin-bottom: 22px;
+  min-height: 18px;
+}
+
+.precos-card__cta {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(139, 123, 255, 0.4);
+  background: rgba(139, 123, 255, 0.1);
+  color: #c9c3ff;
+  font-family: Sora, sans-serif;
+  font-weight: 600;
+  font-size: 14.5px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.precos-card__cta:hover {
+  background: rgba(139, 123, 255, 0.16);
+  color: #e0dcff;
+}
+
+.precos-card__cta--popular {
+  border: none;
+  background: linear-gradient(90deg, #7d6cf5, #9a8bff);
+  color: #fff;
+  box-shadow: 0 12px 30px rgba(125, 108, 245, 0.35);
+}
+
+.precos-card__cta--popular:hover {
+  color: #fff;
+  filter: brightness(1.05);
+}
+
+.precos-card__divisor {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 22px 0 20px;
+}
+
+.precos-card__features {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.precos-card__feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  font-size: 14px;
+  color: #c9cbe0;
+  line-height: 1.45;
+}
+
+.precos-card__check {
+  flex: none;
+  margin-top: 1px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(139, 123, 255, 0.16);
+  border: 1px solid rgba(139, 123, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b6a6ff;
+  font-size: 11px;
+}
+
+.precos-page__rodape {
+  text-align: center;
+  margin-top: 36px;
+  font-size: 14.5px;
+  color: #8890ad;
+}
+
+.precos-page__vendas {
+  color: #b6a6ff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.precos-page__vendas:hover {
+  color: #c9c3ff;
+}
+
+@media (max-width: 900px) {
+  .precos-page__grid {
+    grid-template-columns: 1fr;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+}

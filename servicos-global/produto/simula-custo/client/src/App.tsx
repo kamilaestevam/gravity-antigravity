@@ -1,5 +1,5 @@
 /**
- * App.tsx — Raiz da SPA Estimativa Custo (simula-custo)
+ * App.tsx — Raiz da SPA Simula Custo (simula-custo)
  *
  * Montado pelo Configurador sob /simula-custo/* (rotas-convencao.md).
  * Navegação lateral usa caminhos absolutos via rotaSimulaCusto —
@@ -16,11 +16,11 @@ import {
 } from '@nucleo/localizador-global'
 import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
 import { setApiContext } from './shared/api'
-import { rotaSimulaCusto } from './shared/rotas-estimativa-custo'
-import { traduzirPageMetaTopoEstimativaCusto } from './shared/page-meta-topo-estimativa-custo'
-import { ConteudoCarregandoEstimativaCusto } from './shared/pagina-carregando-estimativa-custo'
-import { EstimativaCustoVisualizacaoLayout } from './components/EstimativaCustoVisualizacaoLayout'
-import { EstimativaCustoMultiView } from './components/EstimativaCustoMultiView'
+import { rotaSimulaCusto } from './shared/rotas-simula-custo'
+import { traduzirPageMetaTopoSimulaCusto } from './shared/page-meta-topo-simula-custo'
+import { ConteudoCarregandoSimulaCusto } from './shared/pagina-carregando-simula-custo'
+import { SimulaCustoVisualizacaoLayout } from './components/SimulaCustoVisualizacaoLayout'
+import { SimulaCustoMultiView } from './components/SimulaCustoMultiView'
 import { getProdutoMeta } from '@nucleo/logo-produtos'
 
 import {
@@ -38,12 +38,12 @@ import {
 } from '@phosphor-icons/react'
 
 // ── Lazy loading das telas ────────────────────────────────────────────────────
-// Insights/Lista/Dashboard/Kanban montam dentro do EstimativaCustoMultiView
+// Insights/Lista/Dashboard/Kanban montam dentro do SimulaCustoMultiView
 // (keep-alive — paridade BidFreteMultiView).
-const Configuracoes = lazy(() => import('./pages/configuracoes-estimativa-custo'))
-const Formulario    = lazy(() => import('./pages/formulario-estimativa-custo'))
+const Configuracoes = lazy(() => import('./pages/configuracoes-simula-custo'))
+const Formulario    = lazy(() => import('./pages/formulario-simula-custo'))
 
-const estimativaCustoVisualizacoesElement = <EstimativaCustoMultiView />
+const simulaCustoVisualizacoesElement = <SimulaCustoMultiView />
 
 // ── Identidade do produto ─────────────────────────────────────────────────────
 const PRODUTO       = getProdutoMeta('simula-custo')
@@ -95,7 +95,7 @@ function mapNavItem(item: NavigationItem): NavItemShell {
   }
 }
 
-const LoadingFallback = () => <ConteudoCarregandoEstimativaCusto />
+const LoadingFallback = () => <ConteudoCarregandoSimulaCusto />
 
 // ── Labels de rota ────────────────────────────────────────────────────────────
 const ROUTE_LABELS: Record<string, string> = {
@@ -103,8 +103,8 @@ const ROUTE_LABELS: Record<string, string> = {
   'lista':         'Lista',
   'dashboard':     'Dashboard',
   'kanban':        'Kanban',
-  'estimativas':   'Estimativas',
-  'nova':          'Nova Estimativa',
+  'simulas':   'Simulas',
+  'nova':          'Nova Simula',
   'configuracoes': 'Configurações',
 }
 
@@ -162,7 +162,7 @@ export default function App() {
   const navItems = PRODUCT_CONFIG.navigation.map(item => mapNavItem(item as NavigationItem))
 
   const pageMeta = useMemo(
-    () => traduzirPageMetaTopoEstimativaCusto(location.pathname, t),
+    () => traduzirPageMetaTopoSimulaCusto(location.pathname, t),
     [location.pathname, t],
   )
 
@@ -209,17 +209,15 @@ export default function App() {
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
           <Route index element={<Navigate to={rotaSimulaCusto('insights')} replace />} />
-          <Route element={<EstimativaCustoVisualizacaoLayout />}>
-            <Route path="insights"      element={estimativaCustoVisualizacoesElement} />
-            <Route path="lista"         element={estimativaCustoVisualizacoesElement} />
-            <Route path="dashboard"     element={estimativaCustoVisualizacoesElement} />
-            <Route path="kanban"        element={estimativaCustoVisualizacoesElement} />
+          <Route element={<SimulaCustoVisualizacaoLayout />}>
+            <Route path="insights"      element={simulaCustoVisualizacoesElement} />
+            <Route path="lista"         element={simulaCustoVisualizacoesElement} />
+            <Route path="dashboard"     element={simulaCustoVisualizacoesElement} />
+            <Route path="kanban"        element={simulaCustoVisualizacoesElement} />
             <Route path="configuracoes" element={<Configuracoes />} />
           </Route>
-          <Route path="estimativas/nova"                  element={<Formulario />} />
-          <Route path="estimativas/:id_estimativa_custo"  element={<Formulario />} />
-          {/* Redirects legado */}
-          <Route path="estimativas"   element={<Navigate to={rotaSimulaCusto('lista')} replace />} />
+          <Route path="simulas/nova"                  element={<Formulario />} />
+          <Route path="simulas/:id_simula_custo"  element={<Formulario />} />
           <Route path="visao-geral"   element={<Navigate to={rotaSimulaCusto('insights')} replace />} />
           <Route path="*"             element={<Navigate to={rotaSimulaCusto('insights')} replace />} />
         </Routes>

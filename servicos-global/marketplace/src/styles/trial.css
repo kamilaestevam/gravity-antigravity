@@ -1,0 +1,330 @@
+/* /trial — fiel ao HTML DC original; ícones = Phosphor oficiais */
+
+.trial-page {
+  position: relative;
+  background: transparent;
+  color: #e9eaf5;
+  font-family: Inter, system-ui, sans-serif;
+  min-height: 940px;
+  box-sizing: border-box;
+}
+
+.trial-page__hero {
+  position: relative;
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 52px 5vw 64px;
+  text-align: center;
+}
+
+.trial-page__kicker {
+  font-family: Sora, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #3ddc97;
+  margin-bottom: 16px;
+}
+
+.trial-page__titulo {
+  font-family: Sora, sans-serif;
+  font-weight: 700;
+  font-size: clamp(30px, 3.6vw, 46px);
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  margin: 0;
+  color: #f4f5fb;
+}
+
+.trial-page__titulo-destaque {
+  background: linear-gradient(90deg, #8b7bff, #b6a6ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.trial-page__sub {
+  font-size: 16px;
+  color: #9fa1bb;
+  margin: 16px auto 0;
+  max-width: 560px;
+}
+
+.trial-page__conteudo {
+  position: relative;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 56px 5vw 90px;
+}
+
+.trial-page__secao-titulo {
+  font-family: Sora, sans-serif;
+  font-weight: 700;
+  font-size: 19px;
+  color: #eef0fb;
+  margin: 0 0 20px;
+}
+
+.trial-page__grid-trials {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 56px;
+}
+
+.trial-card {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.008));
+  border-radius: 18px;
+  padding: 24px;
+}
+
+.trial-card__topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.trial-card__icone {
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tag-color);
+  background: var(--icon-bg);
+  border: 1px solid var(--icon-border);
+}
+
+.trial-card__badge {
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-family: Sora, sans-serif;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  background: var(--tag-bg);
+  color: var(--tag-color);
+  border: 1px solid var(--tag-border);
+}
+
+.trial-card__nome {
+  font-family: Sora, sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: #f4f5fb;
+  margin-bottom: 4px;
+}
+
+.trial-card__sub {
+  font-size: 13.5px;
+  color: #8f92ad;
+  margin-bottom: 18px;
+}
+
+.trial-card__rotulo {
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8890ad;
+  margin-bottom: 6px;
+}
+
+.trial-card__valor {
+  font-family: Sora, sans-serif;
+  font-weight: 700;
+  font-size: 26px;
+  line-height: 1;
+  color: #3ddc97;
+}
+
+.trial-card__nota {
+  font-size: 13px;
+  color: #9295b1;
+  margin-top: 8px;
+}
+
+.trial-page__duas-colunas {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 56px;
+  align-items: start;
+}
+
+.trial-page__bloco-titulo {
+  font-family: Sora, sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: #f4f5fb;
+  margin: 0 0 22px;
+}
+
+.trial-page__lista-incluido {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-bottom: 40px;
+}
+
+.trial-page__item-incluido {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  font-size: 15px;
+  color: #c9cbe0;
+  line-height: 1.5;
+}
+
+.trial-page__check {
+  flex: none;
+  margin-top: 2px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(139, 123, 255, 0.16);
+  border: 1px solid rgba(139, 123, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b6a6ff;
+  font-size: 12px;
+}
+
+.trial-page__lista-nao {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.trial-page__item-nao {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  color: #3ddc97;
+}
+
+.trial-page__cta-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+  border-radius: 22px;
+  padding: 34px 32px;
+  text-align: center;
+}
+
+.trial-page__cta-icone {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: rgba(139, 123, 255, 0.14);
+  border: 1px solid rgba(139, 123, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 22px;
+  color: #b6a6ff;
+}
+
+.trial-page__cta-titulo {
+  font-family: Sora, sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  color: #f4f5fb;
+  margin: 0 0 12px;
+}
+
+.trial-page__cta-desc {
+  font-size: 15px;
+  line-height: 1.55;
+  color: #9fa1bb;
+  margin: 0 0 26px;
+}
+
+.trial-page__isencoes {
+  border: 1px solid rgba(61, 220, 151, 0.28);
+  background: rgba(61, 220, 151, 0.06);
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin-bottom: 26px;
+  text-align: left;
+}
+
+.trial-page__isencoes-rotulo {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8890ad;
+  margin-bottom: 8px;
+}
+
+.trial-page__isencoes-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.trial-page__isencao-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13.5px;
+}
+
+.trial-page__isencao-linha span:first-child {
+  color: #c9cbe0;
+}
+
+.trial-page__isencao-linha span:last-child {
+  font-family: Sora, sans-serif;
+  font-weight: 700;
+  color: #3ddc97;
+}
+
+.trial-page__cta-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 15px;
+  border-radius: 13px;
+  background: linear-gradient(90deg, #7d6cf5, #9a8bff);
+  border: none;
+  color: #fff;
+  font-family: Sora, sans-serif;
+  font-weight: 600;
+  font-size: 15.5px;
+  cursor: pointer;
+  box-shadow: 0 14px 34px rgba(125, 108, 245, 0.4);
+  text-decoration: none;
+  transition: filter 0.2s ease;
+}
+
+.trial-page__cta-btn:hover {
+  filter: brightness(1.05);
+  color: #fff;
+}
+
+.trial-page__cta-rodape {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #6f7290;
+  margin: 18px 0 0;
+}
+
+@media (max-width: 960px) {
+  .trial-page__grid-trials {
+    grid-template-columns: 1fr;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 48px;
+  }
+
+  .trial-page__duas-colunas {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}

@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
-import { createNucleoAliases } from '../../nucleo-global/vite-aliases'
+import { createNucleoAliases, createServiceAliases } from '../../nucleo-global/vite-aliases'
 
 const monorepoRoot = path.resolve(__dirname, '../..')
 
@@ -14,6 +14,7 @@ export default defineConfig({
     extensions: ['.mjs', '.ts', '.tsx', '.mts', '.jsx', '.js', '.json'],
     alias: {
       ...createNucleoAliases(monorepoRoot),
+      ...createServiceAliases(monorepoRoot),
       // Marketplace referencia cópia em nucleo-global/logo-global (fora do scan Layout/).
       '@nucleo/logo-global': path.resolve(monorepoRoot, 'nucleo-global/logo-global/src/index.ts'),
     },

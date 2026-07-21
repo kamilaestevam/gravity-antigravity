@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;450;500;600&display=swap" rel="stylesheet">
+<style>
+  body{margin:0}
+  a{color:#8b7bff;text-decoration:none}
+  a:hover{color:#a99bff}
+  @keyframes gv-online{0%,100%{opacity:1}50%{opacity:.35}}
+  @keyframes gv-msgin{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  @keyframes gv-dot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-4px);opacity:1}}
+</style>
+</helmet>
+<section style="position:relative;background:radial-gradient(1200px 720px at 50% 6%, #1a1730 0%, #0a0b16 58%, #080910 100%);color:#e9eaf5;font-family:Inter,system-ui,sans-serif;overflow:hidden;padding:96px 6vw 104px;box-sizing:border-box">
+
+  <div style="position:absolute;inset:0;background-image:radial-gradient(circle at 1px 1px,rgba(255,255,255,.05) 1px,transparent 0);background-size:42px 42px;mask-image:radial-gradient(820px 520px at 50% 20%,#000 0%,transparent 80%);pointer-events:none"></div>
+
+  <div style="position:relative;max-width:760px;margin:0 auto">
+
+    <div style="text-align:center;margin-bottom:30px">
+      <div style="display:inline-flex;align-items:center;gap:9px;font-family:Sora,sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#8b7bff;margin-bottom:18px">
+        <span style="width:6px;height:6px;border-radius:50%;background:#8b7bff;box-shadow:0 0 10px #8b7bff"></span>
+        Muito além de um assistente
+      </div>
+      <h2 style="font-family:Sora,sans-serif;font-weight:600;font-size:clamp(26px,2.8vw,40px);line-height:1.14;letter-spacing:-.015em;margin:0 0 16px;color:#eef0fb">
+        A Gabi não é só uma IA —
+        <span style="background:linear-gradient(90deg,#8b7bff,#b6a6ff);-webkit-background-clip:text;background-clip:text;color:transparent">ela é você em ação.</span>
+      </h2>
+      <p style="font-size:17px;line-height:1.6;color:#9fa1bb;margin:0 auto;max-width:620px">
+        Ela edita, acessa o banco de dados, envia mensagens e elabora relatórios — fazendo o trabalho junto com você, sempre dentro das suas permissões.
+      </p>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:28px">
+      <span style="display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:rgba(139,123,255,.1);border:1px solid rgba(139,123,255,.3);font-family:Sora,sans-serif;font-weight:600;font-size:13px;color:#c9c3ff"><span style="width:6px;height:6px;border-radius:50%;background:#8b7bff"></span>Edita por você</span>
+      <span style="display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:rgba(61,220,151,.08);border:1px solid rgba(61,220,151,.3);font-family:Sora,sans-serif;font-weight:600;font-size:13px;color:#9fe9c8"><span style="width:6px;height:6px;border-radius:50%;background:#3ddc97"></span>Acessa o banco</span>
+      <span style="display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:rgba(122,162,247,.09);border:1px solid rgba(122,162,247,.32);font-family:Sora,sans-serif;font-weight:600;font-size:13px;color:#b9cdfb"><span style="width:6px;height:6px;border-radius:50%;background:#7aa2f7"></span>Envia mensagens</span>
+      <span style="display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:rgba(242,163,60,.08);border:1px solid rgba(242,163,60,.3);font-family:Sora,sans-serif;font-weight:600;font-size:13px;color:#f2cf9c"><span style="width:6px;height:6px;border-radius:50%;background:#f2a33c"></span>Elabora relatórios</span>
+    </div>
+
+    <!-- CHAT -->
+    <div style="border:1px solid rgba(255,255,255,.1);background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.012));border-radius:22px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.45)">
+
+      <div style="display:flex;align-items:center;gap:12px;padding:16px 22px;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02)">
+        <span style="width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#7d6cf5,#b6a6ff);display:flex;align-items:center;justify-content:center;flex:none">
+          <svg width="21" height="21" viewBox="0 0 20 20" fill="none"><path d="M10 2l1.7 4.6L16.5 8l-4.8 1.4L10 14l-1.7-4.6L3.5 8l4.8-1.4L10 2z" fill="#fff"/></svg>
+        </span>
+        <div>
+          <div style="font-family:Sora,sans-serif;font-weight:700;font-size:15.5px;color:#eef0fb">Gabi</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#8890ad"><span style="width:6px;height:6px;border-radius:50%;background:#3ddc97;animation:gv-online 2.4s ease-in-out infinite"></span>Assistente IA · online</div>
+        </div>
+      </div>
+
+      <div ref="{{ scrollRef }}" style="height:470px;overflow:hidden;scroll-behavior:smooth;padding:22px">
+        <div style="display:flex;flex-direction:column;gap:14px;min-height:100%;opacity:{{ chatOpacity }};transition:opacity .45s ease">
+        <div style="flex:1 0 auto"></div>
+
+        <sc-if value="{{ showUser1 }}" hint-placeholder-val="{{ true }}">
+          <div style="align-self:flex-end;max-width:80%;background:linear-gradient(135deg,#6f5cf0,#8b7bff);color:#fff;padding:12px 16px;border-radius:16px 16px 4px 16px;font-size:14.5px;line-height:1.5;animation:gv-msgin .4s ease both">Quantos pedidos estão atrasados este mês?</div>
+        </sc-if>
+
+        <sc-if value="{{ showTyping1 }}" hint-placeholder-val="{{ false }}">
+          <div style="align-self:flex-start;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);padding:14px 16px;border-radius:16px 16px 16px 4px;animation:gv-msgin .3s ease both">
+            <span style="width:7px;height:7px;border-radius:50%;background:#b6a6ff;animation:gv-dot 1.2s infinite"></span>
+            <span style="width:7px;height:7px;border-radius:50%;background:#b6a6ff;animation:gv-dot 1.2s infinite .15s"></span>
+            <span style="width:7px;height:7px;border-radius:50%;background:#b6a6ff;animation:gv-dot 1.2s infinite .3s"></span>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ showBot1 }}" hint-placeholder-val="{{ true }}">
+          <div style="align-self:flex-start;max-width:84%;animation:gv-msgin .4s ease both">
+            <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:#dfe1f0;padding:14px 17px;border-radius:16px 16px 16px 4px;font-size:14.5px;line-height:1.6">
+              <span style="font-weight:600;color:#fff">7 pedidos</span> atrasados, de 43 ativos no período. Os três mais antigos:
+              <div style="margin-top:8px;color:#b9bcd2;font-size:14px">• PO-2026-0088 · 12 dias<br>• PO-2026-0102 · 9 dias<br>• PO-2026-0115 · 6 dias</div>
+              <div style="margin-top:9px">Quer abrir a lista filtrada?</div>
+            </div>
+            <div style="margin-top:8px;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:7px;background:rgba(61,220,151,.14);border:1px solid rgba(61,220,151,.3);font-size:11.5px;font-weight:600;color:#3ddc97">
+              <span style="width:5px;height:5px;border-radius:50%;background:#3ddc97"></span>Consultou pedidos
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ showUser2 }}" hint-placeholder-val="{{ true }}">
+          <div style="align-self:flex-end;max-width:80%;background:linear-gradient(135deg,#6f5cf0,#8b7bff);color:#fff;padding:12px 16px;border-radius:16px 16px 4px 16px;font-size:14.5px;line-height:1.5;animation:gv-msgin .4s ease both">Cria um pedido FOB em USD para a Acme Corp.</div>
+        </sc-if>
+
+        <sc-if value="{{ showTyping2 }}" hint-placeholder-val="{{ false }}">
+          <div style="align-self:flex-start;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);padding:14px 16px;border-radius:16px 16px 16px 4px;animation:gv-msgin .3s ease both">
+            <span style="width:7px;height:7px;border-radius:50%;background:#b6a6ff;animation:gv-dot 1.2s infinite"></span>
+            <span style="width:7px;height:7px;border-radius:50%;background:#b6a6ff;animation:gv-dot 1.2s infinite .15s"></span>
+            <span style="width:7px;height:7px;border-radius:50%;background:#b6a6ff;animation:gv-dot 1.2s infinite .3s"></span>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ showConfirm2 }}" hint-placeholder-val="{{ true }}">
+          <div style="align-self:flex-start;max-width:84%;animation:gv-msgin .4s ease both">
+            <div style="border:1px solid rgba(61,220,151,.4);background:rgba(61,220,151,.06);border-radius:14px;padding:15px 17px">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px">
+                <span style="display:inline-flex;align-items:center;gap:7px;font-family:Sora,sans-serif;font-weight:700;font-size:12px;color:#eef0fb"><svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 2l6 2.5v4.5c0 3.5-2.4 6.6-6 8-3.6-1.4-6-4.5-6-8V4.5L10 2z" stroke="#3ddc97" stroke-width="1.6" stroke-linejoin="round"/></svg>Confirmação necessária</span>
+                <span style="font-family:Sora,sans-serif;font-weight:700;font-size:11px;color:#f2a33c">Aguardando você</span>
+              </div>
+              <div style="font-size:14.5px;color:#dfe1f0;margin-bottom:13px">Criar pedido <span style="font-weight:600;color:#fff">FOB · USD</span> para <span style="font-weight:600;color:#fff">Acme Corp</span></div>
+              <div style="display:flex;gap:9px">
+                <button style="padding:9px 17px;border-radius:9px;border:none;background:#3ddc97;color:#082019;font-family:Sora,sans-serif;font-weight:700;font-size:13px;cursor:pointer">Confirmar</button>
+                <button style="padding:9px 17px;border-radius:9px;border:1px solid rgba(255,255,255,.16);background:transparent;color:#c9cbe0;font-family:Sora,sans-serif;font-weight:600;font-size:13px;cursor:pointer">Cancelar</button>
+              </div>
+            </div>
+            <div style="margin-top:8px;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:7px;background:rgba(242,163,60,.14);border:1px solid rgba(242,163,60,.3);font-size:11.5px;font-weight:600;color:#f2a33c">
+              <span style="width:5px;height:5px;border-radius:50%;background:#f2a33c"></span>Precisa da sua confirmação
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ showUser3 }}" hint-placeholder-val="{{ false }}">
+          <div style="align-self:flex-end;max-width:80%;background:linear-gradient(135deg,#6f5cf0,#8b7bff);color:#fff;padding:12px 16px;border-radius:16px 16px 4px 16px;font-size:14.5px;line-height:1.5;animation:gv-msgin .4s ease both">Manda o resumo dos atrasos pro time e gera o relatório do mês.</div>
+        </sc-if>
+
+        <sc-if value="{{ showTyping3 }}" hint-placeholder-val="{{ false }}">
+          <div style="align-self:flex-start;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);padding:14px 16px;border-radius:16px 16px 16px 4px;animation:gv-msgin .3s ease both">
+            <span style="width:7px;height:7px;border-radius:50%;background:#b6a6ff;animation:gv-dot 1.2s infinite"></span>
+            <span style="width:7px;height:7px;border-radius:50%;background:#b6a6ff;animation:gv-dot 1.2s infinite .15s"></span>
+            <span style="width:7px;height:7px;border-radius:50%;background:#b6a6ff;animation:gv-dot 1.2s infinite .3s"></span>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ showBot3 }}" hint-placeholder-val="{{ false }}">
+          <div style="align-self:flex-start;max-width:84%;animation:gv-msgin .4s ease both">
+            <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:#dfe1f0;padding:14px 17px;border-radius:16px 16px 16px 4px;font-size:14.5px;line-height:1.6">
+              Pronto. Enviei o resumo dos <span style="font-weight:600;color:#fff">7 atrasos</span> para o time no chat e gerei o <span style="font-weight:600;color:#fff">Relatório de Atrasos · Julho</span> (PDF).
+              <div style="margin-top:9px">Quer que eu programe esse envio toda segunda?</div>
+            </div>
+            <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:7px">
+              <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:7px;background:rgba(122,162,247,.14);border:1px solid rgba(122,162,247,.32);font-size:11.5px;font-weight:600;color:#7aa2f7"><span style="width:5px;height:5px;border-radius:50%;background:#7aa2f7"></span>Enviou mensagem</span>
+              <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:7px;background:rgba(139,123,255,.14);border:1px solid rgba(139,123,255,.32);font-size:11.5px;font-weight:600;color:#b6a6ff"><span style="width:5px;height:5px;border-radius:50%;background:#8b7bff"></span>Gerou relatório</span>
+            </div>
+          </div>
+        </sc-if>
+
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px;padding:15px 20px;border-top:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02)">
+        <span style="flex:1;font-size:14.5px;color:#787c98">{{ inputHint }}</span>
+        <span style="font-family:Sora,sans-serif;font-weight:600;font-size:13.5px;color:#8b7bff">Enviar</span>
+      </div>
+    </div>
+
+  </div>
+
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:760,&quot;height&quot;:760}}">
+class Component extends DCLogic {
+  state = { phase: 0 };
+
+  componentDidMount() {
+    this.scrollRef = React.createRef();
+    this.i = 0;
+    this.phases = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+    this.delays = [1000, 1100, 1500, 1100, 1100, 1600, 1100, 1100, 1800, 2600];
+    this._t = setTimeout(() => this.tick(), 600);
+  }
+  componentWillUnmount() { clearTimeout(this._t); }
+  componentDidUpdate() {
+    const el = this.scrollRef && this.scrollRef.current;
+    if (!el) return;
+    el.scrollTop = this.state.phase === 0 ? 0 : el.scrollHeight;
+  }
+  tick() {
+    this.setState({ phase: this.phases[this.i] });
+    const d = this.delays[this.i];
+    this.i = (this.i + 1) % this.phases.length;
+    this._t = setTimeout(() => this.tick(), d);
+  }
+
+  renderVals() {
+    const p = this.state.phase;
+    const typing = p === 2 || p === 5 || p === 8;
+    return {
+      showUser1: p >= 1,
+      showTyping1: p === 2,
+      showBot1: p >= 3,
+      showUser2: p >= 4,
+      showTyping2: p === 5,
+      showConfirm2: p >= 6,
+      showUser3: p >= 7,
+      showTyping3: p === 8,
+      showBot3: p >= 9,
+      scrollRef: this.scrollRef,
+      chatOpacity: p === 0 ? 0 : 1,
+      inputHint: typing ? 'Gabi está digitando…' : 'Pergunte algo à Gabi…',
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -198,6 +198,38 @@
   font-size: 34px !important;
 }
 
+/* Dashboard BID Frete — KPIs do topo (Saving / Valor médio / Transit / Ganho %) */
+.interactive-simulator-shell .pds-root .bfs-dashboard-simulador
+  :is(
+    [data-widget-id='kpi_saving_total'],
+    [data-widget-id='kpi_valor_medio'],
+    [data-widget-id='kpi_transit_time'],
+    [data-widget-id='kpi_ganho_percentual']
+  ) > div {
+  padding: 6px 10px !important;
+}
+
+.interactive-simulator-shell .pds-root .bfs-dashboard-simulador
+  :is(
+    [data-widget-id='kpi_saving_total'],
+    [data-widget-id='kpi_valor_medio'],
+    [data-widget-id='kpi_transit_time'],
+    [data-widget-id='kpi_ganho_percentual']
+  ) > div > div:first-child {
+  padding-bottom: 4px !important;
+  margin-bottom: 4px !important;
+}
+
+.interactive-simulator-shell .pds-root .bfs-dashboard-simulador
+  :is(
+    [data-widget-id='kpi_saving_total'],
+    [data-widget-id='kpi_valor_medio'],
+    [data-widget-id='kpi_transit_time'],
+    [data-widget-id='kpi_ganho_percentual']
+  ) .db-kpi-value {
+  font-size: 34px !important;
+}
+
 /* Dashboard Pedido — faixa PAINÉIS (paridade PedidosListaPainelBar + Pedidos.css) */
 .interactive-simulator-shell .pds-root .pds-dashboard-simulador .lp-paineis-lista-strip__label {
   font-size: 9px !important;

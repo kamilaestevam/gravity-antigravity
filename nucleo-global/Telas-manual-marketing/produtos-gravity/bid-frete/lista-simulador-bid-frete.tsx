@@ -5,11 +5,12 @@
  * seleção por checkbox e paginação.
  */
 
-import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties, type DragEvent, type MouseEvent } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type DragEvent, type MouseEvent } from 'react'
 import { createPortal } from 'react-dom'
 import {
   AirplaneTilt,
   Anchor,
+  ArrowCounterClockwise,
   ArrowSquareOut,
   CaretDoubleDown,
   CaretDoubleUp,
@@ -47,7 +48,12 @@ import {
 import type { PerfilEmpresaSimulador } from '../smart-doc/dados-cliente-maduro-simulador-smart-doc'
 import {
   agruparLinhasPaiListaSimuladorBidFrete,
+  extrairCubagemM3ListaSimuladorBidFrete,
+  extrairPesoKgListaSimuladorBidFrete,
+  extrairQuantidadeVolumeListaSimuladorBidFrete,
   formatarDataCurtaSimuladorBidFrete,
+  formatarPortoListaSimuladorBidFrete,
+  formatarTipoContainerListaSimuladorBidFrete,
   formatarUsdSimuladorBidFrete,
   isBidGrupoSimuladorBidFrete,
   listarCotacoesEmpresasSimuladorBidFrete,
@@ -66,6 +72,10 @@ import {
   ModalExcluirListaSimuladorBidFrete,
   mensagemToastExclusaoSimuladorBidFrete,
 } from './modal-excluir-lista-simulador-bid-frete'
+import {
+  criarEstadoColunasListaSimuladorBidFrete,
+  type ColunaListaSimuladorBidFrete,
+} from './colunas-lista-simulador-bid-frete'
 import '../pedido/lista-simulador-pedido.css'
 import '../../../Tabelas/tabela-virtual-global/src/tabela-virtual.css'
 import './lista-simulador-bid-frete.css'
@@ -81,46 +91,47 @@ type Props = {
   onAbrirPainelCotacao?: (cotacao: CotacaoSimuladorBidFrete) => void
 }
 
-// ─── Colunas (reordenáveis) ──────────────────────────────────────────────────
+// ─── Colunas (reordenáveis + seletor Colunas) ────────────────────────────────
 
-type ColunaListaBidFrete = { id: string; label: string; numerica?: boolean }
+type FiltroAbaColunasBid = 'todas' | 'exibidas' | 'ocultas'
 
-function classeCelulaColunaLista(col: ColunaListaBidFrete): string | undefined {
+function IconeColunasToolbarBid() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="3" y="3" width="5" height="18" rx="1" stroke="currentColor" strokeWidth="2" />
+      <rect x="10" y="3" width="5" height="18" rx="1" stroke="currentColor" strokeWidth="2" />
+      <rect x="17" y="3" width="4" height="18" rx="1" stroke="currentColor" strokeWidth="2" />
+    </svg>
+  )
+}
+
+function classeCelulaColunaLista(col: ColunaListaSimuladorBidFrete): string | undefined {
   if (col.numerica) return 'bfs-lista-num'
   if (col.id === 'status') return 'bfs-lista-col-status'
   return undefined
 }
-
-const COLUNAS_INICIAIS_BID: ColunaListaBidFrete[] = [
-  { id: 'numero', label: 'Nº Cotação' },
-  { id: 'status', label: 'Status' },
-  { id: 'operacao', label: 'Operação' },
-  { id: 'modal', label: 'Modal' },
-  { id: 'origem', label: 'Origem' },
-  { id: 'destino', label: 'Destino' },
-  { id: 'incoterm', label: 'Incoterm' },
-  { id: 'carga', label: 'Carga' },
-  { id: 'propostas', label: 'Propostas', numerica: true },
-  { id: 'meta', label: 'Meta (USD)', numerica: true },
-  { id: 'lance', label: 'Melhor Lance', numerica: true },
-  { id: 'savings', label: 'Savings', numerica: true },
-  { id: 'prazo', label: 'Prazo Resposta' },
-]
 
 const TIPO_FILTRO_COLUNA_BID: Record<string, FiltroTipo> = {
   numero: 'texto',
   status: 'enum',
   operacao: 'enum',
   modal: 'enum',
-  origem: 'enum',
+  modalidade: 'enum',
   destino: 'enum',
+  origem: 'enum',
+  tipo_container: 'enum',
+  peso_kg: 'numero',
+  cubagem_m3: 'numero',
+  quantidade_volume: 'numero',
   incoterm: 'enum',
-  carga: 'enum',
   propostas: 'numero',
   meta: 'numero',
   lance: 'numero',
   savings: 'numero',
   prazo: 'texto',
+  data_criacao: 'texto',
+  referencia_interna: 'texto',
+  workspace: 'enum',
 }
 
 // ─── Painéis (visões salvas, como no produto real) ───────────────────────────
@@ -142,8 +153,12 @@ const FILTRO_PAINEL_BID: Record<string, (c: CotacaoSimuladorBidFrete) => boolean
 
 // ─── Extração de valores por coluna ──────────────────────────────────────────
 
-function rotuloPorto(porto: CotacaoSimuladorBidFrete['origem']): string {
-  return `${porto.cidade} (${porto.codigo})`
+function rotuloWorkspaceListaBid(c: CotacaoSimuladorBidFrete): string {
+  if (c.empresaId.includes('filial-sc')) return 'Filial SC'
+  if (c.empresaId.includes('matriz-sp')) return 'Matriz SP'
+  if (c.empresaId.includes('filial-pr')) return 'Filial PR'
+  if (c.empresaId.includes('filial-rs')) return 'Filial RS'
+  return 'Workspace demo'
 }
 
 function valorCampoCotacao(c: CotacaoSimuladorBidFrete, campo: string): string | number | null {
@@ -152,15 +167,22 @@ function valorCampoCotacao(c: CotacaoSimuladorBidFrete, campo: string): string |
     case 'status': return STATUS_SIMULADOR_BID_FRETE[c.status].rotulo
     case 'operacao': return OPERACAO_SIMULADOR_BID_FRETE[c.operacao]
     case 'modal': return MODAL_SIMULADOR_BID_FRETE[c.modal].rotulo
-    case 'origem': return rotuloPorto(c.origem)
-    case 'destino': return rotuloPorto(c.destino)
+    case 'modalidade': return c.modalidade
+    case 'destino': return formatarPortoListaSimuladorBidFrete(c.destino)
+    case 'origem': return formatarPortoListaSimuladorBidFrete(c.origem)
+    case 'tipo_container': return formatarTipoContainerListaSimuladorBidFrete(c)
+    case 'peso_kg': return extrairPesoKgListaSimuladorBidFrete(c)
+    case 'cubagem_m3': return extrairCubagemM3ListaSimuladorBidFrete(c)
+    case 'quantidade_volume': return extrairQuantidadeVolumeListaSimuladorBidFrete(c)
     case 'incoterm': return c.incoterm
-    case 'carga': return c.modalidade
     case 'propostas': return c.propostasRecebidas
     case 'meta': return c.valorMetaUsd
     case 'lance': return c.melhorLanceUsd
     case 'savings': return savingsCotacaoSimuladorBidFrete(c)
     case 'prazo': return formatarDataCurtaSimuladorBidFrete(c.dataLimiteResposta)
+    case 'data_criacao': return formatarDataCurtaSimuladorBidFrete(c.dataCriacao)
+    case 'referencia_interna': return `REF-${c.numero.slice(-4)}`
+    case 'workspace': return rotuloWorkspaceListaBid(c)
     default: return null
   }
 }
@@ -191,11 +213,11 @@ function cotacaoPassaFiltrosColuna(c: CotacaoSimuladorBidFrete, filtros: Filtros
 type LadoDropColunaBid = 'before' | 'after'
 
 function reordenarColunasBid(
-  colunas: ColunaListaBidFrete[],
+  colunas: ColunaListaSimuladorBidFrete[],
   fromId: string,
   toId: string,
   lado: LadoDropColunaBid,
-): ColunaListaBidFrete[] {
+): ColunaListaSimuladorBidFrete[] {
   if (fromId === toId) return colunas
   const fromIdx = colunas.findIndex((c) => c.id === fromId)
   if (fromIdx < 0) return colunas
@@ -282,7 +304,13 @@ export function ListaSimuladorBidFrete({
 }: Props) {
   const [busca, setBusca] = useState('')
   const [statusFiltro, setStatusFiltro] = useState<StatusCotacaoSimuladorBidFrete | 'todas'>('todas')
-  const [colunas, setColunas] = useState<ColunaListaBidFrete[]>(COLUNAS_INICIAIS_BID)
+  const [colunas, setColunas] = useState<ColunaListaSimuladorBidFrete[]>(() => criarEstadoColunasListaSimuladorBidFrete())
+  const [filtroAbaColunas, setFiltroAbaColunas] = useState<FiltroAbaColunasBid>('todas')
+  const [colunasAberto, setColunasAberto] = useState(false)
+  const [buscaColuna, setBuscaColuna] = useState('')
+  const [colunasDropdownPos, setColunasDropdownPos] = useState({ top: 0, left: 0 })
+  const colunasBtnRef = useRef<HTMLButtonElement>(null)
+  const colunasDropdownRef = useRef<HTMLDivElement>(null)
   const [filtrosAtivos, setFiltrosAtivos] = useState<FiltrosAtivosMap>({})
   const [popoverFiltroAberto, setPopoverFiltroAberto] = useState<string | null>(null)
   const [popoverFiltroPos, setPopoverFiltroPos] = useState({ top: 0, left: 0 })
@@ -307,6 +335,64 @@ export function ListaSimuladorBidFrete({
   /** Modal de confirmação de exclusão (paridade produto real). */
   const [modalExcluirAberto, setModalExcluirAberto] = useState(false)
   const corpoRef = useRef<HTMLTableSectionElement>(null)
+
+  const colunasVisiveis = useMemo(() => colunas.filter((c) => c.visivel), [colunas])
+
+  const totalColunas = colunas.length
+  const totalExibidas = colunasVisiveis.length
+  const totalOcultas = colunas.filter((c) => !c.visivel).length
+
+  const colunasFiltradas = useMemo(() => {
+    const termoColuna = buscaColuna.trim().toLowerCase()
+    return colunas.filter((c) => {
+      if (termoColuna && !c.label.toLowerCase().includes(termoColuna)) return false
+      if (filtroAbaColunas === 'exibidas') return c.visivel
+      if (filtroAbaColunas === 'ocultas') return !c.visivel
+      return true
+    })
+  }, [colunas, buscaColuna, filtroAbaColunas])
+
+  const sincronizarPosicaoDropdownColunas = useCallback(() => {
+    const btn = colunasBtnRef.current
+    if (!btn) return
+    const rect = btn.getBoundingClientRect()
+    setColunasDropdownPos({
+      top: rect.bottom + 6,
+      left: Math.max(8, Math.min(rect.right - 280, window.innerWidth - 292)),
+    })
+  }, [])
+
+  const toggleColunasAberto = useCallback(() => {
+    setColunasAberto((prev) => {
+      const next = !prev
+      if (next) window.requestAnimationFrame(sincronizarPosicaoDropdownColunas)
+      return next
+    })
+  }, [sincronizarPosicaoDropdownColunas])
+
+  useEffect(() => {
+    if (!colunasAberto) return undefined
+    sincronizarPosicaoDropdownColunas()
+    const reposicionar = () => sincronizarPosicaoDropdownColunas()
+    window.addEventListener('resize', reposicionar)
+    window.addEventListener('scroll', reposicionar, true)
+    return () => {
+      window.removeEventListener('resize', reposicionar)
+      window.removeEventListener('scroll', reposicionar, true)
+    }
+  }, [colunasAberto, sincronizarPosicaoDropdownColunas])
+
+  useEffect(() => {
+    if (!colunasAberto) return undefined
+    const fechar = (ev: globalThis.MouseEvent) => {
+      const target = ev.target as Node
+      if (colunasDropdownRef.current?.contains(target)) return
+      if (colunasBtnRef.current?.contains(target)) return
+      setColunasAberto(false)
+    }
+    document.addEventListener('mousedown', fechar)
+    return () => document.removeEventListener('mousedown', fechar)
+  }, [colunasAberto])
 
   function abrirCotacaoPelaLinha(c: CotacaoSimuladorBidFrete, ev: MouseEvent<HTMLTableRowElement>) {
     if (!onAbrirPainelCotacao) return
@@ -725,8 +811,14 @@ export function ListaSimuladorBidFrete({
           </span>
         )
       }
-      case 'operacao':
-        return OPERACAO_SIMULADOR_BID_FRETE[c.operacao]
+      case 'operacao': {
+        const cor = c.operacao === 'IMPORTACAO' ? '#34d399' : '#60a5fa'
+        return (
+          <span className="bfs-lista-pill bfs-lista-pill-operacao" style={{ '--pill-cor': cor } as CSSProperties}>
+            {OPERACAO_SIMULADOR_BID_FRETE[c.operacao].toUpperCase()}
+          </span>
+        )
+      }
       case 'modal': {
         const meta = MODAL_SIMULADOR_BID_FRETE[c.modal]
         return (
@@ -736,29 +828,37 @@ export function ListaSimuladorBidFrete({
           </span>
         )
       }
+      case 'modalidade':
+        return c.modalidade
       case 'origem':
-        return (
-          <span className="bfs-lista-porto">
-            <span aria-hidden>{c.origem.flag}</span> {c.origem.cidade}
-            <small>{c.origem.codigo}</small>
-          </span>
-        )
       case 'destino':
         return (
-          <span className="bfs-lista-porto">
-            <span aria-hidden>{c.destino.flag}</span> {c.destino.cidade}
-            <small>{c.destino.codigo}</small>
+          <span className="bfs-lista-porto-texto" title={valorCampoCotacao(c, colunaId) as string}>
+            {valorCampoCotacao(c, colunaId)}
           </span>
         )
+      case 'tipo_container':
+        return formatarTipoContainerListaSimuladorBidFrete(c)
+      case 'peso_kg': {
+        const peso = extrairPesoKgListaSimuladorBidFrete(c)
+        return peso != null ? peso.toLocaleString('pt-BR') : <span className="bfs-lista-vazio">—</span>
+      }
+      case 'cubagem_m3': {
+        const cubagem = extrairCubagemM3ListaSimuladorBidFrete(c)
+        return cubagem != null ? cubagem.toLocaleString('pt-BR') : <span className="bfs-lista-vazio">—</span>
+      }
+      case 'quantidade_volume': {
+        const qtd = extrairQuantidadeVolumeListaSimuladorBidFrete(c)
+        return qtd != null ? qtd : <span className="bfs-lista-vazio">—</span>
+      }
       case 'incoterm':
         return c.incoterm
-      case 'carga':
-        return (
-          <span className="bfs-lista-carga">
-            <strong>{c.modalidade}</strong>
-            <small>{c.equipamento}</small>
-          </span>
-        )
+      case 'data_criacao':
+        return formatarDataCurtaSimuladorBidFrete(c.dataCriacao)
+      case 'referencia_interna':
+        return `REF-${c.numero.slice(-4)}`
+      case 'workspace':
+        return rotuloWorkspaceListaBid(c)
       case 'propostas':
         return (
           <TooltipGlobal
@@ -871,7 +971,13 @@ export function ListaSimuladorBidFrete({
       }
       case 'operacao': {
         const op = unicos(cotacoes.map((c) => c.operacao))
-        return op ? OPERACAO_SIMULADOR_BID_FRETE[op as CotacaoSimuladorBidFrete['operacao']] : '—'
+        if (!op) return '—'
+        const cor = op === 'IMPORTACAO' ? '#34d399' : '#60a5fa'
+        return (
+          <span className="bfs-lista-pill bfs-lista-pill-operacao" style={{ '--pill-cor': cor } as CSSProperties}>
+            {OPERACAO_SIMULADOR_BID_FRETE[op as CotacaoSimuladorBidFrete['operacao']].toUpperCase()}
+          </span>
+        )
       }
       case 'modal': {
         const modal = unicos(cotacoes.map((c) => c.modal)) as ModalSimuladorBidFrete | null
@@ -884,37 +990,33 @@ export function ListaSimuladorBidFrete({
           </span>
         )
       }
+      case 'modalidade': {
+        const mod = unicos(cotacoes.map((c) => c.modalidade))
+        return mod ?? '—'
+      }
       case 'origem': {
         const codigo = unicos(cotacoes.map((c) => c.origem.codigo))
         if (!codigo) return <span className="bfs-lista-vazio">{new Set(cotacoes.map((c) => c.origem.codigo)).size} origens</span>
-        const porto = cotacoes[0].origem
-        return (
-          <span className="bfs-lista-porto">
-            <span aria-hidden>{porto.flag}</span> {porto.cidade}
-            <small>{porto.codigo}</small>
-          </span>
-        )
+        return formatarPortoListaSimuladorBidFrete(cotacoes[0].origem)
       }
       case 'destino': {
         const codigo = unicos(cotacoes.map((c) => c.destino.codigo))
         if (!codigo) return <span className="bfs-lista-vazio">{new Set(cotacoes.map((c) => c.destino.codigo)).size} destinos</span>
-        const porto = cotacoes[0].destino
-        return (
-          <span className="bfs-lista-porto">
-            <span aria-hidden>{porto.flag}</span> {porto.cidade}
-            <small>{porto.codigo}</small>
-          </span>
-        )
+        return formatarPortoListaSimuladorBidFrete(cotacoes[0].destino)
       }
+      case 'tipo_container': {
+        const tipos = new Set(cotacoes.map((c) => formatarTipoContainerListaSimuladorBidFrete(c)))
+        if (tipos.size === 1) return [...tipos][0]
+        return <span className="bfs-lista-vazio">Vários</span>
+      }
+      case 'peso_kg':
+      case 'cubagem_m3':
+      case 'quantidade_volume':
       case 'incoterm':
-        return unicos(cotacoes.map((c) => c.incoterm)) ?? '—'
-      case 'carga':
-        return (
-          <span className="bfs-lista-carga">
-            <strong>{bid.quantidadeCotacoes} cotações</strong>
-            <small>Expanda para editar cada uma</small>
-          </span>
-        )
+      case 'data_criacao':
+      case 'referencia_interna':
+      case 'workspace':
+        return renderCelula(colunaId, cotacoes[0])
       case 'propostas': {
         const recebidas = cotacoes.reduce((s, c) => s + c.propostasRecebidas, 0)
         const convidados = cotacoes.reduce((s, c) => s + c.fornecedoresConvidados, 0)
@@ -1127,6 +1229,20 @@ export function ListaSimuladorBidFrete({
             ) : null}
           </div>
           <div className="bfs-lista-toolbar__acoes">
+            <div className="pds-lista-dropdown-wrap">
+              <button
+                ref={colunasBtnRef}
+                type="button"
+                className={`gtv-btn${colunasAberto ? ' gtv-btn--ativo' : ''}`}
+                onClick={toggleColunasAberto}
+                aria-label="Gerenciar colunas"
+                aria-expanded={colunasAberto}
+                title="Colunas"
+              >
+                <IconeColunasToolbarBid />
+                Colunas
+              </button>
+            </div>
             <TooltipGlobal
               titulo="Exportar"
               descricao="Exporta as cotações filtradas em XLSX — recurso do tenant completo"
@@ -1155,7 +1271,7 @@ export function ListaSimuladorBidFrete({
                     aria-label="Selecionar todos"
                   />
                 </th>
-                {colunas.map((col) => {
+                {colunasVisiveis.map((col) => {
                   const arrastando = dragColunaId === col.id
                   const filtroAtivo = filtrosAtivosKeys.has(col.id)
                   return (
@@ -1218,7 +1334,7 @@ export function ListaSimuladorBidFrete({
                             aria-label={`Selecionar ${bid.numero}`}
                           />
                         </td>
-                        {colunas.map((col) => (
+                        {colunasVisiveis.map((col) => (
                           <td key={col.id} data-pds-coluna-id={col.id} className={classeCelulaColunaLista(col)}>
                             {renderCelulaBid(col.id, bid)}
                           </td>
@@ -1245,7 +1361,7 @@ export function ListaSimuladorBidFrete({
                               aria-label={`Selecionar ${c.numero}`}
                             />
                           </td>
-                          {colunas.map((col) => (
+                          {colunasVisiveis.map((col) => (
                             <td key={col.id} data-pds-coluna-id={col.id} className={classeCelulaColunaLista(col)}>
                               {renderCelula(col.id, c)}
                             </td>
@@ -1276,7 +1392,7 @@ export function ListaSimuladorBidFrete({
                         aria-label={`Selecionar ${c.numero}`}
                       />
                     </td>
-                    {colunas.map((col) => (
+                    {colunasVisiveis.map((col) => (
                       <td key={col.id} data-pds-coluna-id={col.id} className={classeCelulaColunaLista(col)}>
                         {renderCelula(col.id, c)}
                       </td>
@@ -1286,7 +1402,7 @@ export function ListaSimuladorBidFrete({
               })}
               {linhasPagina.length === 0 ? (
                 <tr>
-                  <td colSpan={colunas.length + 1} className="bfs-lista-vazia">
+                  <td colSpan={colunasVisiveis.length + 1} className="bfs-lista-vazia">
                     Nenhuma cotação encontrada para o filtro atual.
                   </td>
                 </tr>
@@ -1335,6 +1451,94 @@ export function ListaSimuladorBidFrete({
           )}
         </footer>
       </div>
+
+      {colunasAberto && typeof document !== 'undefined' && createPortal(
+        <div
+          ref={colunasDropdownRef}
+          className="pds-lista-dropdown pds-lista-dropdown--colunas pds-lista-dropdown--colunas-portal"
+          style={{ top: colunasDropdownPos.top, left: colunasDropdownPos.left }}
+          role="dialog"
+          aria-label="Gerenciar colunas"
+        >
+          <div className="pds-lista-dropdown-colunas-cabecalho">
+            <span className="pds-lista-dropdown-colunas-titulo">Colunas</span>
+            <button
+              type="button"
+              className="pds-lista-dropdown-colunas-fechar"
+              aria-label="Fechar painel de colunas"
+              onClick={() => setColunasAberto(false)}
+            >
+              <X size={14} weight="bold" />
+            </button>
+          </div>
+          <div className="pds-lista-dropdown-busca">
+            <MagnifyingGlass size={12} aria-hidden />
+            <input
+              type="search"
+              placeholder="Buscar coluna..."
+              value={buscaColuna}
+              onChange={(e) => setBuscaColuna(e.target.value)}
+            />
+          </div>
+          <div className="pds-lista-dropdown-tabs">
+            {([
+              ['todas', `Todas (${totalColunas})`],
+              ['exibidas', `Exibidas (${totalExibidas})`],
+              ['ocultas', `Ocultas (${totalOcultas})`],
+            ] as Array<[FiltroAbaColunasBid, string]>).map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                className={`pds-lista-dropdown-tab ${filtroAbaColunas === id ? 'pds-lista-dropdown-tab--ativo' : ''}`}
+                onClick={() => setFiltroAbaColunas(id)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <div className="pds-lista-dropdown-acoes">
+            <label className="pds-lista-dropdown-check">
+              <input
+                type="checkbox"
+                checked={colunasVisiveis.length === colunas.length}
+                onChange={() => setColunas((prev) => prev.map((c) => ({ ...c, visivel: true })))}
+              />
+              Selecionar tudo
+            </label>
+            <button
+              type="button"
+              className="pds-lista-restaurar"
+              onClick={() => {
+                setColunas(criarEstadoColunasListaSimuladorBidFrete())
+                setFiltroAbaColunas('todas')
+                setBuscaColuna('')
+              }}
+            >
+              <ArrowCounterClockwise size={12} aria-hidden />
+              Restaurar padrão
+            </button>
+          </div>
+          <ul className="pds-lista-colunas-lista">
+            {colunasFiltradas.map((c) => (
+              <li key={c.id} className="pds-lista-coluna-item">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={c.visivel}
+                    onChange={() =>
+                      setColunas((prev) =>
+                        prev.map((col) => (col.id === c.id ? { ...col, visivel: !col.visivel } : col)),
+                      )
+                    }
+                  />
+                  {c.label}
+                </label>
+              </li>
+            ))}
+          </ul>
+        </div>,
+        document.body,
+      )}
 
       {popoverFiltroAberto && typeof document !== 'undefined' && (() => {
         const col = colunas.find((c) => c.id === popoverFiltroAberto)

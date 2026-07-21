@@ -48,7 +48,7 @@ export const CATALOGO_DASHBOARD_SIMULADOR_BID_FRETE: EnrichedCatalogField[] = [
     key: 'ganho_percentual_ganho_bid_frete_internacional',
     label: 'Ganho Percentual Médio',
     productId: 'bid_frete',
-    type: 'number',
+    type: 'percentage',
     aggregations: ['AVG'],
     permission: 'cotacao.read',
     chartTypes: ['KPI_CARD', 'LINE'],

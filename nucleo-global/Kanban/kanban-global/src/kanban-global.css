@@ -287,8 +287,39 @@
 }
 
 .kg-card-wrapper.kg-dragging {
-  opacity: 0.3;
-  transform: scale(0.96) rotate(-1.5deg);
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+.kg-card-wrapper.kg-drag-fallback {
+  opacity: 1 !important;
+  z-index: 3500;
+  position: relative;
+  pointer-events: none;
+}
+
+.kg-card-wrapper.kg-drag-fallback .kbp-card {
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+  transform: none !important;
+}
+
+.kg-drag-follow-layer {
+  pointer-events: none;
+  touch-action: none;
+}
+
+.kg-drag-follow-card.kg-overlay-card,
+.kg-drag-follow-card .kbp-card {
+  transform: none !important;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+}
+
+html[data-kg-drag-ativo='true'] .interactive-simulator-shell,
+html[data-kg-drag-ativo='true'] .pds-root .sds-content,
+html[data-kg-drag-ativo='true'] .kg-grid,
+html[data-kg-drag-ativo='true'] .kg-dropzone,
+html[data-kg-drag-ativo='true'] .kg-coluna {
+  overflow: visible !important;
 }
 
 .kg-card-wrapper.kg-readonly {
@@ -472,11 +503,18 @@
 /* ── DragOverlay — card flutuando durante o drag ─────────────────────────── */
 
 .kg-overlay-card {
-  transform: rotate(2deg) scale(1.03);
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
   border-radius: 10px;
   cursor: grabbing;
   pointer-events: none;
+  touch-action: none;
+}
+
+/* Evita lift do hover no card durante drag (placeholder + overlay) */
+.kg-card-wrapper.kg-dragging .kbp-card,
+.kg-overlay-card .kbp-card {
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 /* ── Popover de ordenação ────────────────────────────────────────────────── */

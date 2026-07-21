@@ -15,7 +15,7 @@ export const WIDGETS_PADRAO_DASHBOARD_SIMULADOR_BID_FRETE: DashboardWidgetConfig
       fields: [{ key: 'saving_total', operation: 'SUM' }],
       filters: { period: '30d' },
     },
-    position: { x: 0, y: 0, w: 3, h: 3 },
+    position: { x: 0, y: 0, w: 3, h: 1.5 },
   },
   {
     id: 'kpi_valor_medio',
@@ -25,7 +25,7 @@ export const WIDGETS_PADRAO_DASHBOARD_SIMULADOR_BID_FRETE: DashboardWidgetConfig
       fields: [{ key: 'valor_medio_ganho_bid_frete_internacional', operation: 'AVG' }],
       filters: { period: '30d' },
     },
-    position: { x: 3, y: 0, w: 3, h: 3 },
+    position: { x: 3, y: 0, w: 3, h: 1.5 },
   },
   {
     id: 'kpi_transit_time',
@@ -35,7 +35,7 @@ export const WIDGETS_PADRAO_DASHBOARD_SIMULADOR_BID_FRETE: DashboardWidgetConfig
       fields: [{ key: 'transit_time', operation: 'AVG' }],
       filters: { period: '30d' },
     },
-    position: { x: 6, y: 0, w: 3, h: 3 },
+    position: { x: 6, y: 0, w: 3, h: 1.5 },
   },
   {
     id: 'kpi_ganho_percentual',
@@ -45,7 +45,7 @@ export const WIDGETS_PADRAO_DASHBOARD_SIMULADOR_BID_FRETE: DashboardWidgetConfig
       fields: [{ key: 'ganho_percentual_ganho_bid_frete_internacional', operation: 'AVG' }],
       filters: { period: '30d' },
     },
-    position: { x: 9, y: 0, w: 3, h: 3 },
+    position: { x: 9, y: 0, w: 3, h: 1.5 },
   },
 
   // ── Linha 2 — GABI AI Insights e Gráficos Principais ─────────────────────
@@ -54,7 +54,7 @@ export const WIDGETS_PADRAO_DASHBOARD_SIMULADOR_BID_FRETE: DashboardWidgetConfig
     title: 'GABI AI · Insights',
     chart_type: 'GABI_INSIGHTS',
     query_spec: { fields: [], filters: { period: '30d' } },
-    position: { x: 0, y: 3, w: 6, h: 4 },
+    position: { x: 0, y: 1.5, w: 6, h: 4 },
   },
   {
     id: 'volume_mensal_chart',
@@ -64,7 +64,7 @@ export const WIDGETS_PADRAO_DASHBOARD_SIMULADOR_BID_FRETE: DashboardWidgetConfig
       fields: [{ key: 'volume_mensal', operation: 'COUNT' }],
       filters: { period: '12m' },
     },
-    position: { x: 6, y: 3, w: 6, h: 4 },
+    position: { x: 6, y: 1.5, w: 6, h: 4 },
   },
 
   // ── Divisor — Alertas Operacionais ───────────────────────────────────────
@@ -73,7 +73,7 @@ export const WIDGETS_PADRAO_DASHBOARD_SIMULADOR_BID_FRETE: DashboardWidgetConfig
     title: 'Alertas e Fluxos Operacionais',
     chart_type: 'SECTION_LABEL',
     query_spec: { fields: [], filters: { period: '30d' } },
-    position: { x: 0, y: 7, w: 12, h: 1 },
+    position: { x: 0, y: 5.5, w: 12, h: 1 },
   },
 
   // ── Linha 3 — Cotações Detalhadas ────────────────────────────────────────
@@ -85,7 +85,7 @@ export const WIDGETS_PADRAO_DASHBOARD_SIMULADOR_BID_FRETE: DashboardWidgetConfig
       fields: [{ key: 'cotacoes_andamento', operation: 'COUNT' }],
       filters: { period: '30d' },
     },
-    position: { x: 0, y: 8, w: 4, h: 2 },
+    position: { x: 0, y: 6.5, w: 4, h: 2 },
   },
   {
     id: 'kpi_cotacoes_passadas',
@@ -95,7 +95,7 @@ export const WIDGETS_PADRAO_DASHBOARD_SIMULADOR_BID_FRETE: DashboardWidgetConfig
       fields: [{ key: 'cotacoes_passadas', operation: 'COUNT' }],
       filters: { period: '30d' },
     },
-    position: { x: 4, y: 8, w: 4, h: 2 },
+    position: { x: 4, y: 6.5, w: 4, h: 2 },
   },
   {
     id: 'kpi_valor_aprovado',
@@ -105,7 +105,7 @@ export const WIDGETS_PADRAO_DASHBOARD_SIMULADOR_BID_FRETE: DashboardWidgetConfig
       fields: [{ key: 'valor_aprovado_usd', operation: 'SUM' }],
       filters: { period: '30d' },
     },
-    position: { x: 8, y: 8, w: 4, h: 2 },
+    position: { x: 8, y: 6.5, w: 4, h: 2 },
   },
 
   // Gráfico de distribuição
@@ -117,6 +117,6 @@ export const WIDGETS_PADRAO_DASHBOARD_SIMULADOR_BID_FRETE: DashboardWidgetConfig
       fields: [{ key: 'cotacoes_status', operation: 'COUNT' }],
       filters: { period: '30d' },
     },
-    position: { x: 0, y: 10, w: 12, h: 4 },
+    position: { x: 0, y: 8.5, w: 12, h: 4 },
   },
 ]

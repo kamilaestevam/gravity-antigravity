@@ -405,6 +405,44 @@ export function formatarDataCurtaSimuladorBidFrete(iso: string): string {
   return `${dia}/${mes}/${ano}`
 }
 
+/** Paridade com a célula da Lista real — ex.: `BRSSZ — Santos, BR`. */
+export function formatarPortoListaSimuladorBidFrete(porto: PortoSimuladorBidFrete): string {
+  return `${porto.codigo} — ${porto.cidade}, ${porto.pais}`
+}
+
+/** Paridade Tipo container — ex.: `1x 22G1` para FCL. */
+export function formatarTipoContainerListaSimuladorBidFrete(c: CotacaoSimuladorBidFrete): string {
+  if (c.modalidade === 'FCL') {
+    const match = c.equipamento.match(/×\s*(\d+)\s*$/)
+    const qty = match ? Number(match[1]) : 1
+    if (c.equipamento.includes('High Cube') || c.equipamento.includes('HC')) return `${qty}x 45G1`
+    if (c.equipamento.includes("40'")) return `${qty}x 42G0`
+    if (c.equipamento.includes("20'")) return `${qty}x 22G1`
+    return `${qty}x 22G0`
+  }
+  return c.equipamento || '—'
+}
+
+export function extrairPesoKgListaSimuladorBidFrete(c: CotacaoSimuladorBidFrete): number | null {
+  const match = c.equipamento.match(/([\d.,]+)\s*kg/i)
+  if (!match) return null
+  return Number(match[1].replace(/\./g, '').replace(',', '.'))
+}
+
+export function extrairCubagemM3ListaSimuladorBidFrete(c: CotacaoSimuladorBidFrete): number | null {
+  const match = c.equipamento.match(/([\d.,]+)\s*m³/i)
+  if (!match) return null
+  return Number(match[1].replace(',', '.'))
+}
+
+export function extrairQuantidadeVolumeListaSimuladorBidFrete(c: CotacaoSimuladorBidFrete): number | null {
+  if (c.modalidade === 'FCL') {
+    const match = c.equipamento.match(/×\s*(\d+)\s*$/)
+    return match ? Number(match[1]) : 1
+  }
+  return null
+}
+
 export function savingsCotacaoSimuladorBidFrete(cotacao: CotacaoSimuladorBidFrete): number | null {
   if (cotacao.melhorLanceUsd == null) return null
   return cotacao.valorMetaUsd - cotacao.melhorLanceUsd

@@ -1,21 +1,37 @@
-import React, { useState, useCallback, useMemo, useRef } from 'react'
+import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import {
   DndContext,
   DragOverlay,
   PointerSensor,
   KeyboardSensor,
   TouchSensor,
+  closestCorners,
+  defaultDropAnimationSideEffects,
   useSensor,
   useSensors,
   type DragStartEvent,
+  type DragMoveEvent,
   type DragEndEvent,
+  type DropAnimation,
 } from '@dnd-kit/core'
+import { createPortal } from 'react-dom'
 import { arrayMove } from '@dnd-kit/sortable'
 import { KanbanColuna } from './KanbanColuna'
 import { KanbanContext, type KanbanContextValue } from './KanbanContext'
 import type { KanbanGlobalProps, KanbanItem, KanbanLabels, KanbanSortKey } from './tipos'
+import { medirRectArrasteKanban, type CaixaArrasteKanban } from './medir-rect-arraste-kanban'
 
 // ── Labels padrão pt-BR ───────────────────────────────────────────────────────
+
+const DROP_ANIMATION: DropAnimation = {
+  duration: 220,
+  easing: 'cubic-bezier(0.18, 0.67, 0.6, 1)',
+  sideEffects: defaultDropAnimationSideEffects({
+    styles: {
+      active: { opacity: '0.35' },
+    },
+  }),
+}
 
 const DEFAULT_LABELS: Required<KanbanLabels> = {
   sortNewest:       'Mais recente primeiro',
@@ -113,10 +129,14 @@ export function KanbanGlobal<T extends KanbanItem = KanbanItem>({
   dataTutorialAlvoSort,
   onSortPopoverOpenChange,
   dataTutorialAlvoSortOpcoes,
+  usarDragOverlay = true,
 }: KanbanGlobalProps<T>) {
 
   const resolvedLabels: Required<KanbanLabels> = { ...DEFAULT_LABELS, ...labels }
   const [activeId, setActiveId]       = useState<string | null>(null)
+  const [overlayWidth, setOverlayWidth] = useState<number | null>(null)
+  const [caixaArraste, setCaixaArraste] = useState<CaixaArrasteKanban | null>(null)
+  const inicioArrasteRef = useRef<CaixaArrasteKanban | null>(null)
   const [movingId, setMovingId]       = useState<string | null>(null)
   const [feedbackMap, setFeedbackMap] = useState<Record<string, 'sucesso' | 'erro'>>({})
   const [columnSorts, setColumnSorts] = useState<Record<string, KanbanSortKey>>({})
@@ -236,12 +256,41 @@ export function KanbanGlobal<T extends KanbanItem = KanbanItem>({
     [], // deps vazias — acessa tudo via refs
   )
 
+  function limparArraste() {
+    setActiveId(null)
+    setOverlayWidth(null)
+    setCaixaArraste(null)
+    inicioArrasteRef.current = null
+    delete document.documentElement.dataset.kgDragAtivo
+  }
+
   function handleDragStart({ active }: DragStartEvent) {
-    setActiveId(String(active.id))
+    const id = String(active.id)
+    setActiveId(id)
+    if (usarDragOverlay) {
+      const largura = active.rect.current.initial?.width
+      setOverlayWidth(largura ?? null)
+      return
+    }
+
+    document.documentElement.dataset.kgDragAtivo = 'true'
+    const caixa = medirRectArrasteKanban(active)
+    inicioArrasteRef.current = caixa
+    setCaixaArraste(caixa)
+  }
+
+  function handleDragMove({ delta }: DragMoveEvent) {
+    if (usarDragOverlay || !inicioArrasteRef.current) return
+    const inicio = inicioArrasteRef.current
+    setCaixaArraste({
+      width: inicio.width,
+      left: inicio.left + delta.x,
+      top: inicio.top + delta.y,
+    })
   }
 
   async function handleDragEnd({ active, over }: DragEndEvent) {
-    setActiveId(null)
+    limparArraste()
     if (!over) return
 
     const activeItemId = String(active.id)
@@ -284,8 +333,14 @@ export function KanbanGlobal<T extends KanbanItem = KanbanItem>({
   }
 
   function handleDragCancel() {
-    setActiveId(null)
+    limparArraste()
   }
+
+  useEffect(() => {
+    return () => {
+      delete document.documentElement.dataset.kgDragAtivo
+    }
+  }, [])
 
   function handleSortChange(colKey: string, sort: KanbanSortKey) {
     setColumnSorts(prev => ({ ...prev, [colKey]: sort }))
@@ -324,6 +379,8 @@ export function KanbanGlobal<T extends KanbanItem = KanbanItem>({
       dataTutorialAlvoSort,
       onSortPopoverOpenChange,
       dataTutorialAlvoSortOpcoes,
+      usarDragOverlay,
+      fantasmaArrasteAtivo: !usarDragOverlay && caixaArraste !== null,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [colunasRender, renderCard, isReadOnly, onMoverItem, emptyLabel,
@@ -331,17 +388,45 @@ export function KanbanGlobal<T extends KanbanItem = KanbanItem>({
      handleMoverItemInternal, onCardClick, resolvedLabels,
      dataTutorialAlvoPorCardId, dataTutorialAlvoMoverMenuCardId, dataTutorialAlvoMoverMenu,
      onMoverMenuOpenChange, dataTutorialAlvoMoverOpcoes, dataTutorialAlvoSortColunaKey, dataTutorialAlvoSort,
-     onSortPopoverOpenChange, dataTutorialAlvoSortOpcoes],
+     onSortPopoverOpenChange, dataTutorialAlvoSortOpcoes, usarDragOverlay, caixaArraste],
   )
+
+  const fantasmaArraste =
+    !usarDragOverlay && activeItem && caixaArraste
+      ? createPortal(
+          <div
+            className="kg-drag-follow-layer"
+            style={{
+              position: 'fixed',
+              left: caixaArraste.left,
+              top: caixaArraste.top,
+              width: caixaArraste.width,
+              zIndex: 10000,
+              margin: 0,
+              padding: 0,
+            }}
+            data-testid={`${testIdPrefix}-drag-follow`}
+          >
+            <div className="kg-overlay-card kg-drag-follow-card">
+              {renderCard(activeItem, true)}
+            </div>
+          </div>,
+          document.body,
+        )
+      : null
 
   return (
     <KanbanContext.Provider value={ctxValue}>
       <DndContext
         sensors={sensors}
+        collisionDetection={closestCorners}
+        autoScroll={{ threshold: { x: 0.12, y: 0.12 } }}
         onDragStart={handleDragStart}
+        onDragMove={handleDragMove}
         onDragEnd={handleDragEnd}
         onDragCancel={handleDragCancel}
       >
+        {fantasmaArraste}
         {toolbarSlot && (
           <div className="kg-toolbar-slot">{toolbarSlot}</div>
         )}
@@ -364,14 +449,18 @@ export function KanbanGlobal<T extends KanbanItem = KanbanItem>({
           ))}
         </div>
 
-        {/* Card flutuando durante o drag */}
-        <DragOverlay>
-          {activeItem ? (
-            <div className="kg-overlay-card">
-              {renderCard(activeItem, true)}
-            </div>
-          ) : null}
-        </DragOverlay>
+        {usarDragOverlay ? (
+          <DragOverlay adjustScale={false} dropAnimation={DROP_ANIMATION}>
+            {activeItem ? (
+              <div
+                className="kg-overlay-card"
+                style={overlayWidth ? { width: overlayWidth } : undefined}
+              >
+                {renderCard(activeItem, true)}
+              </div>
+            ) : null}
+          </DragOverlay>
+        ) : null}
       </DndContext>
     </KanbanContext.Provider>
   )

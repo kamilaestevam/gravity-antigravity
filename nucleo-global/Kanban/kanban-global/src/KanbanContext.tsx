@@ -43,6 +43,10 @@ export interface KanbanContextValue {
   dataTutorialAlvoSort?: string
   dataTutorialAlvoSortOpcoes?: string
   onSortPopoverOpenChange?: (colunaKey: string, aberto: boolean) => void
+  /** false = arrasta o card real (simulador); true = DragOverlay */
+  usarDragOverlay: boolean
+  /** Simulador: cópia fixed no body já está visível — pode ocultar o placeholder */
+  fantasmaArrasteAtivo: boolean
 }
 
 export const KanbanContext = createContext<KanbanContextValue | null>(null)

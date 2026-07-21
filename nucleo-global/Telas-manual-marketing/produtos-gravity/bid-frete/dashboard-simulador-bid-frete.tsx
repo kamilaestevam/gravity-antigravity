@@ -22,11 +22,11 @@ import {
   DashboardWidgetDonut,
   DashboardPainelEditarModal,
   DashboardPainelSugestoes,
-  DashboardValorKPI,
   DashboardConstrutorConsulta,
   resolveAxisAssignment,
   SERIES_COLORS,
 } from '../../../Dashboard/dashboard-global/src/index'
+import { ValorKpiSimuladorBidFrete } from './valor-kpi-simulador-bid-frete'
 import type {
   DashboardWidgetConfig,
   WidgetResult,
@@ -622,7 +622,10 @@ export function DashboardSimuladorBidFrete({ empresasSelecionadas }: DashboardSi
       const dm = widget.config?.derivedMetricId
         ? BUILT_IN_DERIVED_BID_FRETE.find(m => m.id === widget.config!.derivedMetricId)
         : undefined
-      const fieldType: FieldUnitType = dm?.fieldType ?? (cat?.type === 'currency' ? 'currency' : cat?.type === 'percentage' ? 'percentage' : 'number')
+      const fieldType: FieldUnitType =
+        fieldKey === 'ganho_percentual_ganho_bid_frete_internacional'
+          ? 'percentage'
+          : dm?.fieldType ?? (cat?.type === 'currency' ? 'currency' : cat?.type === 'percentage' ? 'percentage' : 'number')
       const visual = WIDGET_VISUAL[widget.id] ?? {}
       const currentVal = Number(kpisData[fieldKey] ?? 0)
       const prevVal = Number(prevKpisData[fieldKey] ?? 0)
@@ -639,7 +642,7 @@ export function DashboardSimuladorBidFrete({ empresasSelecionadas }: DashboardSi
           icone={visual.icone}
           {...painelProps}
         >
-          <DashboardValorKPI
+          <ValorKpiSimuladorBidFrete
             data={result.data}
             fieldKey={fieldKey}
             fieldType={fieldType}
@@ -654,7 +657,7 @@ export function DashboardSimuladorBidFrete({ empresasSelecionadas }: DashboardSi
     const fieldKey = fields[0]?.key ?? 'value'
     return (
       <DashboardPainelContainer key={widget.id} widget={widget} result={result} loading={false} error={null} {...painelProps}>
-        <DashboardValorKPI data={result.data} fieldKey={fieldKey} fieldType="number" />
+        <ValorKpiSimuladorBidFrete data={result.data} fieldKey={fieldKey} fieldType="number" />
       </DashboardPainelContainer>
     )
   }, [

@@ -65,9 +65,14 @@ export function Footer() {
         </div>
 
         <div className="footer__bottom">
-          <p className="footer__copyright">
-            {t('marketplace.footer.copyright', { year: currentYear })}
-          </p>
+          <div className="footer__legal-copy">
+            <p className="footer__copyright">
+              {t('marketplace.footer.copyright', { year: currentYear })}
+            </p>
+            <p className="footer__ownership">
+              {t('marketplace.footer.propriedade_dati')}
+            </p>
+          </div>
           <div className="footer__badges">
             <span className="badge badge-success">{t('marketplace.footer.status_online')}</span>
             <span className="badge badge-accent">{t('marketplace.footer.lgpd_compliant')}</span>

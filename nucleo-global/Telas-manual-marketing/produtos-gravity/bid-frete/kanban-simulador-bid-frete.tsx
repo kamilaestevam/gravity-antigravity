@@ -109,10 +109,10 @@ function CardKanbanBidFrete({ cotacao }: { cotacao: CotacaoSimuladorBidFrete }) 
 
 export function KanbanSimuladorBidFrete({
   empresasSelecionadas,
-  onAbrirCotacaoCompleta,
+  onAbrirPainelCotacao,
 }: {
   empresasSelecionadas: PerfilEmpresaSimulador[]
-  onAbrirCotacaoCompleta: (numeroCotacao: string) => void
+  onAbrirPainelCotacao: (cotacao: CotacaoSimuladorBidFrete) => void
 }) {
   const [statusOverrides, setStatusOverrides] = useState<Record<string, StatusCotacaoSimuladorBidFrete>>({})
   const [busca, setBusca] = useState('')
@@ -198,7 +198,8 @@ export function KanbanSimuladorBidFrete({
         itens={itensFiltrados}
         renderCard={renderCard}
         onMoverItem={handleMover}
-        onCardClick={(item) => onAbrirCotacaoCompleta(item.cotacao.numero)}
+        onCardClick={(item) => onAbrirPainelCotacao(item.cotacao)}
+        usarDragOverlay={false}
         isLoading={false}
         emptyLabel="Nenhuma cotação"
         getItemLabel={(item) => item.cotacao.numero}

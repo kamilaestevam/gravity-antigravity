@@ -405,10 +405,7 @@ export function BidFreteSimulator({ onFecharSimulador }: { onFecharSimulador?: (
             ) : (
               <KanbanSimuladorBidFrete
                 empresasSelecionadas={empresasSelecionadas}
-                onAbrirCotacaoCompleta={(numeroCotacao) => {
-                  setCotacaoFocoLista(numeroCotacao)
-                  setAbaAtiva('lista')
-                }}
+                onAbrirPainelCotacao={(cotacao) => abrirPainelCotacaoDemo(cotacao, 'kanban')}
               />
             )}
           </div>

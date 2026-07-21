@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;450;500;600&display=swap" rel="stylesheet">
+<style>
+  body{margin:0}
+  a{color:#8b7bff;text-decoration:none}
+  a:hover{color:#a99bff}
+</style>
+</helmet>
+<section style="position:relative;background:radial-gradient(1200px 700px at 78% 32%, #16172a 0%, #0a0b16 55%, #080910 100%);color:#e9eaf5;font-family:Inter,system-ui,sans-serif;overflow:hidden;padding:96px 6vw 104px;min-height:840px;box-sizing:border-box">
+
+  <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(900px 600px at 70% 40%,#000 0%,transparent 80%);pointer-events:none"></div>
+
+  <div style="position:relative;display:grid;grid-template-columns:minmax(320px,400px) 1fr;gap:48px;align-items:center;max-width:1320px;margin:0 auto">
+
+    <!-- LEFT: light heading + explanatory selection panel -->
+    <div style="max-width:420px;position:relative;z-index:10">
+      <div style="display:flex;align-items:center;gap:9px;font-family:Sora,sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#8b7bff;margin-bottom:16px">
+        <span style="width:6px;height:6px;border-radius:50%;background:#8b7bff;box-shadow:0 0 10px #8b7bff"></span>
+        Monte sua solução
+      </div>
+
+      <h2 style="font-family:Sora,sans-serif;font-weight:600;font-size:clamp(23px,2.1vw,31px);line-height:1.2;letter-spacing:-.01em;margin:0 0 32px;color:#eef0fb">
+        Módulos que se encaixam —
+        <span style="background:linear-gradient(90deg,#8b7bff,#b6a6ff);-webkit-background-clip:text;background-clip:text;color:transparent">contrate só o que precisa.</span>
+      </h2>
+
+      <div style="border:1px solid rgba(255,255,255,.09);background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.015));border-radius:18px;padding:24px 26px;backdrop-filter:blur(6px)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <span style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#8890ad">Sua seleção</span>
+          <span style="font-family:Sora,sans-serif;font-weight:600;font-size:13px;color:{{ accent }}">{{ countText }}</span>
+        </div>
+
+        <div style="font-family:Sora,sans-serif;font-weight:600;font-size:22px;line-height:1.25;letter-spacing:-.01em;margin-bottom:8px;min-height:56px">{{ comboLabel }}</div>
+        <p style="font-size:14.5px;line-height:1.5;color:#a6a9c2;margin:0 0 18px;min-height:22px">{{ tagline }}</p>
+
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div onClick="{{ onCA }}" style="display:flex;align-items:center;gap:11px;padding:12px 14px;border-radius:12px;background:#14151f;border:1px solid rgba(242,163,60,.32);cursor:pointer">
+            <span style="width:9px;height:9px;border-radius:50%;background:#f2a33c;flex:none;box-shadow:0 0 8px #f2a33c"></span>
+            <span style="font-family:Sora,sans-serif;font-weight:600;font-size:14px;color:#eef0fb">Pedidos</span>
+            <span style="{{ pillA }}">{{ plA }}</span>
+          </div>
+          <div onClick="{{ onCB }}" style="display:flex;align-items:center;gap:11px;padding:12px 14px;border-radius:12px;background:#14151f;border:1px solid rgba(139,123,255,.32);cursor:pointer">
+            <span style="width:9px;height:9px;border-radius:50%;background:#8b7bff;flex:none;box-shadow:0 0 8px #8b7bff"></span>
+            <span style="font-family:Sora,sans-serif;font-weight:600;font-size:14px;color:#eef0fb">Smart Docs</span>
+            <span style="{{ pillB }}">{{ plB }}</span>
+          </div>
+          <div onClick="{{ onCC }}" style="display:flex;align-items:center;gap:11px;padding:12px 14px;border-radius:12px;background:#14151f;border:1px solid rgba(61,220,151,.32);cursor:pointer">
+            <span style="width:9px;height:9px;border-radius:50%;background:#3ddc97;flex:none;box-shadow:0 0 8px #3ddc97"></span>
+            <span style="font-family:Sora,sans-serif;font-weight:600;font-size:14px;color:#eef0fb">BID Frete Internacional</span>
+            <span style="{{ pillC }}">{{ plC }}</span>
+          </div>
+        </div>
+
+        <div style="height:1px;background:rgba(255,255,255,.08);margin:18px 0 18px"></div>
+
+        <p style="font-size:14px;line-height:1.62;color:#8f92ad;margin:0 0 20px">
+          Cada módulo resolve uma etapa sozinho. Juntos, encaixam como peças de um quebra-cabeça e cobrem toda a sua operação — você usa <strong style="color:#c9cbe0;font-weight:600">um, dois ou todos</strong>, sem lacunas e sem pagar pelo que não precisa.
+        </p>
+
+      </div>
+    </div>
+
+    <!-- RIGHT: 3D puzzle scene -->
+    <div style="position:relative;height:660px;perspective:1600px;perspective-origin:50% 42%">
+      <div style="position:absolute;top:47%;left:44%;width:792px;height:320px;transform:translate(-50%,-50%) rotateX(52deg) rotateZ(-42deg) scale(1.28);transform-style:preserve-3d">
+
+        <div style="position:absolute;left:-40px;top:-30px;width:872px;height:380px;border-radius:26px;background:radial-gradient(circle at 40% 40%,rgba(139,123,255,.10),transparent 70%);border:1px solid rgba(255,255,255,.05);transform:translateZ(-2px)"></div>
+
+        <!-- Piece A - Pedidos (amber) -->
+        <div onClick="{{ onA }}" style="{{ styleA }}">
+          <div style="width:240px;height:300px;clip-path:path('M0,0 L240,0 L240,100 C236,140 318,116 318,150 C318,184 236,160 240,200 L240,300 L0,300 Z');background:linear-gradient(150deg,#3a2a12,#1a140a);position:relative;overflow:hidden">
+            <div style="position:absolute;inset:0;background:linear-gradient(150deg,rgba(242,163,60,.22),transparent 60%)"></div>
+            <div style="position:absolute;left:22px;top:22px;display:flex;align-items:center;gap:8px">
+              <span style="width:9px;height:9px;border-radius:50%;background:#f2a33c;box-shadow:0 0 10px #f2a33c"></span>
+              <span style="font-size:11px;letter-spacing:.16em;color:#f2a33c;font-family:Sora,sans-serif">MÓDULO 01</span>
+            </div>
+            <div style="position:absolute;left:22px;top:52px;height:8px;width:96px;border-radius:4px;background:rgba(242,163,60,.55)"></div>
+            <div style="position:absolute;left:22px;top:96px;right:30px;display:grid;gap:9px">
+              <div style="height:12px;border-radius:4px;background:rgba(255,255,255,.09)"></div>
+              <div style="height:12px;width:78%;border-radius:4px;background:rgba(255,255,255,.07)"></div>
+              <div style="height:12px;width:60%;border-radius:4px;background:rgba(255,255,255,.06)"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Piece B - Smart Docs (purple) -->
+        <div onClick="{{ onB }}" style="{{ styleB }}">
+          <div style="width:240px;height:300px;clip-path:path('M0,0 L240,0 L240,100 C236,140 318,116 318,150 C318,184 236,160 240,200 L240,300 L0,300 L0,200 C4,160 78,184 78,150 C78,116 4,140 0,100 Z');background:linear-gradient(150deg,#241d45,#12101f);position:relative;overflow:hidden">
+            <div style="position:absolute;inset:0;background:linear-gradient(150deg,rgba(139,123,255,.24),transparent 60%)"></div>
+            <div style="position:absolute;left:40px;top:22px;display:flex;align-items:center;gap:8px">
+              <span style="width:9px;height:9px;border-radius:50%;background:#8b7bff;box-shadow:0 0 10px #8b7bff"></span>
+              <span style="font-size:11px;letter-spacing:.16em;color:#b6a6ff;font-family:Sora,sans-serif">MÓDULO 02</span>
+            </div>
+            <div style="position:absolute;left:40px;top:52px;height:8px;width:104px;border-radius:4px;background:rgba(139,123,255,.6)"></div>
+            <div style="position:absolute;left:40px;top:96px;right:30px;display:grid;gap:9px">
+              <div style="height:12px;border-radius:4px;background:rgba(255,255,255,.09)"></div>
+              <div style="height:12px;width:82%;border-radius:4px;background:rgba(255,255,255,.07)"></div>
+              <div style="height:12px;width:55%;border-radius:4px;background:rgba(255,255,255,.06)"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Piece C - BID Frete (green) -->
+        <div onClick="{{ onC }}" style="{{ styleC }}">
+          <div style="width:240px;height:300px;clip-path:path('M0,0 L240,0 L240,300 L0,300 L0,200 C4,160 78,184 78,150 C78,116 4,140 0,100 Z');background:linear-gradient(150deg,#123329,#0c1a15);position:relative;overflow:hidden">
+            <div style="position:absolute;inset:0;background:linear-gradient(150deg,rgba(61,220,151,.2),transparent 60%)"></div>
+            <div style="position:absolute;left:40px;top:22px;display:flex;align-items:center;gap:8px">
+              <span style="width:9px;height:9px;border-radius:50%;background:#3ddc97;box-shadow:0 0 10px #3ddc97"></span>
+              <span style="font-size:11px;letter-spacing:.16em;color:#3ddc97;font-family:Sora,sans-serif">MÓDULO 03</span>
+            </div>
+            <div style="position:absolute;left:40px;top:52px;height:8px;width:112px;border-radius:4px;background:rgba(61,220,151,.6)"></div>
+            <div style="position:absolute;left:40px;top:96px;right:30px;display:grid;gap:9px">
+              <div style="height:12px;border-radius:4px;background:rgba(255,255,255,.09)"></div>
+              <div style="height:12px;width:70%;border-radius:4px;background:rgba(255,255,255,.07)"></div>
+              <div style="height:12px;width:64%;border-radius:4px;background:rgba(255,255,255,.06)"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- floating module tags (state-driven, clickable) -->
+      <div onClick="{{ onTA }}" style="{{ tagA }}">
+        <div style="min-width:0">
+          <div style="font-size:10px;letter-spacing:.15em;color:#f2a33c;font-family:Sora,sans-serif;display:flex;align-items:center;gap:7px"><span style="width:7px;height:7px;border-radius:50%;background:#f2a33c;box-shadow:0 0 8px #f2a33c"></span>MÓDULO 01</div>
+          <div style="font-family:Sora,sans-serif;font-weight:600;font-size:15px;margin-top:3px">Pedidos</div>
+        </div>
+        <span style="{{ checkA }}">✓</span>
+      </div>
+      <div onClick="{{ onTB }}" style="{{ tagB }}">
+        <div style="min-width:0">
+          <div style="font-size:10px;letter-spacing:.15em;color:#b6a6ff;font-family:Sora,sans-serif;display:flex;align-items:center;gap:7px"><span style="width:7px;height:7px;border-radius:50%;background:#8b7bff;box-shadow:0 0 8px #8b7bff"></span>MÓDULO 02</div>
+          <div style="font-family:Sora,sans-serif;font-weight:600;font-size:15px;margin-top:3px">Smart Docs</div>
+        </div>
+        <span style="{{ checkB }}">✓</span>
+      </div>
+      <div onClick="{{ onTC }}" style="{{ tagC }}">
+        <div style="min-width:0">
+          <div style="font-size:10px;letter-spacing:.15em;color:#3ddc97;font-family:Sora,sans-serif;display:flex;align-items:center;gap:7px"><span style="width:7px;height:7px;border-radius:50%;background:#3ddc97;box-shadow:0 0 8px #3ddc97"></span>MÓDULO 03</div>
+          <div style="font-family:Sora,sans-serif;font-weight:600;font-size:15px;margin-top:3px">BID Frete Internacional</div>
+        </div>
+        <span style="{{ checkC }}">✓</span>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1320,&quot;height&quot;:840}}">
+class Component extends DCLogic {
+  state = { sel: { a: true, b: true, c: true }, auto: true, hired: false };
+
+  META = {
+    a: { name: 'Pedidos', color: '#f2a33c', z: 30, x: 0,   y: 10 },
+    b: { name: 'Smart Docs', color: '#8b7bff', z: 20, x: 240, y: 10 },
+    c: { name: 'BID Frete Internacional', color: '#3ddc97', z: 10, x: 480, y: 10 },
+  };
+
+  componentDidMount() { this.startAuto(); }
+  componentWillUnmount() { clearInterval(this.timer); }
+
+  startAuto() {
+    const S = (a, b, c) => ({ a: !!a, b: !!b, c: !!c });
+    this.seq = [
+      S(1,0,0), S(0,1,0), S(0,0,1), S(1,1,1),
+      S(1,1,0), S(1,0,1), S(0,1,1), S(1,1,1),
+    ];
+    this.i = 0;
+    this.setState({ sel: { ...this.seq[0] }, auto: true });
+    this.timer = setInterval(() => {
+      this.i = (this.i + 1) % this.seq.length;
+      this.setState({ sel: { ...this.seq[this.i] }, hired: false });
+    }, 1700);
+  }
+
+  stopAuto() {
+    if (this.timer) { clearInterval(this.timer); this.timer = null; }
+    if (this.state.auto) this.setState({ auto: false });
+  }
+
+  toggle(k) { this.stopAuto(); this.setState(s => ({ sel: { ...s.sel, [k]: !s.sel[k] }, hired: false })); }
+
+  hire() { this.stopAuto(); this.setState({ hired: true }); }
+
+  SEP = { a: { x: -120, y: 70 }, b: { x: 20, y: 130 }, c: { x: 130, y: -80 } };
+
+  pieceStyle(k) {
+    const m = this.META[k], on = this.state.sel[k], s = this.SEP[k];
+    const glow = `drop-shadow(0 20px 26px ${m.color}40) drop-shadow(0 6px 10px rgba(0,0,0,.5))`;
+    return {
+      position: 'absolute', left: m.x + 'px', top: m.y + 'px', cursor: 'pointer',
+      zIndex: on ? m.z : m.z + 60,
+      transform: on
+        ? `translate3d(${s.x * 0.12}px, ${s.y * 0.12}px, 8px)`
+        : `translate3d(${s.x}px, ${s.y}px, 96px)`,
+      opacity: on ? 1 : 0.5,
+      filter: on ? glow : `grayscale(0.55) brightness(0.72) drop-shadow(0 30px 34px rgba(0,0,0,.55))`,
+      transition: 'transform .6s cubic-bezier(.34,1.3,.44,1), opacity .45s ease, filter .45s ease',
+      transformStyle: 'preserve-3d',
+    };
+  }
+
+  tagStyle(k, pos) {
+    const m = this.META[k], on = this.state.sel[k];
+    return {
+      position: 'absolute', ...pos, boxSizing: 'border-box',
+      display: 'flex', alignItems: 'center', gap: '10px',
+      padding: '13px 15px', borderRadius: '14px',
+      background: on ? 'rgba(17,18,30,.94)' : 'rgba(14,15,24,.85)',
+      border: `1px solid ${on ? m.color + '88' : 'rgba(255,255,255,.08)'}`,
+      boxShadow: on
+        ? `inset 3px 0 0 0 ${m.color}, 0 14px 34px rgba(0,0,0,.45)`
+        : 'inset 3px 0 0 0 rgba(255,255,255,.16)',
+      backdropFilter: 'blur(10px)',
+      opacity: on ? 1 : 0.45,
+      color: on ? '#eef0fb' : '#8a8da6',
+      cursor: 'pointer', transition: 'all .35s ease',
+    };
+  }
+
+  pillStyle(k) {
+    const on = this.state.sel[k];
+    return {
+      marginLeft: 'auto', flex: 'none', padding: '5px 11px', borderRadius: '999px',
+      fontFamily: 'Sora, sans-serif', fontWeight: 600, fontSize: '11.5px', letterSpacing: '.02em',
+      whiteSpace: 'nowrap',
+      background: on ? '#149a5c' : 'transparent',
+      color: on ? '#eafff4' : '#9598b4',
+      border: on ? '1px solid #149a5c' : '1px solid rgba(255,255,255,.2)',
+      transition: 'all .3s ease',
+    };
+  }
+
+  checkStyle(k) {
+    const m = this.META[k], on = this.state.sel[k];
+    return {
+      marginLeft: 'auto', flex: 'none', width: '22px', height: '22px', borderRadius: '7px',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 700,
+      background: on ? m.color : 'transparent',
+      border: on ? 'none' : '1px solid rgba(255,255,255,.25)',
+      color: on ? '#0b0c16' : 'transparent',
+      transition: 'all .3s ease',
+    };
+  }
+
+  renderVals() {
+    const sel = this.state.sel;
+    const order = ['a', 'b', 'c'];
+    const chosen = order.filter(k => sel[k]).map(k => this.META[k]);
+    const n = chosen.length;
+
+    let comboLabel, tagline, countText, accent;
+    if (n === 0) {
+      comboLabel = 'Nenhum módulo selecionado';
+      tagline = 'Escolha ao menos uma peça para montar sua operação.';
+      countText = '0 módulos';
+      accent = '#8890ad';
+    } else if (n === 3) {
+      comboLabel = 'Solução completa Gravity';
+      tagline = 'Os três módulos integrados — do pedido ao frete, sem lacunas.';
+      countText = '3 módulos';
+      accent = '#b6a6ff';
+    } else {
+      comboLabel = chosen.map(c => c.name).join('  +  ');
+      tagline = n === 1 ? 'Um módulo, resolvendo sua etapa de ponta a ponta.'
+                        : 'Duas peças que se completam na sua operação.';
+      countText = n + (n === 1 ? ' módulo' : ' módulos');
+      accent = chosen[0].color;
+    }
+
+    return {
+      styleA: this.pieceStyle('a'), styleB: this.pieceStyle('b'), styleC: this.pieceStyle('c'),
+      onA: () => this.toggle('a'), onB: () => this.toggle('b'), onC: () => this.toggle('c'),
+      onTA: () => this.toggle('a'), onTB: () => this.toggle('b'), onTC: () => this.toggle('c'),
+      tagA: this.tagStyle('a', { top: '20px', left: 'calc(44% + 250px)', width: '214px' }),
+      tagB: this.tagStyle('b', { top: '270px', left: 'calc(44% + 288px)', width: '214px' }),
+      tagC: this.tagStyle('c', { top: '540px', left: 'calc(44% + 60px)', width: '236px' }),
+      checkA: this.checkStyle('a'), checkB: this.checkStyle('b'), checkC: this.checkStyle('c'),
+      comboLabel, tagline, countText, accent,
+      autoHint: this.state.auto ? '● Demonstração automática — clique para explorar' : null,
+      onHire: () => this.hire(),
+      onCA: () => this.toggle('a'), onCB: () => this.toggle('b'), onCC: () => this.toggle('c'),
+      pillA: this.pillStyle('a'), pillB: this.pillStyle('b'), pillC: this.pillStyle('c'),
+      plA: sel.a ? '✓ Contratado' : 'Contratar',
+      plB: sel.b ? '✓ Contratado' : 'Contratar',
+      plC: sel.c ? '✓ Contratado' : 'Contratar',
+      ctaDisabled: n === 0,
+      ctaLabel: n === 0 ? 'Selecione um módulo' : (this.state.hired ? '✓ Contratado' : 'Contratar seleção'),
+      ctaStyle: {
+        width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+        padding: '14px 20px', borderRadius: '13px', border: 'none',
+        fontFamily: 'Sora, sans-serif', fontWeight: 600, fontSize: '15px',
+        cursor: n === 0 ? 'not-allowed' : 'pointer',
+        background: n === 0 ? 'rgba(255,255,255,.06)'
+          : (this.state.hired ? 'linear-gradient(90deg,#0e6b40,#149a5c)' : 'linear-gradient(90deg,#7d6cf5,#9a8bff)'),
+        color: n === 0 ? '#6b6e88' : '#ffffff',
+        boxShadow: n === 0 ? 'none'
+          : (this.state.hired ? '0 12px 30px rgba(20,154,92,.32)' : '0 12px 30px rgba(125,108,245,.35)'),
+        transition: 'all .3s ease',
+      },
+      onAll: () => { this.stopAuto(); this.setState({ sel: { a: true, b: true, c: true }, hired: false }); },
+      onClear: () => { this.stopAuto(); this.setState({ sel: { a: false, b: false, c: false }, hired: false }); },
+    };
+  }
+}
+</script>
+</body>
+</html>

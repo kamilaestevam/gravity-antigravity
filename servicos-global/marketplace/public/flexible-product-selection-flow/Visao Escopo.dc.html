@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;450;500;600&display=swap" rel="stylesheet">
+<style>
+  body{margin:0}
+  a{color:#8b7bff;text-decoration:none}
+  a:hover{color:#a99bff}
+  @keyframes gv-ckpulse{0%,100%{box-shadow:0 0 0 0 rgba(139,123,255,.4)}50%{box-shadow:0 0 0 5px rgba(139,123,255,0)}}
+  @keyframes gv-spin{to{transform:rotate(360deg)}}
+</style>
+</helmet>
+<section style="position:relative;background:radial-gradient(1100px 640px at 60% 26%, #16172a 0%, #0a0b16 58%, #080910 100%);color:#e9eaf5;font-family:Inter,system-ui,sans-serif;overflow:hidden;padding:88px 6vw 96px;box-sizing:border-box">
+
+  <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(900px 560px at 55% 40%,#000 0%,transparent 82%);pointer-events:none"></div>
+
+  <div style="position:relative;max-width:1240px;margin:0 auto">
+
+    <div style="max-width:740px;margin:0 0 30px">
+      <div style="display:inline-flex;align-items:center;gap:9px;font-family:Sora,sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#8b7bff;margin-bottom:16px">
+        <span style="width:6px;height:6px;border-radius:50%;background:#8b7bff;box-shadow:0 0 10px #8b7bff"></span>
+        Seu perfil · seu escopo
+      </div>
+      <h2 style="font-family:Sora,sans-serif;font-weight:600;font-size:clamp(24px,2.4vw,34px);line-height:1.18;letter-spacing:-.01em;margin:0 0 14px;color:#eef0fb">
+        A visão se molda a você —
+        <span style="background:linear-gradient(90deg,#8b7bff,#b6a6ff);-webkit-background-clip:text;background-clip:text;color:transparent">e tudo muda conforme você seleciona.</span>
+      </h2>
+      <p style="font-size:16px;line-height:1.6;color:#9fa1bb;margin:0;max-width:660px">
+        Importador ou exportador vê matriz, filiais e empresas do grupo. Despachante e agente enxergam seus clientes de importação e exportação. Escolha o escopo e os números recalculam na hora.
+      </p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:380px 1fr;gap:28px;align-items:start">
+
+      <!-- SELECTOR -->
+      <div style="border:1px solid rgba(255,255,255,.09);background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.015));border-radius:18px;padding:22px;backdrop-filter:blur(6px)">
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <span style="font-family:Sora,sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#8890ad">Eu sou</span>
+          <span onClick="{{ onAuto }}" style="{{ autoBadge }}">{{ autoText }}</span>
+        </div>
+        <button onClick="{{ onCycle }}" style="{{ personaCtrl }}">
+          <span style="display:flex;flex-direction:column;gap:3px">
+            <span style="font-family:Sora,sans-serif;font-weight:600;font-size:16px;color:#eef0fb">{{ personaLabel }}</span>
+            <span style="font-size:11.5px;color:#9598b4">{{ personaHint }}</span>
+          </span>
+          <span style="{{ cycleIcon }}">⟳</span>
+        </button>
+        <div style="display:flex;gap:6px;margin:11px 0 22px">
+          <span style="{{ dot0 }}"></span><span style="{{ dot1 }}"></span><span style="{{ dot2 }}"></span>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <span style="font-family:Sora,sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#8890ad">{{ listLabel }}</span>
+          <button onClick="{{ onTotal }}" style="{{ totalBtn }}">Visão total</button>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <sc-for list="{{ entities }}" as="e" hint-placeholder-count="6">
+            <div onClick="{{ e.onToggle }}" style="{{ e.rowStyle }}" style-hover="{{ e.rowHover }}">
+              <span style="{{ e.ckStyle }}">✓</span>
+              <span style="font-family:Sora,sans-serif;font-weight:600;font-size:14px">{{ e.name }}</span>
+              <span style="{{ e.tagStyle }}">{{ e.tag }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- DASHBOARD -->
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;min-height:26px">
+          <span style="font-family:Sora,sans-serif;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#8890ad">Você está vendo</span>
+          <span style="{{ scopePill }}">{{ scopeText }}</span>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px">
+          <div style="border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.03);border-radius:16px;padding:18px 18px 20px">
+            <div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#8890ad;margin-bottom:12px">Pedidos</div>
+            <div style="font-family:Sora,sans-serif;font-weight:700;font-size:34px;line-height:1;color:#fff">{{ kPedidos }}</div>
+            <div style="font-size:12.5px;color:#8890ad;margin-top:8px">no período</div>
+          </div>
+          <div style="border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.03);border-radius:16px;padding:18px 18px 20px">
+            <div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#8890ad;margin-bottom:12px">Valor total</div>
+            <div style="font-family:Sora,sans-serif;font-weight:700;font-size:34px;line-height:1;color:#fff">{{ kValor }}</div>
+            <div style="font-size:12.5px;color:#8890ad;margin-top:8px">em operações</div>
+          </div>
+          <div style="border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.03);border-radius:16px;padding:18px 18px 20px">
+            <div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#8890ad;margin-bottom:12px">Cotações ativas</div>
+            <div style="font-family:Sora,sans-serif;font-weight:700;font-size:34px;line-height:1;color:#f2a33c">{{ kCot }}</div>
+            <div style="font-size:12.5px;color:#8890ad;margin-top:8px">frete internacional</div>
+          </div>
+          <div style="border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.03);border-radius:16px;padding:18px 18px 20px">
+            <div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#8890ad;margin-bottom:12px">Economia</div>
+            <div style="font-family:Sora,sans-serif;font-weight:700;font-size:34px;line-height:1;color:#3ddc97">{{ kEco }}</div>
+            <div style="font-size:12.5px;color:#8890ad;margin-top:8px">saving acumulado</div>
+          </div>
+        </div>
+
+        <div style="border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.03);border-radius:16px;padding:20px 22px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <span style="font-family:Sora,sans-serif;font-weight:600;font-size:15px;color:#eef0fb">Distribuição por escopo</span>
+            <span style="font-size:12.5px;color:#8890ad">{{ scopeCount }}</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <sc-for list="{{ entities }}" as="e" hint-placeholder-count="6">
+              <div style="{{ e.barWrap }}">
+                <div style="width:180px;flex:none;font-size:13px;color:#c9cbe0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ e.name }}</div>
+                <div style="flex:1;height:10px;border-radius:6px;background:rgba(255,255,255,.06);overflow:hidden"><div style="{{ e.bar }}"></div></div>
+              </div>
+            </sc-for>
+          </div>
+          <p style="font-size:13px;color:#8890ad;margin:16px 0 0">{{ emptyNote }}</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1320,&quot;height&quot;:780}}">
+class Component extends DCLogic {
+  PERSONAS = {
+    impexp: {
+      list: 'Empresas',
+      entities: [
+        { name: 'Importador — Matriz', kind: 'imp' },
+        { name: 'Importador — Filial', kind: 'imp' },
+        { name: 'Importador — Empresa do grupo', kind: 'imp' },
+        { name: 'Exportador — Matriz', kind: 'exp' },
+        { name: 'Exportador — Filial', kind: 'exp' },
+        { name: 'Exportador — Empresa do grupo', kind: 'exp' },
+      ],
+    },
+    despachante: {
+      list: 'Clientes',
+      entities: [
+        { name: 'Importador — Cliente 1', kind: 'imp' },
+        { name: 'Importador — Cliente 2', kind: 'imp' },
+        { name: 'Exportador — Cliente 1', kind: 'exp' },
+        { name: 'Exportador — Cliente 2', kind: 'exp' },
+      ],
+    },
+    agente: {
+      list: 'Comitentes',
+      entities: [
+        { name: 'Importador — Comitente 1', kind: 'imp' },
+        { name: 'Exportador — Comitente 1', kind: 'exp' },
+        { name: 'Importador — Comitente 2', kind: 'imp' },
+        { name: 'Exportador — Comitente 2', kind: 'exp' },
+      ],
+    },
+  };
+
+  ORDER = ['impexp', 'despachante', 'agente'];
+  SCRIPT = [
+    { persona: 'impexp', sel: [true, true, true, true, true, true] },
+    { persona: 'impexp', sel: [true, true, true, false, false, false] },
+    { persona: 'impexp', sel: [false, false, false, true, true, true] },
+    { persona: 'despachante', sel: [true, true, true, true] },
+    { persona: 'despachante', sel: [true, false, true, false] },
+    { persona: 'agente', sel: [true, true, true, true] },
+    { persona: 'agente', sel: [true, true, false, false] },
+  ];
+
+  state = { persona: 'impexp', sel: [true, true, true, true, true, true], demo: true, step: 0 };
+
+  componentDidMount() {
+    this.timer = setInterval(() => {
+      if (!this.state.demo) return;
+      this.setState(s => {
+        const step = (s.step + 1) % this.SCRIPT.length;
+        const a = this.SCRIPT[step];
+        return { step, persona: a.persona, sel: a.sel.slice() };
+      });
+    }, 2600);
+  }
+  componentWillUnmount() { clearInterval(this.timer); }
+
+  cyclePersona() {
+    const i = this.ORDER.indexOf(this.state.persona);
+    const nk = this.ORDER[(i + 1) % this.ORDER.length];
+    const n = this.PERSONAS[nk].entities.length;
+    this.setState({ persona: nk, sel: Array(n).fill(true), demo: false });
+  }
+  toggleE(i) { this.setState(s => { const sel = s.sel.slice(); sel[i] = !sel[i]; return { sel, demo: false }; }); }
+  total() {
+    const n = this.PERSONAS[this.state.persona].entities.length;
+    this.setState({ sel: Array(n).fill(true), demo: false });
+  }
+
+  fmt(n) {
+    if (n >= 1000000) return 'R$ ' + (n / 1000000).toFixed(1).replace('.', ',') + 'M';
+    if (n >= 1000) return 'R$ ' + Math.round(n / 1000) + 'k';
+    return 'R$ ' + Math.round(n);
+  }
+
+  personaBtn(active) {
+    return {
+      textAlign: 'left', padding: '12px 15px', borderRadius: '11px', cursor: 'pointer',
+      fontFamily: 'Sora, sans-serif', fontWeight: 600, fontSize: '14px',
+      background: active ? 'linear-gradient(90deg,rgba(139,123,255,.22),rgba(139,123,255,.08))' : 'rgba(255,255,255,.02)',
+      border: '1px solid ' + (active ? 'rgba(139,123,255,.6)' : 'rgba(255,255,255,.08)'),
+      color: active ? '#eef0fb' : '#9598b4', transition: 'all .3s ease',
+    };
+  }
+
+  renderVals() {
+    const AM = '#f2a33c', GR = '#3ddc97', PU = '#8b7bff';
+    const pk = this.state.persona;
+    const P = this.PERSONAS[pk];
+    const defs = P.entities;
+    const sel = this.state.sel;
+
+    const metric = (i) => ({ ped: 34 - i * 4, valor: (34 - i * 4) * 32000, cot: Math.round((34 - i * 4) / 2.4) });
+    const maxPed = 34;
+
+    const entities = defs.map((d, i) => {
+      const on = !!sel[i];
+      const color = d.kind === 'imp' ? AM : GR;
+      return {
+        name: d.name,
+        tag: d.kind === 'imp' ? 'IMP' : 'EXP',
+        onToggle: () => this.toggleE(i),
+        rowStyle: {
+          display: 'flex', alignItems: 'center', gap: '11px', cursor: 'pointer',
+          padding: '10px 12px', borderRadius: '11px',
+          background: on ? 'rgba(20,21,34,.9)' : 'rgba(255,255,255,.02)',
+          border: `1px solid ${on ? color + '66' : 'rgba(255,255,255,.08)'}`,
+          color: on ? '#eef0fb' : '#8a8da6', transition: 'all .3s ease',
+        },
+        ckStyle: {
+          flex: 'none', width: '19px', height: '19px', borderRadius: '6px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700,
+          background: on ? color : 'rgba(139,123,255,.08)',
+          border: on ? 'none' : '1.5px solid rgba(139,123,255,.7)',
+          color: on ? '#0b0c16' : 'transparent', transition: 'background .3s ease,border .3s ease',
+          animation: on ? 'none' : 'gv-ckpulse 1.8s ease-in-out infinite',
+        },
+        rowHover: {
+          background: 'rgba(139,123,255,.1)', borderColor: color + '99', transform: 'translateX(3px)',
+        },
+        tagStyle: {
+          marginLeft: 'auto', flex: 'none', padding: '2px 8px', borderRadius: '6px',
+          fontFamily: 'Sora, sans-serif', fontWeight: 700, fontSize: '10px', letterSpacing: '.08em',
+          background: on ? color + '22' : 'rgba(255,255,255,.05)',
+          color: on ? color : '#6f7290',
+        },
+        barWrap: { display: 'flex', alignItems: 'center', gap: '14px', opacity: on ? 1 : 0.4, transition: 'opacity .3s ease' },
+        bar: {
+          width: (on ? (metric(i).ped / maxPed) * 100 : 0) + '%', height: '100%', borderRadius: '6px',
+          background: color, transition: 'width .5s cubic-bezier(.22,1,.36,1)',
+        },
+      };
+    });
+
+    const selIdx = defs.map((_, i) => i).filter(i => sel[i]);
+    const nSel = selIdx.length, nTot = defs.length;
+    const sumPed = selIdx.reduce((a, i) => a + metric(i).ped, 0);
+    const sumVal = selIdx.reduce((a, i) => a + metric(i).valor, 0);
+    const sumCot = selIdx.reduce((a, i) => a + metric(i).cot, 0);
+
+    const labels = { impexp: 'Importador / Exportador', despachante: 'Despachante', agente: 'Agente' };
+    const hints = {
+      impexp: 'Matriz, filiais e empresas do grupo',
+      despachante: 'Seus clientes de importação e exportação',
+      agente: 'Seus comitentes de importação e exportação',
+    };
+    const scopeTxt = nSel === nTot ? 'todos os itens' : nSel === 0 ? 'nada selecionado' : nSel + ' de ' + nTot;
+    const demo = this.state.demo;
+    const dot = (active) => ({ flex: 'none', height: '4px', width: active ? '26px' : '12px', borderRadius: '3px', background: active ? '#8b7bff' : 'rgba(255,255,255,.18)', transition: 'all .3s ease' });
+
+    return {
+      onCycle: () => this.cyclePersona(),
+      onAuto: () => this.setState(s => ({ demo: !s.demo })),
+      personaLabel: labels[pk],
+      personaHint: hints[pk],
+      personaCtrl: {
+        width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px',
+        padding: '14px 16px', borderRadius: '12px', cursor: 'pointer', textAlign: 'left',
+        background: 'linear-gradient(90deg,rgba(139,123,255,.2),rgba(139,123,255,.06))',
+        border: '1px solid rgba(139,123,255,.55)', transition: 'all .3s ease',
+      },
+      cycleIcon: { fontSize: '19px', color: '#b6a6ff', display: 'inline-block', animation: demo ? 'gv-spin 2.6s linear infinite' : 'none' },
+      autoText: demo ? '● Pausar demo' : '▶ Retomar demo',
+      autoBadge: {
+        cursor: 'pointer', fontFamily: 'Sora, sans-serif', fontWeight: 600, fontSize: '11px', letterSpacing: '.03em',
+        padding: '4px 11px', borderRadius: '999px', userSelect: 'none',
+        border: '1px solid ' + (demo ? 'rgba(61,220,151,.5)' : 'rgba(139,123,255,.5)'),
+        color: demo ? '#3ddc97' : '#b6a6ff', background: demo ? 'rgba(61,220,151,.1)' : 'rgba(139,123,255,.1)',
+      },
+      dot0: dot(pk === 'impexp'), dot1: dot(pk === 'despachante'), dot2: dot(pk === 'agente'),
+      listLabel: P.list,
+      onTotal: () => this.total(),
+      totalBtn: {
+        padding: '7px 13px', borderRadius: '9px', cursor: 'pointer',
+        fontFamily: 'Sora, sans-serif', fontWeight: 600, fontSize: '12px',
+        border: '1px solid ' + (nSel === nTot ? PU : 'rgba(139,123,255,.4)'),
+        background: nSel === nTot ? 'linear-gradient(90deg,#7d6cf5,#9a8bff)' : 'transparent',
+        color: nSel === nTot ? '#fff' : '#b6a6ff', transition: 'all .3s ease',
+      },
+      entities,
+      scopeText: labels[pk] + ' · ' + scopeTxt,
+      scopePill: {
+        padding: '5px 13px', borderRadius: '999px', fontFamily: 'Sora, sans-serif', fontWeight: 600, fontSize: '13px',
+        background: 'rgba(139,123,255,.14)', border: '1px solid rgba(139,123,255,.4)', color: '#c9c3ff',
+      },
+      kPedidos: String(sumPed),
+      kValor: this.fmt(sumVal),
+      kCot: String(sumCot),
+      kEco: this.fmt(sumVal * 0.12),
+      scopeCount: nSel + '/' + nTot + ' selecionados',
+      emptyNote: nSel === 0
+        ? 'Selecione ao menos um item para ver os números.'
+        : 'Números recalculados só para o escopo escolhido — matriz, filial, grupo ou cliente.',
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -58,3 +58,17 @@
   font-size: 0.64rem;
   color: #94a3b8;
 }
+
+/* Board ocupa altura disponível no shell do simulador */
+.bfs-kanban {
+  min-height: 0;
+}
+
+.bfs-kanban .kg-toolbar-slot {
+  flex-shrink: 0;
+}
+
+.bfs-kanban .kg-grid {
+  flex: 1;
+  min-height: 0;
+}

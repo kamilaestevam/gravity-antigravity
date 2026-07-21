@@ -432,3 +432,52 @@ body.sds-tutorial-destaque-ativo .kbp-modal-overlay {
 .pds-config-simulador__secao.sds-tutorial-alvo--destacado {
   border-radius: 10px;
 }
+
+/* Guia da Gabi — 100px mais à esquerda (lista, kanban, modais) */
+.sds-tutorial.pds-tutorial-guia-pedido.sds-tutorial--ancorado {
+  padding-right: calc(1rem + 70px);
+  padding-bottom: calc(1rem + 50px);
+}
+
+.sds-tutorial.pds-tutorial-guia-pedido.sds-tutorial--superior-direita.sds-tutorial--ancorado .sds-tutorial__pilha {
+  margin-top: -50px;
+}
+
+/* Contraste do guia vs fundo escuro do simulador Pedido */
+.sds-tutorial.pds-tutorial-guia-pedido .sds-tutorial__painel {
+  background: linear-gradient(
+    165deg,
+    rgba(71, 85, 105, 0.98) 0%,
+    rgba(51, 65, 85, 0.98) 48%,
+    rgba(30, 41, 59, 0.98) 100%
+  );
+  border: 1px solid rgba(165, 180, 252, 0.5);
+  box-shadow:
+    0 0 0 1px rgba(99, 102, 241, 0.2),
+    0 0 36px rgba(99, 102, 241, 0.28),
+    0 20px 48px rgba(0, 0, 0, 0.55);
+}
+
+.sds-tutorial.pds-tutorial-guia-pedido .sds-tutorial__painel::before {
+  content: '';
+  display: block;
+  height: 3px;
+  flex-shrink: 0;
+  background: linear-gradient(90deg, #4f46e5, #818cf8, #a78bfa);
+}
+
+.sds-tutorial.pds-tutorial-guia-pedido .sds-tutorial__card-avancar {
+  background: linear-gradient(145deg, rgba(79, 70, 229, 0.28) 0%, rgba(124, 58, 237, 0.16) 100%);
+  border-color: rgba(165, 180, 252, 0.48);
+  box-shadow:
+    0 0 28px rgba(99, 102, 241, 0.22),
+    0 10px 24px rgba(15, 23, 42, 0.45);
+}
+
+.sds-tutorial.pds-tutorial-guia-pedido .sds-tutorial__card-avancar:hover,
+.sds-tutorial.pds-tutorial-guia-pedido .sds-tutorial__card-avancar--ativo {
+  border-color: rgba(199, 210, 254, 0.62);
+  box-shadow:
+    0 0 32px rgba(99, 102, 241, 0.32),
+    0 12px 28px rgba(15, 23, 42, 0.5);
+}

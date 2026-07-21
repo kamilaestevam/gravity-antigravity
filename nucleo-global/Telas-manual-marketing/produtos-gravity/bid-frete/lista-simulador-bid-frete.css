@@ -353,6 +353,38 @@ th.bfs-lista-num .pds-lista-th-col-label {
   border: 1px solid color-mix(in srgb, var(--pill-cor, #94a3b8) 32%, transparent);
 }
 
+.bfs-lista-pill-operacao {
+  letter-spacing: 0.02em;
+  font-size: 0.62rem;
+}
+
+.bfs-lista-porto-texto {
+  white-space: nowrap;
+  font-size: 0.72rem;
+  color: #e2e8f0;
+}
+
+.bfs-lista .gtv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(255, 255, 255, 0.04);
+  color: #cbd5e1;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.42rem 0.65rem;
+  cursor: pointer;
+}
+
+.bfs-lista .gtv-btn:hover,
+.bfs-lista .gtv-btn--ativo {
+  color: #f1f5f9;
+  border-color: rgba(96, 165, 250, 0.45);
+  background: rgba(96, 165, 250, 0.12);
+}
+
 /* Coluna Status — centralizada (cabeçalho + pills) */
 .bfs-lista-tabela th.bfs-lista-col-status,
 .bfs-lista-tabela td.bfs-lista-col-status {

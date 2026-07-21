@@ -31,6 +31,10 @@ As três perguntas precisam ter resposta **NÃO** para o código pertencer ao nu
 
 ## O Que um Componente do nucleo-global NUNCA Pode Fazer
 
+> ⚠️ **REGRA ABSOLUTA:** Ver [agent-policy — modal/produto ≠ simulador](../../governanca/lei/agent-policy/SKILL.md).
+> Simulador (`Telas-manual-marketing`) e produto real **não** compartilham adaptações de modal.
+> Tutorial/demo **nunca** altera `Modais/*-global`. Modal novo = específico da superfície que o cria.
+
 - Importar nada de `servicos-global/*` (alias `@shell`/`@gravity/shell`), `servicos-global/tenant/*` (alias `@tenant`) ou `produto/*` (alias `@produto`) — ciclo de dependência proibido. *Os caminhos físicos ainda usam `tenant` por compatibilidade do alias; a migração DDD para `organizacao` está em curso fora desta skill.*
 - Fazer `fetch` ou usar `axios` diretamente
 - Acessar `localStorage` ou `sessionStorage` — deve receber dados via props

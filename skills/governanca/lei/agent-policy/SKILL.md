@@ -93,6 +93,30 @@ Checklist antes de tocar em `nucleo-global/`:
 - [ ] Líder e Coordenador revisaram impacto cross-produto?
 - [ ] Plano de teste inclui **Pedido** (lista hierárquica) e pelo menos mais um consumidor da tabela?
 
+### Regra absoluta — modal/produto ≠ simulador (isolamento de UI)
+
+**Cada superfície tem o seu modal.** Necessidade de um consumidor **nunca** se resolve mudando o componente compartilhado usado pelos outros.
+
+| Superfície | Onde mora o modal | Pode alterar `Modais/*-global`? |
+|:---|:---|:---|
+| Produto real (ex.: Pedido) | `servicos-global/produto/<produto>/…` — modal **específico** do produto | ❌ Não — só consome API já existente |
+| Simulador / demo / tutorial Gabi | `nucleo-global/Telas-manual-marketing/…` — modal **específico** do simulador | ❌ Não — wrap, `footerCustom`, CSS e `data-sds-tutorial-alvo` ficam no simulador |
+| Base genérica | `nucleo-global/Modais/*-global` | Só com **duas confirmações** do dono + impacto cross-produto revisado |
+
+❌ **PROIBIDO** (incidente 2026-07 — Consolidar Pedido sem botão Próximo):
+
+- Alterar `ModalPassoPassoGlobal` (ou qualquer `*-global`) para servir tutorial/demo do simulador (ex.: wrap de botão em `<span>` / prop `dataTutorialAlvo*`)
+- CSS no produto que assume DOM interno frágil do núcleo sem revisão quando o núcleo muda
+- “Aproveitar” o modal do produto no simulador (ou o contrário) com patches no compartilhado
+
+✅ **OBRIGATÓRIO:**
+
+- Novo fluxo de wizard/modal → nascer **específico** na superfície que o usa (produto **ou** simulador)
+- Tutorial Gabi / `data-sds-tutorial-alvo` → só no modal do simulador (`footerCustom`, spans locais, etc.)
+- Se a base genérica realmente precisar mudar → parar, descrever, **duas confirmações** do dono; nunca “de passagem” numa task de marketplace/simulador
+
+**Por quê:** em 15/07/2026 um commit de simulador Marketplace envolveu o botão Próximo do `ModalPassoPassoGlobal` num `<span>`. O CSS do Consolidar Pedido (que escondia o indicador `1/3` via `… > span`) passou a esconder o Próximo. Produto real quebrado por necessidade de demo.
+
 ---
 
 ## Regras de Comunicação entre Serviços

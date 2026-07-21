@@ -1,5 +1,5 @@
 /**
- * index.ts — Estimativa Custo Express Server (produto simula-custo)
+ * index.ts — Simula Custo Express Server (produto simula-custo)
  * Localização canônica: servicos-global/produto/simula-custo/server/
  * Porta: 8020
  * Skill: antigravity-criar-produto (middlewares na ordem correta)
@@ -11,18 +11,19 @@ import { dirname, resolve, join } from 'node:path'
 
 const __dir = dirname(fileURLToPath(import.meta.url))
 // .env do produto PRIMEIRO (dotenv não sobrescreve): garante que DATABASE_URL
-// seja o banco do Estimativa Custo, não o do Configurador vindo do .env.local.
+// seja o banco do Simula Custo, não o do Configurador vindo do .env.local.
 dotenv.config({ path: resolve(__dir, '../../.env') })
 // Chaves globais (CHAVE_INTERNA_SERVICO etc.) vêm do .env.local da raiz
 dotenv.config({ path: resolve(__dir, '../../../../../.env.local') })
 
 import express, { Request, Response, NextFunction } from 'express'
 import helmet from 'helmet'
-import { estimativasCustoRouter } from './routes/estimativas-custo.js'
-import { simularEstimativaCustoRouter } from './routes/simular-estimativa-custo.js'
-import { masterDataEstimativaCustoRouter } from './routes/master-data-estimativa-custo.js'
-import { dashboardEstimativaCustoRouter } from './routes/dashboard-estimativa-custo.js'
-import { configStatusEstimativaCustoRouter } from './routes/config-status-estimativa-custo.js'
+import { simulasCustoRouter } from './routes/simulas-custo.js'
+import { simularSimulaCustoRouter } from './routes/simular-simula-custo.js'
+import { masterDataSimulaCustoRouter } from './routes/master-data-simula-custo.js'
+import { dashboardSimulaCustoRouter } from './routes/dashboard-simula-custo.js'
+import { configStatusSimulaCustoRouter } from './routes/config-status-simula-custo.js'
+import { anexosDocumentoSimulaCustoRouter } from './routes/anexos-documento-simula-custo.js'
 import { validarChaveInterna } from './middleware/validar-chave-interna.js'
 import { tenantIsolationMiddleware, prisma } from './middleware/isolamento-tenant.js'
 import { AppError } from './lib/erros.js'
@@ -86,7 +87,7 @@ app.get('/health', async (_req: Request, res: Response) => {
 })
 
 // ─── 5. Master Data — SEM autenticação (NCM via Cadastros, UFs são dados públicos)
-app.use('/api/v1/simula-custo', masterDataEstimativaCustoRouter)
+app.use('/api/v1/simula-custo', masterDataSimulaCustoRouter)
 
 // ─── 6. validarChaveInterna — protege todas as rotas abaixo ───────────────────
 //    Skill: antigravity-autenticacao-s2s
@@ -118,15 +119,17 @@ app.use(createProductAuditPlugin({
   // Master data pública é servida antes do plugin (sem tenant) — ignorar por rota.
   ignoreRoutes: [
     '/api/v1/simula-custo/unidades-federativas',
+    '/api/v1/simula-custo/opcoes-icms',
     '/api/v1/simula-custo/ncm/buscar',
   ],
 }))
 
 // ─── 8. Rotas do Produto ───────────────────────────────────────────────────────
-app.use('/api/v1/simula-custo', simularEstimativaCustoRouter)
-app.use('/api/v1/simula-custo/estimativas-custo', estimativasCustoRouter)
-app.use('/api/v1/simula-custo/dashboard', dashboardEstimativaCustoRouter)
-app.use('/api/v1/simula-custo/config-status-estimativa-custo', configStatusEstimativaCustoRouter)
+app.use('/api/v1/simula-custo', simularSimulaCustoRouter)
+app.use('/api/v1/simula-custo/simulas-custo', simulasCustoRouter)
+app.use('/api/v1/simula-custo/anexos-documento', anexosDocumentoSimulaCustoRouter)
+app.use('/api/v1/simula-custo/dashboard', dashboardSimulaCustoRouter)
+app.use('/api/v1/simula-custo/config-status-simula-custo', configStatusSimulaCustoRouter)
 
 // ─── 9. SPA Fallback (serve o client React para qualquer rota não-API) ─────────
 app.get('*', (_req: Request, res: Response) => {
@@ -141,19 +144,19 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({ error: err.message, code: err.code })
   }
-  console.error('[EstimativaCusto] Erro não tratado:', err.message)
+  console.error('[SimulaCusto] Erro não tratado:', err.message)
   res.status(500).json({ error: err.message || 'Erro interno' })
 })
 
 // ─── 11. Inicialização ────────────────────────────────────────────────────────
 if (process.env.NODE_ENV !== 'test') {
   const server = app.listen(PORT, () => {
-    console.log(`[EstimativaCusto] Servidor rodando na porta ${PORT}`)
+    console.log(`[SimulaCusto] Servidor rodando na porta ${PORT}`)
     tokenPool.start()
   })
   server.on('error', (err: NodeJS.ErrnoException) => {
     if (err.code === 'EADDRINUSE') {
-      console.error(`[EstimativaCusto] Porta ${PORT} já em uso. Execute: npm run dev:reset`)
+      console.error(`[SimulaCusto] Porta ${PORT} já em uso. Execute: npm run dev:reset`)
       process.exit(1)
     }
     throw err

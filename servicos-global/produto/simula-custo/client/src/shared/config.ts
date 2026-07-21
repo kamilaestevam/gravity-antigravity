@@ -8,7 +8,7 @@
  * Ícones: nomes Phosphor Icons em kebab-case.
  */
 
-import { rotaSimulaCusto } from './rotas-estimativa-custo'
+import { rotaSimulaCusto } from './rotas-simula-custo'
 
 export interface NavigationItem {
   id:            string
@@ -63,7 +63,7 @@ export const PRODUCT_CONFIG = {
 
     // ── Serviços ─────────────────────────────────────────────────────────────
     // Insights/Lista/Dashboard/Kanban navegam pelas pills no topo da página
-    // (EstimativaCustoVisualizacaoTabs) — paridade Bid Frete Internacional.
+    // (SimulaCustoVisualizacaoTabs) — paridade Bid Frete Internacional.
     { id: '/workspace/historico-organizacao?id_produto_historico_log=simula-custo', label: 'Histórico', icon: 'clock-counter-clockwise', source: 'tenant' as const, external: true },
     { id: rotaSimulaCusto('configuracoes'), label: 'Configurações', icon: 'gear-six',        source: 'product' as const },
 
@@ -71,7 +71,7 @@ export const PRODUCT_CONFIG = {
 
   features: {
     siscomex_integration:  'active',
-    bacen_auto_update:     true,
+    ptax_via_taxas_moeda:  true,
     default_icms_mode:     'inside_calc',
     anti_captcha_provider: 'capsolver',
     token_pool_enabled:    true,

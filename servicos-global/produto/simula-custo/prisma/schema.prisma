@@ -18,9 +18,9 @@ datasource db {
 // e compostos automaticamente pelo script compose-schema.js
 
 
-// fragment.prisma — Estimativa Custo (produto simula-custo)
+// fragment.prisma — Simula Custo (produto simula-custo)
 // Composto via prisma/compose-schema.js no schema final do produto.
-// DDD aprovado pelo dono em TASK-000425 — entidade canônica: estimativa_custo.
+// DDD aprovado pelo dono em TASK-000425 — entidade canônica: simula_custo.
 // Padrão de campo: <campo>_<entidade>_<produto> (gabarito BID Frete Internacional).
 // REGRA: todo model tenant DEVE ter id_organizacao e os índices obrigatórios.
 // Skill: antigravity-tenant-isolation, antigravity-schema-composition, ddd-nomenclatura
@@ -28,25 +28,25 @@ datasource db {
 // ─── Enums ──────────────────────────────────────────────────────────────────────
 // Valores em PT-BR (exceção registrada na skill ddd-nomenclatura — termos COMEX).
 
-enum TipoOperacaoEstimativaCusto {
+enum TipoOperacaoSimulaCusto {
   IMPORTACAO
   EXPORTACAO
 }
 
-enum DetalheOperacaoEstimativaCusto {
+enum DetalheOperacaoSimulaCusto {
   DIRETA
   CONTA_ORDEM
   ENCOMENDA
   COMERCIAL_EXPORTADORA
 }
 
-enum StatusEstimativaCusto {
+enum StatusSimulaCusto {
   EM_CRIACAO
   CRIADA
   ARQUIVADA
 }
 
-enum TipoCobrancaEstimativaCusto {
+enum TipoCobrancaSimulaCusto {
   PROCESSO
   CONTAINER
   AWB
@@ -58,15 +58,7 @@ enum TipoCobrancaEstimativaCusto {
   M3
 }
 
-enum TipoTributoEstimativaCusto {
-  II
-  IPI
-  PIS
-  COFINS
-  ICMS
-}
-
-enum TipoDocumentoEstimativaCusto {
+enum TipoDocumentoSimulaCusto {
   PEDIDO_COMPRA
   PEDIDO_VENDA
   PROFORMA
@@ -74,10 +66,41 @@ enum TipoDocumentoEstimativaCusto {
   OUTRO
 }
 
+enum TipoValorPrazoPagamentoSimulaCusto {
+  VALOR
+  PERCENTUAL
+}
+
+enum MomentoPrazoPagamentoSimulaCusto {
+  NO_DIA
+  ANTES
+  DEPOIS
+}
+
+enum FatoGeradorPrazoPagamentoSimulaCusto {
+  PRODUCAO
+  ENTREGA_NA_ORIGEM
+  ENTREGA_NO_PORTO_DE_ORIGEM
+  ENTREGA_NO_LOCAL_DE_ORIGEM
+  ENTREGA_NO_DESTINO
+  NO_BL
+  ENTREGA_NO_PORTO_DE_DESTINO
+  ENTREGA_NO_LOCAL_DE_DESTINO
+  EMBARQUE_NO_DESTINO
+  CHEGADA_NO_DESTINO
+}
+
+enum ModalidadeRecolhimentoIcmsSimulaCusto {
+  INTEGRAL
+  REDUCAO
+  ISENTO
+  DIFERIDO
+}
+
 // ─── Model principal ────────────────────────────────────────────────────────────
 
-model EstimativaCusto {
-  id_estimativa_custo   String   @id @default(cuid())
+model SimulaCusto {
+  id_simula_custo   String   @id @default(cuid())
   id_organizacao        String   // OBRIGATÓRIO — nunca nullable (tenant isolation)
   id_workspace          String   // OBRIGATÓRIO — isolamento por filial
   id_produto            String   @default("simula-custo")
@@ -85,58 +108,72 @@ model EstimativaCusto {
   id_processo           String?  // ref lógica — quando efetivada, atrela ao Processo real
 
   // Identificação
-  numero_estimativa_custo      String   // EST-IMP-00001/26 ou manual alfanumérico
-  referencia_estimativa_custo  String?  // referência interna (até 30 chars)
-  tipo_operacao_estimativa_custo    TipoOperacaoEstimativaCusto    @default(IMPORTACAO)
-  detalhe_operacao_estimativa_custo DetalheOperacaoEstimativaCusto @default(DIRETA)
-  status_estimativa_custo           StatusEstimativaCusto          @default(EM_CRIACAO)
+  numero_simula_custo      String   // EST-IMP-00001/26 ou manual alfanumérico
+  referencia_simula_custo  String?  // referência interna (até 30 chars)
+  tipo_operacao_simula_custo    TipoOperacaoSimulaCusto    @default(IMPORTACAO)
+  detalhe_operacao_simula_custo DetalheOperacaoSimulaCusto @default(DIRETA)
+  status_simula_custo           StatusSimulaCusto          @default(EM_CRIACAO)
 
   // Produto (NCM congelado no cálculo — catálogo vivo vem do Cadastros.NcmSync)
-  ncm_estimativa_custo             String
-  descricao_ncm_estimativa_custo   String?
-  incoterm_estimativa_custo        String  @default("FOB")
-  quantidade_estimativa_custo      Decimal @db.Decimal(15, 5) @default(0)
-  moeda_produto_estimativa_custo   String  @default("USD")
-  valor_produto_estimativa_custo   Decimal @db.Decimal(15, 2)
+  ncm_simula_custo             String
+  descricao_ncm_simula_custo   String?
+  incoterm_simula_custo        String  @default("FOB")
+  quantidade_simula_custo      Decimal @db.Decimal(15, 5) @default(0)
+  moeda_produto_simula_custo   String  @default("USD")
+  valor_produto_simula_custo   Decimal @db.Decimal(15, 2)
 
   // Frete internacional
-  moeda_frete_estimativa_custo     String  @default("USD")
-  valor_frete_estimativa_custo     Decimal @db.Decimal(15, 2) @default(0)
+  moeda_frete_simula_custo     String  @default("USD")
+  valor_frete_simula_custo     Decimal @db.Decimal(15, 2) @default(0)
+  enviar_solicitacao_cotacao_frete_simula_custo Boolean @default(false)
 
   // Seguro internacional
-  moeda_seguro_estimativa_custo    String  @default("USD")
-  valor_seguro_estimativa_custo    Decimal @db.Decimal(15, 2) @default(0)
+  moeda_seguro_simula_custo    String  @default("USD")
+  valor_seguro_simula_custo    Decimal @db.Decimal(15, 2) @default(0)
 
   // ICMS
-  uf_desembaraco_estimativa_custo  String   @default("SP")
-  aliquota_icms_estimativa_custo   Decimal  @db.Decimal(5, 4) @default(0)
-  usa_beneficio_estimativa_custo   Boolean  @default(false)
-  icms_entrada_estimativa_custo    Decimal? @db.Decimal(15, 2)
-  icms_saida_estimativa_custo      Decimal? @db.Decimal(15, 2)
+  uf_desembaraco_simula_custo  String   @default("SP")
+  modalidade_recolhimento_icms_simula_custo ModalidadeRecolhimentoIcmsSimulaCusto @default(INTEGRAL)
+  aliquota_icms_simula_custo   Decimal  @db.Decimal(5, 4) @default(0)
+  usa_beneficio_simula_custo   Boolean  @default(false)
 
-  // Alíquotas congeladas no momento do cálculo (snapshot — política cadastros)
-  aliquota_ii_estimativa_custo     Decimal @db.Decimal(5, 4) @default(0)
-  aliquota_ipi_estimativa_custo    Decimal @db.Decimal(5, 4) @default(0)
-  aliquota_pis_estimativa_custo    Decimal @db.Decimal(5, 4) @default(0)
-  aliquota_cofins_estimativa_custo Decimal @db.Decimal(5, 4) @default(0)
-  reducao_ii_estimativa_custo      Decimal @db.Decimal(5, 4) @default(0)
+  // Impostos — alíquota (entrada/snapshot) + base e valor calculados por imposto
+  aliquota_ii_simula_custo          Decimal  @db.Decimal(5, 4) @default(0)
+  base_calculo_ii_simula_custo      Decimal? @db.Decimal(15, 2)
+  valor_ii_simula_custo             Decimal? @db.Decimal(15, 2)
+  reducao_ii_simula_custo           Decimal  @db.Decimal(5, 4) @default(0)
+
+  aliquota_ipi_simula_custo          Decimal  @db.Decimal(5, 4) @default(0)
+  base_calculo_ipi_simula_custo      Decimal? @db.Decimal(15, 2)
+  valor_ipi_simula_custo             Decimal? @db.Decimal(15, 2)
+
+  aliquota_pis_simula_custo          Decimal  @db.Decimal(5, 4) @default(0)
+  base_calculo_pis_simula_custo      Decimal? @db.Decimal(15, 2)
+  valor_pis_simula_custo             Decimal? @db.Decimal(15, 2)
+
+  aliquota_cofins_simula_custo       Decimal  @db.Decimal(5, 4) @default(0)
+  base_calculo_cofins_simula_custo   Decimal? @db.Decimal(15, 2)
+  valor_cofins_simula_custo          Decimal? @db.Decimal(15, 2)
+
+  base_calculo_icms_simula_custo     Decimal? @db.Decimal(15, 2)
+  valor_icms_simula_custo            Decimal? @db.Decimal(15, 2)
 
   // Resultado calculado (BRL)
-  ptax_utilizada_estimativa_custo             Decimal? @db.Decimal(10, 4)
-  valor_aduaneiro_estimativa_custo            Decimal? @db.Decimal(15, 2)
-  total_tributos_estimativa_custo             Decimal? @db.Decimal(15, 2)
-  custo_nacionalizado_brl_estimativa_custo    Decimal? @db.Decimal(15, 2)
-  fonte_calculo_estimativa_custo              String?  // 'siscomex' | 'gravity-engine' | 'fallback'
+  ptax_utilizada_simula_custo             Decimal? @db.Decimal(10, 4)
+  valor_aduaneiro_simula_custo            Decimal? @db.Decimal(15, 2)
+  total_tributos_simula_custo             Decimal? @db.Decimal(15, 2)
+  custo_nacionalizado_brl_simula_custo    Decimal? @db.Decimal(15, 2)
+  fonte_calculo_simula_custo              String?  // 'siscomex' | 'gravity-engine' | 'fallback'
 
   // Relações (sem sufixo — REGRA 6 da ddd-nomenclatura, gabarito BID Frete)
-  taxas_origem  TaxaOrigemEstimativaCusto[]
-  taxas_destino TaxaDestinoEstimativaCusto[]
-  tributos      TributoEstimativaCusto[]
-  documentos    DocumentoEstimativaCusto[]
+  taxas_origem       TaxaOrigemSimulaCusto[]
+  taxas_destino      TaxaDestinoSimulaCusto[]
+  documentos         DocumentoSimulaCusto[]
+  prazos_pagamento   PrazoPagamentoSimulaCusto[]
 
   // Timestamps
-  data_criacao_estimativa_custo      DateTime @default(now())
-  data_atualizacao_estimativa_custo  DateTime @updatedAt
+  data_criacao_simula_custo      DateTime @default(now())
+  data_atualizacao_simula_custo  DateTime @updatedAt
 
   // Índices obrigatórios + consulta
   @@index([id_organizacao])
@@ -144,146 +181,159 @@ model EstimativaCusto {
   @@index([id_organizacao, id_workspace])
   @@index([id_organizacao, id_produto])
   @@index([id_organizacao, id_usuario])
-  @@index([id_organizacao, numero_estimativa_custo])
-  @@index([id_organizacao, status_estimativa_custo])
-  @@index([id_organizacao, ncm_estimativa_custo])
+  @@index([id_organizacao, numero_simula_custo])
+  @@index([id_organizacao, status_simula_custo])
+  @@index([id_organizacao, ncm_simula_custo])
   @@index([id_processo])
-  @@map("estimativa_custo")
+  @@map("simula_custo")
 }
 
 // ─── Taxas origem/destino (gabarito BID Frete — ref lógica Cadastros.taxa_origem_destino) ──
 
-model TaxaOrigemEstimativaCusto {
-  id_taxa_origem_estimativa_custo String  @id @default(cuid())
+model TaxaOrigemSimulaCusto {
+  id_taxa_origem_simula_custo String  @id @default(cuid())
   id_organizacao                  String  // OBRIGATÓRIO
   id_workspace                    String  // OBRIGATÓRIO
   id_produto                      String  @default("simula-custo")
   id_usuario                      String?
-  id_estimativa_custo             String
+  id_simula_custo             String
   id_taxa_origem_destino          String? // ref lógica Cadastros.taxa_origem_destino (sem FK física)
 
-  nome_taxa_origem_estimativa_custo          String
-  moeda_taxa_origem_estimativa_custo         String  @default("USD")
-  tipo_cobranca_taxa_origem_estimativa_custo TipoCobrancaEstimativaCusto @default(PROCESSO)
-  valor_minimo_taxa_origem_estimativa_custo  Decimal @db.Decimal(15, 2) @default(0)
-  valor_total_taxa_origem_estimativa_custo   Decimal @db.Decimal(15, 2)
+  nome_taxa_origem_simula_custo          String
+  moeda_taxa_origem_simula_custo         String  @default("USD")
+  tipo_cobranca_taxa_origem_simula_custo TipoCobrancaSimulaCusto @default(PROCESSO)
+  valor_minimo_taxa_origem_simula_custo  Decimal @db.Decimal(15, 2) @default(0)
+  valor_total_taxa_origem_simula_custo   Decimal @db.Decimal(15, 2)
 
-  estimativa EstimativaCusto @relation(fields: [id_estimativa_custo], references: [id_estimativa_custo], onDelete: Cascade)
+  simula SimulaCusto @relation(fields: [id_simula_custo], references: [id_simula_custo], onDelete: Cascade)
 
   @@index([id_organizacao])
   @@index([id_organizacao, id_workspace])
   @@index([id_organizacao, id_produto])
   @@index([id_organizacao, id_usuario])
-  @@index([id_organizacao, id_estimativa_custo])
-  @@map("taxa_origem_estimativa_custo")
+  @@index([id_organizacao, id_simula_custo])
+  @@map("taxa_origem_simula_custo")
 }
 
-model TaxaDestinoEstimativaCusto {
-  id_taxa_destino_estimativa_custo String  @id @default(cuid())
+model TaxaDestinoSimulaCusto {
+  id_taxa_destino_simula_custo String  @id @default(cuid())
   id_organizacao                   String  // OBRIGATÓRIO
   id_workspace                     String  // OBRIGATÓRIO
   id_produto                       String  @default("simula-custo")
   id_usuario                       String?
-  id_estimativa_custo              String
+  id_simula_custo              String
   id_taxa_origem_destino           String? // ref lógica Cadastros.taxa_origem_destino (sem FK física)
 
-  nome_taxa_destino_estimativa_custo          String
-  moeda_taxa_destino_estimativa_custo         String  @default("USD")
-  tipo_cobranca_taxa_destino_estimativa_custo TipoCobrancaEstimativaCusto @default(PROCESSO)
-  valor_minimo_taxa_destino_estimativa_custo  Decimal @db.Decimal(15, 2) @default(0)
-  valor_total_taxa_destino_estimativa_custo   Decimal @db.Decimal(15, 2)
+  nome_taxa_destino_simula_custo          String
+  moeda_taxa_destino_simula_custo         String  @default("USD")
+  tipo_cobranca_taxa_destino_simula_custo TipoCobrancaSimulaCusto @default(PROCESSO)
+  valor_minimo_taxa_destino_simula_custo  Decimal @db.Decimal(15, 2) @default(0)
+  valor_total_taxa_destino_simula_custo   Decimal @db.Decimal(15, 2)
 
-  estimativa EstimativaCusto @relation(fields: [id_estimativa_custo], references: [id_estimativa_custo], onDelete: Cascade)
-
-  @@index([id_organizacao])
-  @@index([id_organizacao, id_workspace])
-  @@index([id_organizacao, id_produto])
-  @@index([id_organizacao, id_usuario])
-  @@index([id_organizacao, id_estimativa_custo])
-  @@map("taxa_destino_estimativa_custo")
-}
-
-// ─── Tributos calculados ────────────────────────────────────────────────────────
-
-model TributoEstimativaCusto {
-  id_tributo_estimativa_custo String  @id @default(cuid())
-  id_organizacao              String  // OBRIGATÓRIO
-  id_workspace                String  // OBRIGATÓRIO
-  id_produto                  String  @default("simula-custo")
-  id_usuario                  String?
-  id_estimativa_custo         String
-
-  tipo_tributo_estimativa_custo         TipoTributoEstimativaCusto
-  aliquota_tributo_estimativa_custo     Decimal  @db.Decimal(5, 4)
-  base_calculo_tributo_estimativa_custo Decimal  @db.Decimal(15, 2)
-  valor_tributo_estimativa_custo        Decimal  @db.Decimal(15, 2)
-  reducao_tributo_estimativa_custo      Decimal? @db.Decimal(5, 4)
-  acordo_tributo_estimativa_custo       String?
-
-  estimativa EstimativaCusto @relation(fields: [id_estimativa_custo], references: [id_estimativa_custo], onDelete: Cascade)
+  simula SimulaCusto @relation(fields: [id_simula_custo], references: [id_simula_custo], onDelete: Cascade)
 
   @@index([id_organizacao])
   @@index([id_organizacao, id_workspace])
   @@index([id_organizacao, id_produto])
   @@index([id_organizacao, id_usuario])
-  @@index([id_organizacao, id_estimativa_custo])
-  @@map("tributo_estimativa_custo")
+  @@index([id_organizacao, id_simula_custo])
+  @@map("taxa_destino_simula_custo")
 }
 
 // ─── Documentos vinculados ──────────────────────────────────────────────────────
 
-model DocumentoEstimativaCusto {
-  id_documento_estimativa_custo String @id @default(cuid())
+model DocumentoSimulaCusto {
+  id_documento_simula_custo String @id @default(cuid())
   id_organizacao                String // OBRIGATÓRIO
   id_workspace                  String // OBRIGATÓRIO
   id_produto                    String @default("simula-custo")
   id_usuario                    String?
-  id_estimativa_custo           String
+  id_simula_custo           String
 
-  tipo_documento_estimativa_custo   TipoDocumentoEstimativaCusto
-  numero_documento_estimativa_custo String // alfanumérico até 30 chars
+  tipo_documento_simula_custo   TipoDocumentoSimulaCusto
+  numero_documento_simula_custo String // alfanumérico até 30 chars
 
-  estimativa EstimativaCusto @relation(fields: [id_estimativa_custo], references: [id_estimativa_custo], onDelete: Cascade)
+  simula  SimulaCusto                  @relation(fields: [id_simula_custo], references: [id_simula_custo], onDelete: Cascade)
+  anexos  AnexoDocumentoSimulaCusto[]
 
-  data_criacao_documento_estimativa_custo DateTime @default(now())
+  data_criacao_documento_simula_custo DateTime @default(now())
 
   @@index([id_organizacao])
   @@index([id_organizacao, id_workspace])
   @@index([id_organizacao, id_produto])
   @@index([id_organizacao, id_usuario])
-  @@index([id_organizacao, id_estimativa_custo])
-  @@map("documento_estimativa_custo")
+  @@index([id_organizacao, id_simula_custo])
+  @@map("documento_simula_custo")
+}
+
+// ─── Anexos de documento (binário S3/local + metadado) ─────────────────────────
+
+model AnexoDocumentoSimulaCusto {
+  id_anexo_documento_simula_custo              String @id @default(cuid())
+  id_organizacao                                String
+  id_workspace                                  String
+  id_produto                                    String @default("simula-custo")
+  id_usuario                                    String?
+  id_documento_simula_custo                     String
+
+  nome_arquivo_anexo_documento_simula_custo     String
+  nome_original_anexo_documento_simula_custo    String
+  tipo_arquivo_anexo_documento_simula_custo     String
+  tamanho_bytes_anexo_documento_simula_custo    Int
+  categoria_anexo_documento_simula_custo        String?
+  chave_storage_anexo_documento_simula_custo    String
+  enviado_por_anexo_documento_simula_custo      String
+
+  documento DocumentoSimulaCusto @relation(fields: [id_documento_simula_custo], references: [id_documento_simula_custo], onDelete: Cascade)
+
+  data_criacao_anexo_documento_simula_custo DateTime @default(now())
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_workspace])
+  @@index([id_organizacao, id_produto])
+  @@index([id_organizacao, id_usuario])
+  @@index([id_organizacao, id_documento_simula_custo])
+  @@map("anexo_documento_simula_custo")
+}
+
+// ─── Prazos de pagamento (múltiplas linhas opcionais) ───────────────────────────
+
+model PrazoPagamentoSimulaCusto {
+  id_prazo_pagamento_simula_custo String @id @default(cuid())
+  id_organizacao                      String
+  id_workspace                        String
+  id_produto                          String @default("simula-custo")
+  id_usuario                          String?
+  id_simula_custo                 String
+
+  valor_prazo_pagamento_simula_custo           Decimal @db.Decimal(15, 4)
+  tipo_valor_prazo_pagamento_simula_custo      TipoValorPrazoPagamentoSimulaCusto @default(PERCENTUAL)
+  momento_prazo_pagamento_simula_custo         MomentoPrazoPagamentoSimulaCusto   @default(NO_DIA)
+  dias_prazo_pagamento_simula_custo            Int     @default(0)
+  fato_gerador_prazo_pagamento_simula_custo    FatoGeradorPrazoPagamentoSimulaCusto
+  ordem_prazo_pagamento_simula_custo           Int     @default(0)
+
+  simula SimulaCusto @relation(fields: [id_simula_custo], references: [id_simula_custo], onDelete: Cascade)
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_workspace])
+  @@index([id_organizacao, id_produto])
+  @@index([id_organizacao, id_usuario])
+  @@index([id_organizacao, id_simula_custo])
+  @@map("prazo_pagamento_simula_custo")
 }
 
 // ─── Sequência de numeração ─────────────────────────────────────────────────────
 
-model SequenciaEstimativaCusto {
-  id_sequencia_estimativa_custo            String @id @default(cuid())
+model SequenciaSimulaCusto {
+  id_sequencia_simula_custo            String @id @default(cuid())
   id_organizacao                           String
   id_usuario                               String
-  ano_sequencia_estimativa_custo           Int
-  ultimo_numero_sequencia_estimativa_custo Int    @default(0)
+  ano_sequencia_simula_custo           Int
+  ultimo_numero_sequencia_simula_custo Int    @default(0)
 
-  @@unique([id_organizacao, id_usuario, ano_sequencia_estimativa_custo])
+  @@unique([id_organizacao, id_usuario, ano_sequencia_simula_custo])
   @@index([id_organizacao])
   @@index([id_organizacao, id_usuario])
-  @@map("sequencia_estimativa_custo")
-}
-
-// ─── Cache técnico PTAX/BACEN (sem id_organizacao — dado público externo) ──────
-// NÃO é entidade do Cadastros — cache técnico permitido (decisão 4, TASK-000425).
-// O catálogo NCM NÃO tem cache local: leitura ao vivo do Cadastros.NcmSync
-// (cadastros-snapshot-policy — o antigo cache_aliquotas_ncm foi removido).
-
-model CacheCambioBacen {
-  id_cache_cambio_bacen              String   @id @default(cuid())
-  moeda_cache_cambio_bacen           String
-  data_referencia_cache_cambio_bacen DateTime
-  ptax_compra_cache_cambio_bacen     Decimal  @db.Decimal(10, 4)
-  ptax_venda_cache_cambio_bacen      Decimal  @db.Decimal(10, 4)
-  data_consulta_cache_cambio_bacen   DateTime @default(now())
-
-  @@unique([moeda_cache_cambio_bacen, data_referencia_cache_cambio_bacen])
-  @@index([moeda_cache_cambio_bacen])
-  @@map("cache_cambio_bacen")
+  @@map("sequencia_simula_custo")
 }

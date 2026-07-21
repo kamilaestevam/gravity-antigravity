@@ -1,5 +1,5 @@
 /**
- * validar-chave-interna.ts — Middleware S2S (Estimativa Custo)
+ * validar-chave-interna.ts — Middleware S2S (Simula Custo)
  * Valida x-internal-key em chamadas entre serviços.
  * Skill: antigravity-autenticacao-s2s
  */
@@ -16,7 +16,7 @@ export function validarChaveInterna(req: Request, res: Response, next: NextFunct
   const esperada = process.env.CHAVE_INTERNA_SERVICO
 
   if (!esperada) {
-    console.warn('[EstimativaCusto] CHAVE_INTERNA_SERVICO não configurada. Bloqueando.')
+    console.warn('[SimulaCusto] CHAVE_INTERNA_SERVICO não configurada. Bloqueando.')
     return res.status(500).json({ error: 'Serviço mal configurado' })
   }
 

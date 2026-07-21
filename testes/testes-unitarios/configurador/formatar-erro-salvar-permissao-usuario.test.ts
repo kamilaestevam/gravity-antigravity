@@ -24,4 +24,23 @@ describe('formatarErroSalvarPermissaoUsuario', () => {
     expect(fmt.modal).toContain('O que fazer:')
     expect(fmt.modal).toContain('• Abra Configurador → Fornecedores')
   })
+
+  it('expõe mensagem acionável para UNAUTHORIZED (token ausente)', () => {
+    const err = new GravityApiError('Token de autenticação ausente', 'UNAUTHORIZED')
+    const fmt = formatarErroSalvarPermissaoUsuario(err)
+    expect(fmt.toast).toContain('Sessão expirada')
+    expect(fmt.toast).toContain('Token de autenticação ausente')
+    expect(fmt.modal).toContain('Recarregue a página')
+  })
+
+  it('expõe mensagem acionável para FORBIDDEN (workspaces)', () => {
+    const err = new GravityApiError(
+      'Um ou mais workspaces não pertencem a esta organização',
+      'FORBIDDEN',
+    )
+    const fmt = formatarErroSalvarPermissaoUsuario(err)
+    expect(fmt.toast).toContain('Não foi possível atualizar vínculos')
+    expect(fmt.toast).toContain('não pertencem a esta organização')
+    expect(fmt.modal).toContain('Workspaces Vinculados')
+  })
 })

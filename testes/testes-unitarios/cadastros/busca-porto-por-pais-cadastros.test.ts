@@ -6,6 +6,7 @@ import {
   ehBuscaUnlocodeExato,
   filtrarCodigosPaisPorBuscaPorto,
   montarWhereBuscaPortoCadastros,
+  normalizarTermoBuscaCadastros,
   type PaisReferenciaBuscaPorto,
 } from '../../../servicos-global/cadastros/server/src/lib/busca-porto-por-pais-cadastros.js'
 
@@ -81,6 +82,21 @@ describe('montarWhereBuscaPortoCadastros', () => {
     expect(where.OR).toHaveLength(4)
   })
 
+  it('busca por nome sem acento usa nome_ascii normalizado (ex.: itajai)', () => {
+    const where = montarWhereBuscaPortoCadastros({
+      q: 'itajai',
+      apenasAtivos: true,
+      codigosPaisResolvidos: [],
+      paisesReferencia: PAISES_REF,
+    })
+    expect(where.OR).toEqual(
+      expect.arrayContaining([
+        { nome_ascii_porto: { contains: 'itajai', mode: 'insensitive' } },
+      ]),
+    )
+    expect(normalizarTermoBuscaCadastros('Itajaí')).toBe('Itajai')
+  })
+
   it('busca UN/LOCODE usa match exato quando prefixo bate com pais resolvido', () => {
     expect(ehBuscaUnlocodeExato('BRRIO')).toBe(true)
     expect(buscaUnlocodeExatoDeveUsarMatchDireto('BRRIO', ['BR'])).toBe(true)
@@ -99,5 +115,26 @@ describe('montarWhereBuscaPortoCadastros', () => {
         { codigo_iata_porto: 'BRRIO' },
       ],
     })
+  })
+
+  it('fragmentos de nome com 5 letras nao viram busca UN/LOCODE exata (Bid Frete)', () => {
+    for (const termo of ['shang', 'itaja', 'naveg', 'Itaja', 'Naveg']) {
+      expect(ehBuscaUnlocodeExato(termo)).toBe(false)
+      expect(buscaUnlocodeExatoDeveUsarMatchDireto(termo, [])).toBe(false)
+
+      const where = montarWhereBuscaPortoCadastros({
+        q: termo,
+        apenasAtivos: true,
+        codigosPaisResolvidos: [],
+        paisesReferencia: PAISES_REF,
+      })
+      expect(where.OR).toEqual(
+        expect.arrayContaining([
+          { nome_ascii_porto: { contains: termo, mode: 'insensitive' } },
+        ]),
+      )
+    }
+
+    expect(ehBuscaUnlocodeExato('BRITJ')).toBe(true)
   })
 })

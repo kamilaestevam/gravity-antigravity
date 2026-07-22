@@ -82,6 +82,7 @@ import type {
   GTMapaColunasFilho,
   GTAcaoExport,
   GTAbaTipo,
+  GTFiltroStatusToolbar,
   GTPreferencias,
   GTVirtualHandle,
   GTCarregarFilhosOpts,
@@ -92,6 +93,8 @@ import {
   FiltroPopoverColuna,
   rotulofiltro,
   detectarTipoColuna as detectarTipoColunaCore,
+  resolverFiltroStatusToolbar,
+  FiltroChipStatus,
 } from '@nucleo/tabela-virtual-global'
 import type {
   FiltroAtivo,
@@ -4190,6 +4193,8 @@ interface BarraAcoesPedidoProps {
   /** Abre o popover de filtro da coluna ao clicar no body do chip — UX 2026-05-13 */
   onFiltroColuna?: (key: string, anchor: HTMLElement) => void
   podeEditarLista: boolean
+  /** Chip de status da faixa de navegação (ex: "Status: Em Andamento") */
+  filtroStatus?: GTFiltroStatusToolbar
 }
 
 function ListaNumeradaWorkspacesTooltip({ nomes }: { nomes: readonly string[] }) {
@@ -4240,6 +4245,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
   onAbrirMenuWorkspaces,
   onFiltroColuna,
   podeEditarLista,
+  filtroStatus,
 }: BarraAcoesPedidoProps) {
   const { t } = useTranslation()
   const [novoNomePainelLista, setNovoNomePainelLista] = useState('')
@@ -4646,7 +4652,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
        * Refactor D9 (2026-05-13): JSX inline substituído por <FiltroChips> do
        * nucleo-global. O chip de BUSCA fica como `prefixo` (composição), porque
        * busca é responsabilidade do produto Pedido — não do framework de chips. */}
-      {(Object.keys(filtrosAtivos).length > 0 || busca || rotuloEscopoWorkspaces) && (
+      {(Object.keys(filtrosAtivos).length > 0 || busca || rotuloEscopoWorkspaces || filtroStatus) && (
         <FiltroChips
           colunas={COLUNAS_PAI}
           filtrosAtivos={filtrosAtivos}
@@ -4674,6 +4680,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
                   </button>
                 </TooltipGlobal>
               ) : null}
+              {filtroStatus ? <FiltroChipStatus {...filtroStatus} /> : null}
               {busca ? (
                 <span className="fc-chip">
                   <span className="fc-chip-label">{t('pedido.barra.chip_busca', { defaultValue: 'Busca' })}:</span>
@@ -6644,6 +6651,23 @@ export default function Pedidos() {
     setNovoDropdownAberto(false)
   }, [navigate])
 
+  const handleMudarAba = useCallback((aba: string) => {
+    setAbaAtiva(aba)
+    setFindTotalExterno(null)
+    carregarInicial(aba, sortCampo, sortDir, busca)
+  }, [carregarInicial, sortCampo, sortDir, busca])
+
+  const filtroStatusToolbar = useMemo(
+    () => resolverFiltroStatusToolbar(
+      abas,
+      abaAtiva,
+      'todos',
+      handleMudarAba,
+      t('pedido.lista.chip_status', { defaultValue: 'Status' }),
+    ),
+    [abas, abaAtiva, handleMudarAba, t],
+  )
+
   const acoesBarra = useMemo(() => (
     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', flex: 1 }}>
       {/* Botao Expandir/Recolher todos itens — icone-only com TooltipGlobal
@@ -6708,6 +6732,7 @@ export default function Pedidos() {
         onAbrirMenuWorkspaces={pedirAbrirMenuWorkspaces}
         onFiltroColuna={onFiltroColuna}
         podeEditarLista={podeEditarLista}
+        filtroStatus={filtroStatusToolbar}
       />
     </div>
   ), [
@@ -6718,6 +6743,7 @@ export default function Pedidos() {
     setModalGerarPdfAberto, setModalDuplicarAberto,
     handleExcluirLote, handleNavConfiguracoes, handleLimparFiltro, handleLimparTodosFiltros,
     onFiltroColuna, podeEditarLista,
+    filtroStatusToolbar,
     temExpandido,
   ])
 
@@ -6829,13 +6855,6 @@ export default function Pedidos() {
   const handleMudarPagina = useCallback((pagina: number) => {
     carregarInicial(abaAtiva, sortCampo, sortDir, busca, pagina)
   }, [carregarInicial, abaAtiva, sortCampo, sortDir, busca])
-
-  // ── Mudar aba ────────────────────────────────────────────────────────────────
-  const handleMudarAba = useCallback((aba: string) => {
-    setAbaAtiva(aba)
-    setFindTotalExterno(null)
-    carregarInicial(aba, sortCampo, sortDir, busca)
-  }, [carregarInicial, sortCampo, sortDir, busca])
 
   // ── Ordenação ────────────────────────────────────────────────────────────────
   const handleOrdenar = useCallback((campo: string, dir: 'asc' | 'desc') => {

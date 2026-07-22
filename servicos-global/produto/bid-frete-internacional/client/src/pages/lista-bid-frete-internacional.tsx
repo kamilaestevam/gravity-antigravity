@@ -25,6 +25,7 @@ import {
   TabelaVirtualGlobal,
   FiltroChips,
   FiltroPopoverColuna,
+  resolverFiltroStatusToolbar,
 } from '@nucleo/tabela-virtual-global'
 import type { GTPreferencias, GTColuna, GTAbaTipo, GTVirtualHandle } from '@nucleo/tabela-virtual-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -345,6 +346,18 @@ export default function Cotacoes() {
   const [filtroTab, setFiltroTab] = useState('TODAS')
 
   const abas = useMemo(() => gerarAbasDinamicas(statusConfig), [statusConfig])
+
+  const filtroStatusToolbar = useMemo(
+    () => resolverFiltroStatusToolbar(
+      abas,
+      filtroTab,
+      'TODAS',
+      setFiltroTab,
+      t('bidfrete.lista.chip_status', { defaultValue: 'Status' }),
+    ),
+    [abas, filtroTab, t],
+  )
+
   const {
     prefs: cardPrefs,
     visiveis: cardsVisiveis,
@@ -1704,7 +1717,7 @@ export default function Cotacoes() {
         />
       </TooltipGlobal>
 
-      {(Object.keys(filtrosAtivosLista).length > 0 || busca.trim()) && (
+      {(Object.keys(filtrosAtivosLista).length > 0 || busca.trim() || filtroStatusToolbar) && (
         <FiltroChips
           colunas={colunasCotacaoComUsuario}
           filtrosAtivos={filtrosAtivosLista}
@@ -1712,6 +1725,7 @@ export default function Cotacoes() {
           onLimparTodos={handleLimparTodosFiltrosColuna}
           onEditarFiltro={onFiltroColuna}
           thresholdConsolidar={2}
+          filtroStatus={filtroStatusToolbar}
           prefixo={busca.trim() ? (
             <span className="fc-chip">
               <span className="fc-chip-label">{t('bidfrete.lista.chip_busca', { defaultValue: 'Busca' })}:</span>
@@ -1734,7 +1748,7 @@ export default function Cotacoes() {
     navigate, t, temExpandido, totalSelecionados, duplicando, handleDuplicarSelecionados,
     bidsSelecionados.length, cotacoesSelecionadasParaAcao.length, linhasPaiFiltradas,
     filtrosAtivosLista, busca, colunasCotacaoComUsuario, handleLimparFiltroColuna,
-    handleLimparTodosFiltrosColuna, onFiltroColuna,
+    handleLimparTodosFiltrosColuna, onFiltroColuna, filtroStatusToolbar,
   ])
 
   const formatValorExportCotacaoLista = useCallback((key: string, row: Cotacao): string => {

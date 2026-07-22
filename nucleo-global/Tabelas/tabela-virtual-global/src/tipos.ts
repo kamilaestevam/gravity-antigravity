@@ -221,6 +221,14 @@ export interface GTAbaTipo {
   cor?: string
 }
 
+/** Chip de status ativo na toolbar (ao lado da busca). */
+export interface GTFiltroStatusToolbar {
+  rotuloCampo?: string
+  rotuloValor: string
+  onRemover: () => void
+  ariaLabelRemover?: string
+}
+
 // ─── Preferências de colunas (salvas por usuário) ─────────────────────────────
 
 export interface GTPreferencias {

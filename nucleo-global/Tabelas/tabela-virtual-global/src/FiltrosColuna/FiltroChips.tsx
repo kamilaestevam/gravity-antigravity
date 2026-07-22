@@ -15,10 +15,11 @@
 
 import React from 'react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import type { GTColuna } from '../tipos'
+import type { GTColuna, GTFiltroStatusToolbar } from '../tipos'
 import type { FiltroAtivo, FiltroChipsProps } from './tipos'
 import { FILTRO_TRADUCOES_PT_BR } from './tipos'
 import { rotulofiltro } from './rotulofiltro'
+import { FiltroChipStatus } from './FiltroChipStatus'
 
 export function FiltroChips<T,>({
   colunas,
@@ -29,14 +30,15 @@ export function FiltroChips<T,>({
   thresholdConsolidar = 2,
   traducoes,
   prefixo,
+  filtroStatus,
 }: FiltroChipsProps<T>): React.ReactElement | null {
   const t = { ...FILTRO_TRADUCOES_PT_BR, ...traducoes }
 
   // Calcula uma vez quais colunas têm filtro ativo
   const colunasComFiltro = colunas.filter((col) => filtrosAtivos[col.key] != null)
 
-  // Se não há filtros nem prefixo, não renderiza nada (componente "vazio")
-  if (colunasComFiltro.length === 0 && !prefixo) return null
+  // Se não há filtros nem prefixo nem status, não renderiza nada (componente "vazio")
+  if (colunasComFiltro.length === 0 && !prefixo && !filtroStatus) return null
 
   return (
     <div
@@ -54,6 +56,8 @@ export function FiltroChips<T,>({
     >
       {/* Conteúdo opcional do consumer (ex: chip de busca livre) */}
       {prefixo}
+
+      {filtroStatus ? <FiltroChipStatus {...filtroStatus} /> : null}
 
       {colunasComFiltro.map((col) => {
         const filtro = filtrosAtivos[col.key]!

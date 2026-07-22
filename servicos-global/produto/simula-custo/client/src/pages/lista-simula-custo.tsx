@@ -11,7 +11,7 @@ import { useShellStore } from '@gravity/shell'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { ModalConfirmarExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
-import { TabelaVirtualGlobal } from '@nucleo/tabela-virtual-global'
+import { TabelaVirtualGlobal, resolverFiltroStatusToolbar, FiltroChipStatus } from '@nucleo/tabela-virtual-global'
 import type { GTColuna, GTAcao, GTAcaoExport, GTPreferencias } from '@nucleo/tabela-virtual-global'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON } from '@nucleo/export-utils'
 import type { ColunasExport } from '@nucleo/export-utils'
@@ -320,17 +320,35 @@ export default function ListaSimulaCusto() {
     { valor: 'ARQUIVADA', label: t('simulacusto.simulas.arquivadas', 'Arquivadas'), contagem: kpis.arquivadas },
   ], [kpis, t])
 
+  const filtroStatusToolbar = useMemo(
+    () => resolverFiltroStatusToolbar(
+      abas,
+      abaAtiva,
+      'TODAS',
+      setAbaAtiva,
+      t('simulacusto.simulas.tabela.status', 'Status'),
+    ),
+    [abas, abaAtiva, t],
+  )
+
   /** «+ Nova» na barra da tabela — paridade acoesBarra do Bid Frete. */
   const acoesBarra = useMemo(() => (
-    <BotaoGlobal
-      variante="primario"
-      tamanho="pequeno"
-      icone={<Plus size={14} weight="bold" />}
-      onClick={() => navigate(rotaSimulaCusto('simulas/nova'))}
-    >
-      {t('simulacusto.simulas.nova_curto', 'Nova')}
-    </BotaoGlobal>
-  ), [navigate, t])
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', flex: 1 }}>
+      <BotaoGlobal
+        variante="primario"
+        tamanho="pequeno"
+        icone={<Plus size={14} weight="bold" />}
+        onClick={() => navigate(rotaSimulaCusto('simulas/nova'))}
+      >
+        {t('simulacusto.simulas.nova_curto', 'Nova')}
+      </BotaoGlobal>
+      {filtroStatusToolbar ? (
+        <div className="fc-chips-container fc-chips-container--alinhar-direita">
+          <FiltroChipStatus {...filtroStatusToolbar} />
+        </div>
+      ) : null}
+    </div>
+  ), [navigate, t, filtroStatusToolbar])
 
   const handleSalvarPreferencias = useCallback((prefs: GTPreferencias) => {
     setPreferencias(prefs)

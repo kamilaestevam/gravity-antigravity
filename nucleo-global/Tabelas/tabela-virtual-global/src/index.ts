@@ -17,6 +17,7 @@ export type {
   GTFiltroConfig,
   GTFiltrosAtivos,
   GTAbaTipo,
+  GTFiltroStatusToolbar,
   GTPreferencias,
   GTLinhaVirtual,
   GTVirtualTableProps,
@@ -37,6 +38,8 @@ export type {
 // produtos/pedido/Pedidos.tsx para reuso por outros produtos.
 import './FiltrosColuna/FiltrosColuna.css'
 export { FiltroChips, calcularValoresUnicos } from './FiltrosColuna/FiltroChips.js'
+export { FiltroChipStatus } from './FiltrosColuna/FiltroChipStatus.js'
+export { resolverFiltroStatusToolbar } from './FiltrosColuna/resolverFiltroStatusToolbar.js'
 export { FiltroPopoverColuna } from './FiltrosColuna/FiltroPopoverColuna.js'
 export { rotulofiltro } from './FiltrosColuna/rotulofiltro.js'
 export { detectarTipoColuna } from './FiltrosColuna/detectarTipoColuna.js'

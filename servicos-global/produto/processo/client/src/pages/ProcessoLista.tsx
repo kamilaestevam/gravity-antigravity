@@ -11,6 +11,8 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import {
   TabelaVirtualGlobal,
+  FiltroChipStatus,
+  resolverFiltroStatusToolbar,
   type GTAcao,
   type GTAcaoExport,
   type GTPreferencias,
@@ -197,6 +199,11 @@ export default function ProcessoLista({ embedTabs = true }: { embedTabs?: boolea
     setAbaAtiva(novaAba as 'todos' | EtapaProcesso)
     limparSelecao()
   }, [limparSelecao])
+
+  const filtroStatusToolbar = useMemo(
+    () => resolverFiltroStatusToolbar(abas, abaAtiva, 'todos', handleMudarAba, 'Status'),
+    [abas, abaAtiva, handleMudarAba],
+  )
 
   const processoItemId = useCallback((p: ProcessoAvoLinha) => p.id_processo, [])
 
@@ -424,22 +431,30 @@ export default function ProcessoLista({ embedTabs = true }: { embedTabs?: boolea
   ], [navigate])
 
   const acoesBarra = useMemo(() => (
-    <BarraAcoesProcesso
-      novoDropdownRef={novoDropdownRef}
-      novoDropdownAberto={novoDropdownAberto}
-      excluindoLote={excluindoLote}
-      setNovoDropdownAberto={setNovoDropdownAberto}
-      setSmartImportAberto={setModalImportAberto}
-      setModalCockpitAberto={setModalCockpitAberto}
-      setModalNovoProcessoAberto={setModalNovoAberto}
-      setModalEdicaoMassaAberto={setModalEdicaoMassaAberto}
-      setModalDuplicarAberto={setModalDuplicarAberto}
-      onExcluirLote={handleExcluirLote}
-    />
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', flex: 1 }}>
+      <BarraAcoesProcesso
+        novoDropdownRef={novoDropdownRef}
+        novoDropdownAberto={novoDropdownAberto}
+        excluindoLote={excluindoLote}
+        setNovoDropdownAberto={setNovoDropdownAberto}
+        setSmartImportAberto={setModalImportAberto}
+        setModalCockpitAberto={setModalCockpitAberto}
+        setModalNovoProcessoAberto={setModalNovoAberto}
+        setModalEdicaoMassaAberto={setModalEdicaoMassaAberto}
+        setModalDuplicarAberto={setModalDuplicarAberto}
+        onExcluirLote={handleExcluirLote}
+      />
+      {filtroStatusToolbar ? (
+        <div className="fc-chips-container fc-chips-container--alinhar-direita">
+          <FiltroChipStatus {...filtroStatusToolbar} />
+        </div>
+      ) : null}
+    </div>
   ), [
     novoDropdownAberto,
     excluindoLote,
     handleExcluirLote,
+    filtroStatusToolbar,
   ])
 
   const renderConectorFilho = useCallback((filho: FilhoLinhaLista) => (

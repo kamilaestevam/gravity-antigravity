@@ -8,7 +8,7 @@
 // breaking exige refactor de todos os consumers. Pensar 2x antes de alterar.
 
 import type React from 'react'
-import type { GTColuna } from '../tipos'
+import type { GTColuna, GTFiltroStatusToolbar } from '../tipos'
 
 // ─── Estado de filtro ────────────────────────────────────────────────────────
 
@@ -145,6 +145,8 @@ export interface FiltroChipsProps<T> {
    * precise saber de busca.
    */
   prefixo?: React.ReactNode
+  /** Chip de status da faixa de navegação (ex: "Status: Em Andamento") */
+  filtroStatus?: GTFiltroStatusToolbar
 }
 
 // ─── Props do FiltroPopoverColuna ────────────────────────────────────────────

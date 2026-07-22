@@ -9,7 +9,11 @@ import { useNavigate } from 'react-router-dom'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
-import { TabelaVirtualGlobal } from '@nucleo/tabela-virtual-global'
+import {
+  TabelaVirtualGlobal,
+  FiltroChipStatus,
+  resolverFiltroStatusToolbar,
+} from '@nucleo/tabela-virtual-global'
 import type { GTColuna, GTAcao, GTAbaTipo, GTPreferencias } from '@nucleo/tabela-virtual-global'
 import {
   Buildings,
@@ -129,6 +133,17 @@ export default function Fornecedores() {
     { valor: 'PENDENTE_APROVACAO', label: STATUS_FORNECEDOR_LABELS.PENDENTE_APROVACAO },
     { valor: 'BLOQUEADO', label: STATUS_FORNECEDOR_LABELS.BLOQUEADO },
   ], [t])
+
+  const filtroStatusToolbar = useMemo(
+    () => resolverFiltroStatusToolbar(
+      abas,
+      abaAtiva,
+      'TODOS',
+      setAbaAtiva,
+      t('bidfrete.lista.chip_status', { defaultValue: 'Status' }),
+    ),
+    [abas, abaAtiva, t],
+  )
 
   const fornecedoresFiltrados = useMemo(() => {
     const termo = busca.trim().toLowerCase()
@@ -282,17 +297,24 @@ export default function Fornecedores() {
   ], [exportarCSV])
 
   const acoesBarra = useMemo(() => (
-    <BotaoGlobal
-      variante="primario"
-      tamanho="pequeno"
-      icone={<Plus size={14} weight="bold" />}
-      onClick={() => {
-        window.location.href = urlCriarFornecedorFreteInternacional()
-      }}
-    >
-      {t('bidfrete.fornecedores.novo_fornecedor')}
-    </BotaoGlobal>
-  ), [t])
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', flex: 1 }}>
+      <BotaoGlobal
+        variante="primario"
+        tamanho="pequeno"
+        icone={<Plus size={14} weight="bold" />}
+        onClick={() => {
+          window.location.href = urlCriarFornecedorFreteInternacional()
+        }}
+      >
+        {t('bidfrete.fornecedores.novo_fornecedor')}
+      </BotaoGlobal>
+      {filtroStatusToolbar ? (
+        <div className="fc-chips-container fc-chips-container--alinhar-direita">
+          <FiltroChipStatus {...filtroStatusToolbar} />
+        </div>
+      ) : null}
+    </div>
+  ), [t, filtroStatusToolbar])
 
   const handleSalvarPreferencias = useCallback((prefs: GTPreferencias) => {
     setPreferencias(prefs)

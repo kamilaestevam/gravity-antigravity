@@ -12,6 +12,7 @@ import {
   FiltroChips,
   FiltroPopoverColuna,
   TabelaVirtualGlobal,
+  resolverFiltroStatusToolbar,
 } from '@nucleo/tabela-virtual-global'
 import type { GTColuna, GTPreferencias } from '@nucleo/tabela-virtual-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -168,6 +169,18 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
   )
 
   const abas = useMemo(() => gerarAbasListaFornecedor(t), [t])
+
+  const filtroStatusToolbar = useMemo(
+    () => resolverFiltroStatusToolbar(
+      abas,
+      filtroTab,
+      'TODAS',
+      setFiltroTab,
+      t('bidfrete.lista.chip_status', { defaultValue: 'Status' }),
+    ),
+    [abas, filtroTab, t],
+  )
+
   const {
     visiveis: cardsVisiveis,
     periodo: periodoCards,
@@ -608,7 +621,7 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
 
   const acoesBarra = useMemo(() => (
     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', flex: 1 }}>
-      {(Object.keys(filtrosAtivosLista).length > 0 || busca.trim()) && (
+      {(Object.keys(filtrosAtivosLista).length > 0 || busca.trim() || filtroStatusToolbar) && (
         <FiltroChips
           colunas={colunasTabela}
           filtrosAtivos={filtrosAtivosLista}
@@ -616,6 +629,7 @@ export default function ListaVisaoFornecedorBidFreteInternacional() {
           onLimparTodos={handleLimparTodosFiltrosColuna}
           onEditarFiltro={onFiltroColuna}
           thresholdConsolidar={2}
+          filtroStatus={filtroStatusToolbar}
           prefixo={busca.trim() ? (
             <span className="fc-chip">
               <span className="fc-chip-label">{t('bidfrete.lista.chip_busca', { defaultValue: 'Busca' })}:</span>

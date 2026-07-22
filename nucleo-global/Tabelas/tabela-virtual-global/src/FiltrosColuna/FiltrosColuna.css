@@ -21,6 +21,12 @@
   /* Espaço deliberadamente vazio — adicione overrides globais aqui se preciso. */
 }
 
+.fc-chips-container--alinhar-direita {
+  margin-left: auto;
+  flex: 0 0 auto;
+  justify-content: flex-end;
+}
+
 .fc-chip {
   display: inline-flex;
   align-items: center;

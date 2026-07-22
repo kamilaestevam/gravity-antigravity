@@ -79,7 +79,7 @@ describe('TST-FUN-MENU-LATERAL-SELECTOR-PRODUTOS-GRAVITY-000077 — GET produtos
         nome_produto_gravity: 'Pedido',
         slug_produto_gravity: 'pedido',
         descricao_produto_gravity: 'Pedidos',
-        status_produto_gravity: 'active',
+        status_produto_gravity: 'ATIVO',
       },
     ])
 
@@ -98,5 +98,49 @@ describe('TST-FUN-MENU-LATERAL-SELECTOR-PRODUTOS-GRAVITY-000077 — GET produtos
 
     const res = await request(criarApp()).get('/api/v1/workspaces/ws_outra_org/produtos-gravity')
     expect(res.status).toBe(404)
+  })
+
+  it('exclui produto EM_BREVE do menu mesmo com workspace ativo e assinatura legada', async () => {
+    mockWorkspaceFindFirst.mockResolvedValue({
+      id_workspace: 'ws_a',
+      id_organizacao: 'org_a',
+    })
+    mockListarSlugsProdutosAcessiveis.mockResolvedValue(new Set(['nf-importacao', 'pedido']))
+    mockProdutoGravityWorkspaceFindMany.mockResolvedValue([
+      {
+        id_produto_gravity_workspace: 'pgw_nf',
+        ativo_produto_gravity_workspace: true,
+        data_contratacao_produto_gravity_workspace: new Date('2026-06-01'),
+        produto: { slug_produto_gravity: 'nf-importacao' },
+      },
+      {
+        id_produto_gravity_workspace: 'pgw_ped',
+        ativo_produto_gravity_workspace: true,
+        data_contratacao_produto_gravity_workspace: new Date('2026-06-01'),
+        produto: { slug_produto_gravity: 'pedido' },
+      },
+    ])
+    mockProdutoGravityFindMany.mockResolvedValue([
+      {
+        id_produto_gravity: 'pg_nf',
+        nome_produto_gravity: 'NF Import',
+        slug_produto_gravity: 'nf-importacao',
+        descricao_produto_gravity: 'NF Import',
+        status_produto_gravity: 'EM_BREVE',
+      },
+      {
+        id_produto_gravity: 'pg_ped',
+        nome_produto_gravity: 'Pedido',
+        slug_produto_gravity: 'pedido',
+        descricao_produto_gravity: 'Pedidos',
+        status_produto_gravity: 'ATIVO',
+      },
+    ])
+
+    const res = await request(criarApp()).get('/api/v1/workspaces/ws_a/produtos-gravity')
+    expect(res.status).toBe(200)
+    const slugs = res.body.products.map((p: { product_key: string }) => p.product_key)
+    expect(slugs).toContain('pedido')
+    expect(slugs).not.toContain('nf-importacao')
   })
 })

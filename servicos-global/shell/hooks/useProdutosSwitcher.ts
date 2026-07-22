@@ -31,7 +31,11 @@ const CONFIGURADOR_URL = import.meta.env.VITE_CONFIGURADOR_URL ?? ''
 /** Dispare após alterar assinatura/habilitação de produto no Configurador. */
 export const EVENTO_PRODUTOS_WORKSPACE_ATUALIZADOS = 'gravity:produtos-workspace-atualizados'
 
-/** Ordem fixa do seletor de produtos (slug normalizado por resolverSlugMetaProduto). */
+/** Paridade Store/SSOT backend — só catálogo ATIVO abre no menu (EM_BREVE não). */
+function catalogoPermiteAbrirMenu(status: string | undefined): boolean {
+  return (status ?? '').toUpperCase() === 'ATIVO'
+}
+
 const ORDEM_PRODUTOS_SWITCHER = ['pedido', 'bid-frete', 'bid-cambio']
 
 function ordenarProdutosSwitcher(a: ProductSwitcherItem, b: ProductSwitcherItem): number {
@@ -176,7 +180,7 @@ export function useProdutosSwitcher(
 
       const itens: ProductSwitcherItem[] = deduplicarProdutosSwitcher(
         parsed.products
-          .filter(p => p.is_active)
+          .filter(p => p.is_active && catalogoPermiteAbrirMenu(p.catalog?.status))
           .map(p => montarItemProduto(p.product_key, p.catalog?.name ?? p.product_key))
           .sort(ordenarProdutosSwitcher),
       )

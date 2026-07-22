@@ -3,6 +3,10 @@
 // Gerenciado exclusivamente por gravity_admin.
 
 import { prisma } from '../lib/prisma.js'
+import {
+  aplicarCascataAssinaturasStatusCatalogo,
+  resolverAcaoCascataAssinaturasStatusCatalogo,
+} from '../lib/cascata-assinatura-status-catalogo-produto-gravity.js'
 // Importa tipos do client gerado (output customizado) — não do @prisma/client hoisted,
 // que resolve para outro schema em ambiente monorepo.
 import type { Prisma } from '../../../../configurador/generated/index.js'
@@ -339,9 +343,23 @@ export const produtoGravityCatalogoServico = {
 
   /**
    * Atualiza um produto existente.
+   * Se `status` mudar, aplica cascata em assinaturas (TASK-000429 — paridade Store↔menu).
    */
   async update(id: string, data: ProductUpdateData) {
     const { price_tiers, ...productData } = data
+
+    const produtoAtual = await prisma.produtoGravity.findUnique({
+      where: { id_produto_gravity: id },
+      select: { status_produto_gravity: true },
+    })
+
+    const acaoCascata =
+      productData.status !== undefined && produtoAtual
+        ? resolverAcaoCascataAssinaturasStatusCatalogo(
+            produtoAtual.status_produto_gravity,
+            productData.status,
+          )
+        : null
 
     const row = await prisma.$transaction(async (tx) => {
       if (price_tiers !== undefined) {
@@ -359,30 +377,33 @@ export const produtoGravityCatalogoServico = {
         }
       }
 
-      return tx.produtoGravity.update({
+      const updated = await tx.produtoGravity.update({
         where: { id_produto_gravity: id },
         data: toProductUpdateInput(productData),
         include: ACTIVE_PRODUCT_INCLUDE,
       })
+
+      if (acaoCascata) {
+        await aplicarCascataAssinaturasStatusCatalogo(tx, id, acaoCascata)
+      }
+
+      return updated
     })
     return toProductDto(row)
   },
 
   /**
-   * Alterna status Ativo/Suspenso de um produto.
-   *
-   * Regra de domínio (decisão dono 2026-05-04):
-   *   ATIVO -> SUSPENSO  : cascata em assinatura_produto_gravity das organizações:
-   *                        toda assinatura ATIVA ou EM_TESTE vira SUSPENSA.
-   *                        Inativas (CANCELADA) ficam intactas.
-   *   SUSPENSO -> ATIVO  : cascata reversa — toda assinatura SUSPENSA volta a ATIVA.
-   *                        EM_TESTE e CANCELADA não são tocadas.
+   * Alterna status Ativo/Suspenso de um produto (botão play/pause na lista Admin).
+   * Produtos EM_BREVE/LEGADO/INATIVO viram ATIVO; ATIVO vira SUSPENSO.
+   * Cascata de assinaturas via resolverAcaoCascataAssinaturasStatusCatalogo (TASK-000429).
    */
   async toggleStatus(id: string) {
     const product = await prisma.produtoGravity.findUnique({ where: { id_produto_gravity: id } })
     if (!product) return null
 
-    const newStatus = product.status_produto_gravity === 'ATIVO' ? 'SUSPENSO' : 'ATIVO'
+    const statusAnterior = product.status_produto_gravity
+    const newStatus = statusAnterior === 'ATIVO' ? 'SUSPENSO' : 'ATIVO'
+    const acaoCascata = resolverAcaoCascataAssinaturasStatusCatalogo(statusAnterior, newStatus)
 
     const row = await prisma.$transaction(async (tx) => {
       const updated = await tx.produtoGravity.update({
@@ -391,24 +412,8 @@ export const produtoGravityCatalogoServico = {
         include: ACTIVE_PRODUCT_INCLUDE,
       })
 
-      if (newStatus === 'SUSPENSO') {
-        // Suspende todas as assinaturas em uso desse produto
-        await tx.produtoGravityAssinatura.updateMany({
-          where: {
-            id_produto_gravity: id,
-            status_assinatura_produto_gravity: { in: ['ATIVA', 'EM_TESTE'] },
-          },
-          data: { status_assinatura_produto_gravity: 'SUSPENSA' },
-        })
-      } else {
-        // Reativa só o que foi suspenso pela cascata anterior
-        await tx.produtoGravityAssinatura.updateMany({
-          where: {
-            id_produto_gravity: id,
-            status_assinatura_produto_gravity: 'SUSPENSA',
-          },
-          data: { status_assinatura_produto_gravity: 'ATIVA' },
-        })
+      if (acaoCascata) {
+        await aplicarCascataAssinaturasStatusCatalogo(tx, id, acaoCascata)
       }
 
       return updated

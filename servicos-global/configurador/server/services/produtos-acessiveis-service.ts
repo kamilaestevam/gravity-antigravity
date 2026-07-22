@@ -4,6 +4,7 @@
 // Consumido por Hub (`/hub/init`) e Core (`/workspaces/:id/produtos-gravity`).
 //
 // Implementa os 3 PORTÕES de acesso a produto Gravity:
+//   PORTÃO 0: Catálogo admin ATIVO? — `status_produto_gravity = ATIVO` (EM_BREVE não abre no menu)
 //   PORTÃO 1: Org contratou? — `ProdutoGravityAssinatura.status IN [ATIVA, EM_TESTE]`
 //   PORTÃO 2: Workspace habilitou? — `ProdutoGravityWorkspace.ativo = true`
 //   PORTÃO 3: Usuário pode abrir? — linha `<slug>:acesso_usuario_produtos_gravity:permitido` em UsuarioPermissao
@@ -13,6 +14,7 @@
 // Existir aqui evita drift Hub↔Core (Mand. 09): a regra fica em UM lugar.
 
 import { prisma } from '../lib/prisma.js'
+import { filtroProdutoGravityAtivoNoCatalogo } from '../lib/status-catalogo-menu-produto-gravity.js'
 import {
   buildAcessoUsuarioProdutosGravityString,
   temBypassPermissao,
@@ -56,6 +58,7 @@ export async function listarSlugsProdutosAcessiveis(
           id_workspace,
           ativo_produto_gravity_workspace: true,
           produto: {
+            ...filtroProdutoGravityAtivoNoCatalogo,
             assinaturas_produto_gravity: {
               some: {
                 id_organizacao,
@@ -68,7 +71,7 @@ export async function listarSlugsProdutosAcessiveis(
       })
       return new Set(rows.map(r => r.produto.slug_produto_gravity))
     }
-    // Hub (sem workspace específico): todos os produtos contratados pela org
+    // Hub (sem workspace específico): contratados com catálogo ATIVO (Portão 0)
     const configs = await prisma.produtoGravityConfiguracao.findMany({
       where: {
         id_organizacao_configuracao_produto_gravity: id_organizacao,
@@ -76,7 +79,16 @@ export async function listarSlugsProdutosAcessiveis(
       },
       select: { chave_produto_configuracao_produto_gravity: true },
     })
-    return new Set(configs.map(c => c.chave_produto_configuracao_produto_gravity))
+    const slugsContratados = configs.map(c => c.chave_produto_configuracao_produto_gravity)
+    if (slugsContratados.length === 0) return new Set()
+    const ativosCatalogo = await prisma.produtoGravity.findMany({
+      where: {
+        slug_produto_gravity: { in: slugsContratados },
+        ...filtroProdutoGravityAtivoNoCatalogo,
+      },
+      select: { slug_produto_gravity: true },
+    })
+    return new Set(ativosCatalogo.map(p => p.slug_produto_gravity))
   }
 
   // ─── Standard/Fornecedor: 3 portões obrigatórios ─────────────────────────────
@@ -124,6 +136,7 @@ export async function listarSlugsProdutosAcessiveis(
       id_produto_gravity: { in: idsProdutosComPortao3 },
       ativo_produto_gravity_workspace: true,
       produto: {
+        ...filtroProdutoGravityAtivoNoCatalogo,
         assinaturas_produto_gravity: {
           some: {
             id_organizacao,

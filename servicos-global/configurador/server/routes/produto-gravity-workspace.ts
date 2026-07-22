@@ -16,6 +16,10 @@ import {
   aoDesabilitarProdutoNoWorkspace,
 } from '../services/sincronizar-acesso-usuario-produtos-service.js'
 import { slugCatalogoExibicaoAssinaturaSmartDocs } from '../lib/resolver-produto-smart-docs-catalogo.js'
+import {
+  filtroProdutoGravityAtivoNoCatalogo,
+  statusCatalogoPermiteAbrirMenu,
+} from '../lib/status-catalogo-menu-produto-gravity.js'
 
 export const companyProductsRouter = Router({ mergeParams: true })
 
@@ -67,6 +71,7 @@ companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
               id_workspace,
               ativo_produto_gravity_workspace: true,
               produto: {
+                ...filtroProdutoGravityAtivoNoCatalogo,
                 assinaturas_produto_gravity: {
                   some: {
                     id_organizacao: idOrgEfetivo,
@@ -122,6 +127,7 @@ companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
     // Uma entrada por produto lógico (ex.: smart-read + smart-read- / smart-docs__arquivado__* → Smart Docs).
     const slugsLogicosVistos = new Set<string>()
     const products = productsBrutos.filter(p => {
+      if (!statusCatalogoPermiteAbrirMenu(p.catalog?.status)) return false
       const chave = slugCatalogoExibicaoAssinaturaSmartDocs(
         p.product_key,
         p.catalog?.name ?? undefined,

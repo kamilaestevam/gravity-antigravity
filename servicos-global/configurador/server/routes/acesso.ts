@@ -21,6 +21,7 @@ import {
 } from '../services/permissao-usuario-servico.js'
 import { AppError } from '../lib/appError.js'
 import { resolverUsuarioPorClerkSub } from '../services/usuario-clerk-resolver.js'
+import { produtoGravityCatalogoServico } from '../services/produto-gravity-catalogo-service.js'
 
 export const accessRouter = Router()
 
@@ -257,15 +258,17 @@ accessRouter.patch('/produtos-gravity/:id_produto_gravity/status', async (req, r
       throw new AppError('Produto não encontrado', 404, 'NOT_FOUND')
     }
 
-    const updated = await prisma.produtoGravity.update({
-      where: { id_produto_gravity: product.id_produto_gravity },
-      data: { status_produto_gravity: status },
+    const updatedDto = await produtoGravityCatalogoServico.update(product.id_produto_gravity, {
+      status: status as 'ATIVO' | 'SUSPENSO' | 'EM_BREVE' | 'LEGADO' | 'INATIVO',
     })
+    if (!updatedDto) {
+      throw new AppError('Produto não encontrado', 404, 'NOT_FOUND')
+    }
 
     res.json({
-      id: updated.id_produto_gravity,
-      slug: updated.slug_produto_gravity,
-      status: updated.status_produto_gravity,
+      id: updatedDto.id,
+      slug: updatedDto.slug,
+      status: updatedDto.status,
     })
   } catch (err) {
     next(err)

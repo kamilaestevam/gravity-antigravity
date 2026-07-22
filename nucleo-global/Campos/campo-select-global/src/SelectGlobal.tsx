@@ -25,6 +25,20 @@ import { CampoGeralGlobal } from '@nucleo/campo-geral-global'
 import type { SelectProps, SelectOpcao } from './tipos.js'
 import './select.css'
 
+function normalizarTextoBuscaSelect(valor: string): string {
+  return valor
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+}
+
+function textoSelectBateBusca(texto: string | undefined, termo: string): boolean {
+  if (!texto) return false
+  const busca = normalizarTextoBuscaSelect(termo)
+  if (!busca) return true
+  return normalizarTextoBuscaSelect(texto).includes(busca)
+}
+
 // ─── Posição do dropdown (fixed) ──────────────────────────────────────────────
 
 type DropdownPos = { top: number; left: number; width: number; above: boolean; maxHeight?: number }
@@ -269,11 +283,12 @@ export function SelectGlobal({
       (op) => op.valor !== '' && op.valor != null
     )
     if (buscaRemota || !busca.trim()) return semVazias
-    const termo = busca.trim().toLowerCase()
+    const termo = busca.trim()
     return semVazias.filter(
       (op) =>
-        op.rotulo.toLowerCase().includes(termo) ||
-        op.descricao?.toLowerCase().includes(termo)
+        textoSelectBateBusca(op.rotulo, termo) ||
+        textoSelectBateBusca(op.descricao, termo) ||
+        textoSelectBateBusca(String(op.valor), termo),
     )
   }, [todasOpcoes, busca, buscaRemota])
 
@@ -317,8 +332,12 @@ export function SelectGlobal({
         ...g,
         opcoes: g.opcoes.filter((op) => {
           if (!busca.trim()) return true
-          const termo = busca.trim().toLowerCase()
-          return op.rotulo.toLowerCase().includes(termo)
+          const termo = busca.trim()
+          return (
+            textoSelectBateBusca(op.rotulo, termo) ||
+            textoSelectBateBusca(op.descricao, termo) ||
+            textoSelectBateBusca(String(op.valor), termo)
+          )
         }),
       }))
       .filter((g) => g.opcoes.length > 0)

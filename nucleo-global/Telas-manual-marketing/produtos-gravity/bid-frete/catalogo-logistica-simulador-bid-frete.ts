@@ -89,6 +89,28 @@ async function carregarCatalogo(): Promise<CatalogoCarregado> {
 
 // ─── Busca de país por termo — paridade com busca-porto-por-pais-cadastros ────
 
+function normalizarTermoBuscaCatalogoSimulador(valor: string): string {
+  return valor
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase()
+}
+
+function nomePortoCatalogoBateBusca(
+  nomePorto: string,
+  nomeAscii: string,
+  busca: string,
+): boolean {
+  const lower = busca.toLowerCase()
+  const ascii = normalizarTermoBuscaCatalogoSimulador(busca)
+  return (
+    nomePorto.toLowerCase().includes(lower)
+    || normalizarTermoBuscaCatalogoSimulador(nomePorto).includes(ascii)
+    || nomeAscii.toLowerCase().includes(ascii)
+  )
+}
+
 function paisesQueBatemTermo(q: string, paises: PaisCatalogoSimulador[]): PaisCatalogoSimulador[] {
   const termo = q.trim()
   const upper = termo.toUpperCase()
@@ -123,9 +145,12 @@ function filtrarCodigosPaisPorBusca(q: string, paises: PaisCatalogoSimulador[]):
   return [...codigos]
 }
 
-/** UN/LOCODE marítimo (2 letras país + 3 letras local). */
+/** UN/LOCODE marítimo — paridade com busca-porto-por-pais-cadastros (só MAIÚSCULAS). */
 function ehBuscaUnlocodeExato(q: string): boolean {
-  return /^[A-Za-z]{2}[A-Za-z0-9]{3}$/.test(q.trim())
+  const termo = q.trim()
+  if (!/^[A-Za-z]{2}[A-Za-z0-9]{3}$/.test(termo)) return false
+  if (termo !== termo.toUpperCase()) return false
+  return true
 }
 
 function buscaUnlocodeExatoDeveUsarMatchDireto(q: string, codigosPaisResolvidos: string[]): boolean {
@@ -170,12 +195,10 @@ function buscarPortos(
       filtrados = catalogo.portos.filter((p) => codigosPaisResolvidos.includes(p.codigo_pais_porto))
     } else {
       const upper = q.toUpperCase()
-      const lower = q.toLowerCase()
       filtrados = catalogo.portos.filter(
         (p) =>
           p.codigo_unlocode_porto.includes(upper) ||
-          p.nome_porto.toLowerCase().includes(lower) ||
-          p.nome_ascii_porto.toLowerCase().includes(lower) ||
+          nomePortoCatalogoBateBusca(p.nome_porto, p.nome_ascii_porto, q) ||
           (codigosPaisResolvidos.length > 0 && codigosPaisResolvidos.includes(p.codigo_pais_porto)),
       )
     }
@@ -192,13 +215,11 @@ function buscarAeroportos(
   let filtrados = catalogo.aeroportos
   if (q) {
     const upper = q.toUpperCase()
-    const lower = q.toLowerCase()
     filtrados = catalogo.aeroportos.filter(
       (a) =>
         a.codigo_unlocode_aeroporto.includes(upper) ||
         a.codigo_iata_aeroporto.includes(upper) ||
-        a.nome_aeroporto.toLowerCase().includes(lower) ||
-        a.nome_ascii_aeroporto.toLowerCase().includes(lower),
+        nomePortoCatalogoBateBusca(a.nome_aeroporto, a.nome_ascii_aeroporto, q),
     )
   }
   return { itens: filtrados.slice(offset, offset + limit), total: filtrados.length }

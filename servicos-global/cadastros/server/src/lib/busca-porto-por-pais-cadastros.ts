@@ -10,6 +10,41 @@ export type PaisReferenciaBuscaPorto = {
   nome_pais_ingles: string
 }
 
+/** Remove diacríticos — paridade com nome_ascii_* e busca sem acento (ex.: itajai → Itajaí). */
+export function normalizarTermoBuscaCadastros(valor: string): string {
+  return valor
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+}
+
+export function montarOrBuscaTextoPortoCadastros(q: string): Prisma.PortoWhereInput[] {
+  const qAscii = normalizarTermoBuscaCadastros(q)
+  const or: Prisma.PortoWhereInput[] = [
+    { codigo_unlocode_porto: { contains: q.toUpperCase() } },
+    { nome_porto: { contains: q, mode: 'insensitive' } },
+    { nome_ascii_porto: { contains: qAscii, mode: 'insensitive' } },
+  ]
+  if (qAscii && qAscii !== q) {
+    or.push({ nome_porto: { contains: qAscii, mode: 'insensitive' } })
+  }
+  return or
+}
+
+export function montarOrBuscaTextoAeroportoCadastros(q: string): Prisma.AeroportoWhereInput[] {
+  const qAscii = normalizarTermoBuscaCadastros(q)
+  const or: Prisma.AeroportoWhereInput[] = [
+    { codigo_unlocode_aeroporto: { contains: q.toUpperCase() } },
+    { codigo_iata_aeroporto: { contains: q.toUpperCase() } },
+    { nome_aeroporto: { contains: q, mode: 'insensitive' } },
+    { nome_ascii_aeroporto: { contains: qAscii, mode: 'insensitive' } },
+  ]
+  if (qAscii && qAscii !== q) {
+    or.push({ nome_aeroporto: { contains: qAscii, mode: 'insensitive' } })
+  }
+  return or
+}
+
 export function filtrarCodigosPaisPorBuscaPorto(
   q: string,
   paises: PaisReferenciaBuscaPorto[],
@@ -44,9 +79,16 @@ export function filtrarCodigosPaisPorBuscaPorto(
   return [...codigos]
 }
 
-/** UN/LOCODE marítimo (2 letras país + 3 letras local). */
+/**
+ * UN/LOCODE marítimo (2 letras país + 3 letras local).
+ * Só trata como código quando digitado em MAIÚSCULAS (CNSHA, BRITJ).
+ * Fragmentos de nome — shang, Itaja, Naveg — seguem busca textual no Bid Frete.
+ */
 export function ehBuscaUnlocodeExato(q: string): boolean {
-  return /^[A-Za-z]{2}[A-Za-z0-9]{3}$/.test(q.trim())
+  const termo = q.trim()
+  if (!/^[A-Za-z]{2}[A-Za-z0-9]{3}$/.test(termo)) return false
+  if (termo !== termo.toUpperCase()) return false
+  return true
 }
 
 /** Match direto por código — exceto quando prefixo não bate com país resolvido por nome ("CHINA" → CN, não CH). */
@@ -121,11 +163,7 @@ export function montarWhereBuscaPortoCadastros(opcoes: {
     }
   }
 
-  const or: Prisma.PortoWhereInput[] = [
-    { codigo_unlocode_porto: { contains: q.toUpperCase() } },
-    { nome_porto: { contains: q, mode: 'insensitive' } },
-    { nome_ascii_porto: { contains: q, mode: 'insensitive' } },
-  ]
+  const or = montarOrBuscaTextoPortoCadastros(q)
 
   if (codigosPaisResolvidos.length > 0 && !paisFiltro) {
     or.push({ codigo_pais_porto: { in: codigosPaisResolvidos } })

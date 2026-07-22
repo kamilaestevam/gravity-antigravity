@@ -7,6 +7,7 @@ import { Prisma } from '../../../generated/index.js'
 import { requireInternalKey } from '../middleware/internal-key.js'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/app-error.js'
+import { montarOrBuscaTextoAeroportoCadastros } from '../lib/busca-porto-por-pais-cadastros.js'
 
 const router = Router()
 router.use(requireInternalKey)
@@ -25,16 +26,7 @@ router.get('/', async (req, res, next) => {
     const where: Prisma.AeroportoWhereInput = {
       ...(apenasAtivos ? { ativo_aeroporto: true } : {}),
       ...(pais ? { codigo_pais_aeroporto: pais } : {}),
-      ...(q
-        ? {
-            OR: [
-              { codigo_unlocode_aeroporto: { contains: q.toUpperCase() } },
-              { codigo_iata_aeroporto: { contains: q.toUpperCase() } },
-              { nome_aeroporto: { contains: q, mode: 'insensitive' } },
-              { nome_ascii_aeroporto: { contains: q, mode: 'insensitive' } },
-            ],
-          }
-        : {}),
+      ...(q ? { OR: montarOrBuscaTextoAeroportoCadastros(q) } : {}),
     }
 
     const [itens, total] = await Promise.all([
